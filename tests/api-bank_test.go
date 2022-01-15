@@ -10,13 +10,6 @@ const (
 	erroMsg = "Valor esperado %v, resultado encontrado %v"
 )
 
-func TestGetIsProduction(t *testing.T) {
-	if bankAPI.GetIsProduction() == true {
-		t.Error(erroMsg)
-	}
-
-}
-
 func TestSetIsProduction(t *testing.T) {
 
 	checkResult := func(t *testing.T, resultado, esperado bool) {
