@@ -23,5 +23,3 @@ func SetIsProduction(isInProduction bool) {
 func GetIsProduction() bool {
 	return isProd
 }
-
-//------------------ FIM ARQUIVO GO --------------------------------------
