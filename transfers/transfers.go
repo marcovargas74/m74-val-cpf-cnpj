@@ -1,9 +1,31 @@
 package transfers
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 func transfer() {
 	fmt.Println("transfer")
+}
+
+type transfers struct {
+	ID                     string  `json:"id"`
+	Account_origin_id      string  `json:"acount_origin_id"`
+	Account_destination_id string  `json:"Account_destination_id"`
+	Amount                 float64 `json:"Amount"`
+	Created_at             string  `json:"created_at"` //TODO change to date
+}
+
+func structAndJson() {
+	transfer1 := transfers{"xyz", "abc", "def", 12.00, "17-01-2022"}
+	transfJson, _ := json.Marshal(transfer1)
+	fmt.Println(string(transfJson))
+	//Convert Json To struct
+	var aTransfFromJson transfers
+	json.Unmarshal(transfJson, &aTransfFromJson)
+	fmt.Println(aTransfFromJson.ID)
+
 }
 
 /*
