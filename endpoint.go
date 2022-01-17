@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	serverPort = ":8080"
+	serverPort = ":5000"
 )
 
 func getPlayerPoints(name string) string {
@@ -47,6 +47,24 @@ func DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Endpoint not found")
 }
 
+/*
+ * BANK INICIA AQUI
+ */
+func callbackAccount(w http.ResponseWriter, r *http.Request) {
+	message := fmt.Sprintf("callbackAccount data in %v\n", r.URL)
+	fmt.Fprint(w, message)
+}
+
+func callbackLogin(w http.ResponseWriter, r *http.Request) {
+	message := fmt.Sprintf("callbackLogin data in %v\n", r.URL)
+	fmt.Fprint(w, message)
+}
+
+func callbackTransfer(w http.ResponseWriter, r *http.Request) {
+	message := fmt.Sprintf("callbackTransfer data in %v\n", r.URL)
+	fmt.Fprint(w, message)
+}
+
 //StartAPI inicia o servidor http
 func StartAPI(modo string) {
 	//tratador := http.HandlerFunc(ServidorJogador)
@@ -60,4 +78,9 @@ func HandleFuncions() {
 	http.HandleFunc("/", DefaultEndpoint)
 	http.HandleFunc("/jogadores/Maria", ServidorJogador)
 	http.HandleFunc("/jogadores/Pedro", ServidorJogador)
+
+	//*TODO endpoint usado no banc
+	http.HandleFunc("/accounts", callbackAccount)
+	http.HandleFunc("/login", callbackLogin)
+	http.HandleFunc("/transfers", callbackTransfer)
 }
