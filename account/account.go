@@ -9,13 +9,15 @@ const (
 	aConst = "ola"
 )
 
-/*TODO:criar uma classe clinete e outra accout
-  account vai ter cleint + saldo*/
+/*TODO: refatorar para que a struct
+  seja composta pela strucr login + client*/
 
 type account struct {
+	//login
+	CPF    string `json:"cpf"`
+	Secret string `json:"secret"`
+	//client
 	ID         string  `json:"id"`
-	CPF        string  `json:"cpf"`
-	Secret     string  `json:"secret"`
 	Name       string  `json:"name"`
 	Balance    float64 `json:"balance"`
 	Created_at string  `json:"created_at"` //TODO change to date
