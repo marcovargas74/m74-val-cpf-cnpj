@@ -1,25 +1,40 @@
 package account
 
+import (
+	"encoding/json"
+	"fmt"
+)
+
 const (
 	aConst = "ola"
 )
 
+/*TODO:criar uma classe clinete e outra accout
+  account vai ter cleint + saldo*/
 
-struct 
-
-func getCliente(name string) string {
-
-	if name == "Maria" {
-		return "20"
-	}
-
-	if name == "Pedro" {
-		return "10"
-	}
-	return ""
-
+type account struct {
+	ID         string  `json:"id"`
+	CPF        string  `json:"cpf"`
+	Secret     string  `json:"secret"`
+	Name       string  `json:"name"`
+	Balance    float64 `json:"balance"`
+	Created_at string  `json:"created_at"` //TODO change to date
 }
 
+func (a account) setId(name string) {
+	a.Name = "Maria"
+}
+
+func structAndJson() {
+	accountMaria := account{"abc", "111.111.111-11", "111", "Maria", 0, "17-01-2022"}
+	mariaJson, _ := json.Marshal(accountMaria)
+	fmt.Println(string(mariaJson))
+	//Convert Json To struct
+	var accountFromJson account
+	json.Unmarshal(mariaJson, &accountFromJson)
+	fmt.Println(accountFromJson.Name)
+
+}
 
 /*
 
