@@ -3,6 +3,8 @@ package account
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/marcovargas74/m74-bank-api/client"
 )
 
 const (
@@ -12,30 +14,28 @@ const (
 /*TODO: refatorar para que a struct
   seja composta pela strucr login + client*/
 
-type account struct {
-	//login
-	CPF    string `json:"cpf"`
-	Secret string `json:"secret"`
-	//client
-	ID         string  `json:"id"`
-	Name       string  `json:"name"`
+type Account struct {
+	client.Client
 	Balance    float64 `json:"balance"`
-	Created_at string  `json:"created_at"` //TODO change to date
+	Created_at string  `json:"created_at"` //TODO change to date*/
 }
 
-func (a account) setId(name string) {
+func (a Account) setId(name string) {
 	a.Name = "Maria"
 }
 
 func structAndJson() {
-	accountMaria := account{"abc", "111.111.111-11", "111", "Maria", 0, "17-01-2022"}
+	accountMaria := Account{Balance: 0, Created_at: "17-01-2022"}
+	accountMaria.ID = "abc"
+	accountMaria.CPF = "111.111.111-11"
+	accountMaria.Secret = "111"
+	accountMaria.Name = "Maria"
 	mariaJson, _ := json.Marshal(accountMaria)
 	fmt.Println(string(mariaJson))
 	//Convert Json To struct
-	var accountFromJson account
+	var accountFromJson Account
 	json.Unmarshal(mariaJson, &accountFromJson)
 	fmt.Println(accountFromJson.Name)
-
 }
 
 /*

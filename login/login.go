@@ -5,17 +5,18 @@ import (
 	"fmt"
 )
 
-type login struct {
+// LoginBank
+type LoginBank struct {
 	CPF    string `json:"cpf"`
 	Secret string `json:"secret"`
 }
 
 func structAndJson() {
-	myLogin := login{"111.111.111-11", "111"}
+	myLogin := LoginBank{CPF: "111.111.111-11", Secret: "111"}
 	loginJson, _ := json.Marshal(myLogin)
 	fmt.Println(string(loginJson))
 	//Convert Json To struct
-	var myNewLogin login
+	var myNewLogin LoginBank
 	json.Unmarshal(loginJson, &myNewLogin)
 	fmt.Println(myNewLogin.Secret)
 

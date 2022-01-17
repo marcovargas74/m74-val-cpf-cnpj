@@ -9,7 +9,7 @@ func transfer() {
 	fmt.Println("transfer")
 }
 
-type transfers struct {
+type TransferBank struct {
 	ID                     string  `json:"id"`
 	Account_origin_id      string  `json:"acount_origin_id"`
 	Account_destination_id string  `json:"Account_destination_id"`
@@ -18,11 +18,11 @@ type transfers struct {
 }
 
 func structAndJson() {
-	transfer1 := transfers{"xyz", "abc", "def", 12.00, "17-01-2022"}
+	transfer1 := TransferBank{"xyz", "abc", "def", 12.00, "17-01-2022"}
 	transfJson, _ := json.Marshal(transfer1)
 	fmt.Println(string(transfJson))
 	//Convert Json To struct
-	var aTransfFromJson transfers
+	var aTransfFromJson TransferBank
 	json.Unmarshal(transfJson, &aTransfFromJson)
 	fmt.Println(aTransfFromJson.ID)
 
