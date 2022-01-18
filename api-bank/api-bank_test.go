@@ -2,8 +2,6 @@ package m74bankAPI
 
 import (
 	"testing"
-
-	bankAPI "github.com/marcovargas74/m74-bank-api"
 )
 
 const (
@@ -21,16 +19,16 @@ func TestSetIsProduction(t *testing.T) {
 
 	t.Run("test function with true", func(t *testing.T) {
 		valorEsperado := true
-		bankAPI.SetIsProduction(valorEsperado)
-		valorRetornado := bankAPI.GetIsProduction()
+		SetIsProduction(valorEsperado)
+		valorRetornado := GetIsProduction()
 
 		checkResult(t, valorRetornado, valorEsperado)
 	})
 
 	t.Run("test function with false", func(t *testing.T) {
 		valorEsperado := false
-		bankAPI.SetIsProduction(valorEsperado)
-		valorRetornado := bankAPI.GetIsProduction()
+		SetIsProduction(valorEsperado)
+		valorRetornado := GetIsProduction()
 
 		checkResult(t, valorRetornado, valorEsperado)
 	})

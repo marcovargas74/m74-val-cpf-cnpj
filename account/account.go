@@ -3,8 +3,6 @@ package account
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/marcovargas74/m74-bank-api/client"
 )
 
 const (
@@ -15,7 +13,7 @@ const (
   seja composta pela strucr login + client*/
 
 type Account struct {
-	client.Client
+	Client
 	Balance    float64 `json:"balance"`
 	Created_at string  `json:"created_at"` //TODO change to date*/
 }
@@ -24,7 +22,7 @@ func (a Account) setId(name string) {
 	a.Name = "Maria"
 }
 
-func structAndJson() {
+func StructAndJson() {
 	accountMaria := Account{Balance: 0, Created_at: "17-01-2022"}
 	accountMaria.ID = "abc"
 	accountMaria.CPF = "111.111.111-11"

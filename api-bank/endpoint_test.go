@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	bankAPI "github.com/marcovargas74/m74-bank-api"
 )
 
 func newReqGetPoints(name string) *http.Request {
@@ -26,14 +24,14 @@ func TestObterJogadores(t *testing.T) {
 		requisicao := newReqGetPoints("Maria")
 		resposta := httptest.NewRecorder()
 
-		bankAPI.ServidorJogador(resposta, requisicao)
+		ServidorJogador(resposta, requisicao)
 	})
 
 	t.Run("retornar resultado de Pedro", func(t *testing.T) {
 		requisicao := newReqGetPoints("Pedro")
 		resposta := httptest.NewRecorder()
 
-		bankAPI.ServidorJogador(resposta, requisicao)
+		ServidorJogador(resposta, requisicao)
 
 		recebido := resposta.Body.String()
 		esperado := "10"

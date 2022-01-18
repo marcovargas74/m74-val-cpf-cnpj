@@ -1,15 +1,15 @@
-package client
+package account
 
 import (
 	"fmt"
 
-	"github.com/marcovargas74/m74-bank-api/login"
+	bankAPI "github.com/marcovargas74/m74-bank-api/api-bank"
 )
 
 type Client struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
-	login.LoginBank
+	bankAPI.Login
 }
 
 func (c *Client) setId(aID, name string) {

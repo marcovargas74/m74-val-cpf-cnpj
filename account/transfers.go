@@ -1,4 +1,4 @@
-package transfers
+package account
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ type TransferBank struct {
 	Created_at             string  `json:"created_at"` //TODO change to date
 }
 
-func structAndJson() {
+func structAndJsonTransfer() {
 	transfer1 := TransferBank{"xyz", "abc", "def", 12.00, "17-01-2022"}
 	transfJson, _ := json.Marshal(transfer1)
 	fmt.Println(string(transfJson))
