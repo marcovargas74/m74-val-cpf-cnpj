@@ -3,7 +3,7 @@ package account
 import (
 	"fmt"
 
-	bankAPI "github.com/marcovargas74/m74-bank-api/api-bank"
+	bankAPI "github.com/marcovargas74/m74-bank-api/src/api-bank"
 )
 
 type Client struct {

@@ -1,4 +1,4 @@
-package m74bankAPI
+package m74bankapi
 
 const (
 	versionPackage = "2022-01-15"

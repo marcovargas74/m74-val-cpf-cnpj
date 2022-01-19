@@ -1,4 +1,4 @@
-package m74bankAPI
+package m74bankapi
 
 import (
 	"encoding/json"
