@@ -2,39 +2,70 @@ package m74bankapi
 
 import (
 	"testing"
+
+	"github.com/magiconair/properties/assert"
 )
 
 const (
 	erroMsg = "Valor esperado %v, resultado encontrado %v"
 )
 
-func TestSetIsProduction(t *testing.T) {
+func TestGetVersion(t *testing.T) {
 
-	checkResult := func(t *testing.T, resultado, esperado bool) {
-		t.Helper()
-		if resultado != esperado {
-			t.Errorf(erroMsg, resultado, esperado)
-		}
+	tests := []struct {
+		give      string
+		wantValue string
+	}{
+		{
+			give:      "Test if get version OK",
+			wantValue: "2022",
+		},
 	}
 
-	t.Run("test function with true", func(t *testing.T) {
-		valorEsperado := true
-		SetIsProduction(valorEsperado)
-		valorRetornado := GetIsProduction()
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			version := GetVersion()
+			//fmt.Printf("valor: %v\n", valorRetornado[0:4])
+			assert.Equal(t, version[0:4], tt.wantValue)
+		})
 
-		checkResult(t, valorRetornado, valorEsperado)
-	})
-
-	t.Run("test function with false", func(t *testing.T) {
-		valorEsperado := false
-		SetIsProduction(valorEsperado)
-		valorRetornado := GetIsProduction()
-
-		checkResult(t, valorRetornado, valorEsperado)
-	})
+	}
 
 }
 
+func TestSetAnGetIsProduction(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue bool
+		dataIn    bool
+	}{
+		{
+			give:      "test function with true",
+			wantValue: true,
+			dataIn:    true,
+		},
+		{
+			give:      "test function with false",
+			wantValue: false,
+			dataIn:    false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			SetIsProduction(tt.dataIn)
+			assert.Equal(t, GetIsProduction(), tt.wantValue)
+			//checkResultBool(t, tt.wantValue, valorRetornado)
+			//checkResult(t, valorRetornado, wantValue)
+
+		})
+
+	}
+
+}
+
+/*
 func TestExampleTesteFunc(t *testing.T) {
 	tests := []struct {
 		entrada  bool
@@ -63,47 +94,4 @@ func TestExampleTesteFunc(t *testing.T) {
 		}
 	}
 
-}
-
-/*
-// func TestSplitHostPort(t *testing.T)
-
-tests := []struct{
-  give     string
-  wantHost string
-  wantPort string
-}{
-  {
-    give:     "192.0.2.0:8000",
-    wantHost: "192.0.2.0",
-    wantPort: "8000",
-  },
-  {
-    give:     "192.0.2.0:http",
-    wantHost: "192.0.2.0",
-    wantPort: "http",
-  },
-  {
-    give:     ":8000",
-    wantHost: "",
-    wantPort: "8000",
-  },
-  {
-    give:     "1:8",
-    wantHost: "1",
-    wantPort: "8",
-  },
-}
-
-for _, tt := range tests {
-  t.Run(tt.give, func(t *testing.T) {
-    host, port, err := net.SplitHostPort(tt.give)
-    require.NoError(t, err)
-    assert.Equal(t, tt.wantHost, host)
-    assert.Equal(t, tt.wantPort, port)
-  })
-}
-
-
-
-*/
+}*/

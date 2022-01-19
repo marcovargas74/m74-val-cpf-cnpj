@@ -2,7 +2,6 @@ package m74bankapi
 
 const (
 	versionPackage = "2022-01-15"
-	exemplebool    = true
 )
 
 //usado para dizer se está em modo producao ou desenvolvimento
