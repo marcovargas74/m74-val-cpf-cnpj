@@ -16,7 +16,7 @@ func init() {
 func main() {
 	fmt.Printf("======== API BANK Version %s isPruduction=%v\n", bank.GetVersion(), bank.GetIsProduction())
 
-	account.StructAndJson()
+	account.StructAndJSON()
 	bank.StartAPI("dev")
 
 	/*tratador := http.HandlerFunc(bankAPI.ServidorJogador)

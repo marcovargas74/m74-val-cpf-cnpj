@@ -5,35 +5,38 @@ import (
 	"fmt"
 )
 
+/*
 const (
 	aConst = "ola"
-)
+)*/
 
 /*TODO: refatorar para que a struct
   seja composta pela strucr login + client*/
 
+//Account Struct Used to creat a account
 type Account struct {
 	Client
-	Balance    float64 `json:"balance"`
-	Created_at string  `json:"created_at"` //TODO change to date*/
+	Balance   float64 `json:"balance"`
+	CreatedAt string  `json:"created_at"` //TODO change to date*/
 }
 
-func (a Account) setId(name string) {
+func (a Account) setID(name string) {
 	a.Name = "Maria"
 }
 
-func StructAndJson() {
-	accountMaria := Account{Balance: 0, Created_at: "17-01-2022"}
+//StructAndJSON Just Test
+func StructAndJSON() {
+	accountMaria := Account{Balance: 0, CreatedAt: "17-01-2022"}
 	accountMaria.ID = "abc"
 	accountMaria.CPF = "111.111.111-11"
 	accountMaria.Secret = "111"
 	accountMaria.Name = "Maria"
-	mariaJson, _ := json.Marshal(accountMaria)
-	fmt.Println(string(mariaJson))
+	mariaJSON, _ := json.Marshal(accountMaria)
+	fmt.Println(string(mariaJSON))
 	//Convert Json To struct
-	var accountFromJson Account
-	json.Unmarshal(mariaJson, &accountFromJson)
-	fmt.Println(accountFromJson.Name)
+	var accountFromJSON Account
+	json.Unmarshal(mariaJSON, &accountFromJSON)
+	fmt.Println(accountFromJSON.Name)
 }
 
 /*
