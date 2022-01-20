@@ -38,27 +38,26 @@ func TestSetAnGetIsProduction(t *testing.T) {
 	tests := []struct {
 		give      string
 		wantValue bool
-		dataIn    bool
+		inData    bool
 	}{
 		{
 			give:      "test function with true",
 			wantValue: true,
-			dataIn:    true,
+			inData:    true,
 		},
 		{
 			give:      "test function with false",
 			wantValue: false,
-			dataIn:    false,
+			inData:    false,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			SetIsProduction(tt.dataIn)
+			SetIsProduction(tt.inData)
 			assert.Equal(t, GetIsProduction(), tt.wantValue)
 			//checkResultBool(t, tt.wantValue, valorRetornado)
 			//checkResult(t, valorRetornado, wantValue)
-
 		})
 
 	}

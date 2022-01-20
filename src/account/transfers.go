@@ -9,22 +9,23 @@ func transfer() {
 	fmt.Println("transfer")
 }
 
+//TransferBank is A struct to used to make a transfer
 type TransferBank struct {
-	ID                     string  `json:"id"`
-	Account_origin_id      string  `json:"acount_origin_id"`
-	Account_destination_id string  `json:"Account_destination_id"`
-	Amount                 float64 `json:"Amount"`
-	Created_at             string  `json:"created_at"` //TODO change to date
+	ID                   string  `json:"id"`
+	AccountOriginID      string  `json:"acount_origin_id"`
+	AccountDestinationID string  `json:"Account_destination_id"`
+	Amount               float64 `json:"Amount"`
+	CreatedAt            string  `json:"created_at"` //TODO change to date
 }
 
-func structAndJsonTransfer() {
+func structAndJSONTransfer() {
 	transfer1 := TransferBank{"xyz", "abc", "def", 12.00, "17-01-2022"}
-	transfJson, _ := json.Marshal(transfer1)
-	fmt.Println(string(transfJson))
+	transfJSON, _ := json.Marshal(transfer1)
+	fmt.Println(string(transfJSON))
 	//Convert Json To struct
-	var aTransfFromJson TransferBank
-	json.Unmarshal(transfJson, &aTransfFromJson)
-	fmt.Println(aTransfFromJson.ID)
+	var aTransfFromJSON TransferBank
+	json.Unmarshal(transfJSON, &aTransfFromJSON)
+	fmt.Println(aTransfFromJSON.ID)
 
 }
 
