@@ -22,6 +22,16 @@ func newReqEndpointsPOST(urlPrefix, urlName string) *http.Request {
 	fmt.Printf("endpoint: %v\n", request.URL)
 	return request
 }
+
+const tipoDoConteudoJSON = "application/json"
+
+func verificaTipoDoConteudo(t *testing.T, resposta *httptest.ResponseRecorder, esperado string) {
+	t.Helper()
+	if resposta.Result().Header.Get("content-type") != esperado {
+		t.Errorf("resposta não obteve content-type de %s, obtido %v", esperado, resposta.Result().Header)
+	}
+}
+
 func TestServerBank(t *testing.T) {
 
 	tests := []struct {
@@ -81,16 +91,15 @@ func TestCallbackAccountGET(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsGET("/accounts", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackAccounts(resposta, requisicao)
-
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
 		})
@@ -123,15 +132,15 @@ func TestCallbackAccountPost(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsPOST("/accounts", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackAccounts(resposta, requisicao)
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -164,15 +173,15 @@ func TestCallbackLoginGET(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsGET("/login", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackLogin(resposta, requisicao)
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -206,15 +215,15 @@ func TestCallbackLoginPOST(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsPOST("/login", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackLogin(resposta, requisicao)
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -248,15 +257,15 @@ func TestCallbackTransferGET(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsGET("/transfers", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackTransfer(resposta, requisicao)
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -290,15 +299,15 @@ func TestCallbackTransferPOST(t *testing.T) {
 		},
 	}
 
-	server := new(ServerBank)
-
+	server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
 			requisicao := newReqEndpointsPOST("/transfers", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			server.CallbackLogin(resposta, requisicao)
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)

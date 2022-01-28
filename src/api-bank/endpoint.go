@@ -17,10 +17,9 @@ type ServerBank struct {
 
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("content-type", "application/json")
 	accountID := r.URL.Path[len("/accounts/"):]
 	fmt.Printf("Account Body: %v\n", r.Body)
-
-	//w.Header().Set("content-type", "application/json")
 
 	switch r.Method {
 	case http.MethodPost:
@@ -49,7 +48,7 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 	client := r.URL.Path[len("/login/"):]
 	fmt.Printf("Login Body: %v\n", r.Body)
 
-	//w.Header().Set("content-type", "application/json")
+	w.Header().Set("content-type", "application/json")
 
 	switch r.Method {
 	case http.MethodPost:
@@ -73,10 +72,9 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("content-type", "application/json")
 	transfer := r.URL.Path[len("/transfers/"):]
 	fmt.Printf("tranfer: %v\n", r.Body)
-
-	//w.Header().Set("content-type", "application/json")
 
 	switch r.Method {
 	case http.MethodPost:
@@ -102,6 +100,7 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
 func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("content-type", "application/json")
 	fmt.Printf("Default data in %v\n", r.URL)
 	if r.Method == http.MethodPost {
 		w.WriteHeader(http.StatusAccepted)
