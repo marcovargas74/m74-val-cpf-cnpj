@@ -5,8 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	//"github.com/marcovargas74/m74-bank-api/src/account"
-	//"github.com/marcovargas74/m74-bank-api/src/account"
+	"github.com/gorilla/mux"
 	account "github.com/marcovargas74/m74-bank-api/src/account"
 )
 
@@ -21,7 +20,8 @@ type ServerBank struct {
 
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("content-type", "application/json")
+	//w.Header().Set("content-type", "application/json")
+	//fmt.Printf("!!!CallbackFindAccounts %v\n", r.URL)
 
 	switch r.Method {
 	case http.MethodPost:
@@ -30,17 +30,46 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		var accountJSON account.Account
 		accountJSON.GetAccounts(w, r)
-		//message := fmt.Sprintf("GET %v", r.URL)
-		//fmt.Printf("accountID GET %s", accountID)
-		//fmt.Fprint(w, message)
-		//w.WriteHeader(http.StatusOK)
-		//s.mostraPontuacao(w, accountID)
 	default:
 		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
 		//fmt.Printf("accountID %s", accountID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusOK)
 	}
+
+}
+
+func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
+
+	fmt.Printf("!!!CallbackFindAccountID GET %v\n", r.URL)
+	//w.Header().Set("content-type", "application/json")
+
+	//const logKey = "find_balance_account"
+	accountID := mux.Vars(r)
+	w.WriteHeader(http.StatusOK)
+	fmt.Printf("accountID [%s] \n", accountID["account_id"])
+	/*if !domain.IsValidUUID(accountID) {
+		var err = response.ErrParameterInvalid
+		logging.NewError(
+			a.log,
+			err,
+			logKey,
+			http.StatusBadRequest,
+		).Log("invalid parameter")
+
+		response.NewError(err, http.StatusBadRequest).Send(w)
+		return
+	}*/
+
+	if r.Method == http.MethodGet {
+		var accountJSON account.Account
+		accountJSON.GetAccountByID(w, r, accountID["account_id"])
+	}
+
+	message := fmt.Sprintf("CallbackFindAccountID data in %v", r.URL)
+	//fmt.Printf("accountID %s", accountID)
+	fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusBadRequest)
 
 }
 
@@ -119,15 +148,25 @@ func NewServerBank() *ServerBank {
 	server := new(ServerBank)
 	//s.Armazenamento = Armazenamento
 
-	router := http.NewServeMux()
+	/*router := http.NewServeMux()
 	router.Handle("/", http.HandlerFunc(server.DefaultEndpoint))
 	router.Handle("/accounts", http.HandlerFunc(server.CallbackAccounts))
-	//api.Handle("/accounts/{account_id}/balance", g.buildFindBalanceAccountAction()).Methods(http.MethodGet)
-
+	router.Handle("/accounts/{account_id}/balance", http.HandlerFunc(server.CallbackFindAccountID))
 	router.Handle("/login/", http.HandlerFunc(server.CallbackLogin))
-	router.Handle("/transfers/", http.HandlerFunc(server.CallbackTransfer))
+	router.Handle("/transfers/", http.HandlerFunc(server.CallbackTransfer))*/
 
-	server.Handler = router
+	//GORILAS
+	routerG := mux.NewRouter()
+	//routerG.
+	routerG.HandleFunc("/", server.DefaultEndpoint)
+	routerG.HandleFunc("/accounts", server.CallbackAccounts)
+	routerG.HandleFunc("/accounts/{account_id}/balance", server.CallbackFindAccountID)
+	routerG.HandleFunc("/login/", server.CallbackLogin)
+	routerG.HandleFunc("/transfers/", server.CallbackTransfer)
+
+	server.Handler = routerG
+
+	//server.Handler = router
 	return server
 
 }

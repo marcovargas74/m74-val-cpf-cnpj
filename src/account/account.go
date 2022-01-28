@@ -116,3 +116,12 @@ func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 }
+
+func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
+
+	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
+	message := StructAndJSON()
+
+	fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusOK)
+}
