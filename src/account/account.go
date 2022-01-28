@@ -3,6 +3,7 @@ package account
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 /*
@@ -10,23 +11,50 @@ const (
 	aConst = "ola"
 )*/
 
-/*TODO: refatorar para que a struct
-  seja composta pela strucr login + client*/
+/*TODO: refatorar para validar todos os dados /
+//Account Struct Used to creat a account
+type Account struct {
+	ID        string  `json:"id" validate:"required,uuid4"`
+	Name      string  `json:"name "validate:"min=3,max=40,regexp=^[a-zA-Z]*$""`
+	CPF       string  `json:"cpf" required`
+	Balance   float64 `json:"balance" validate:"gt=0,required"`
+	Secret    string  `json:"secret" validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
+	CreatedAt string  `json:"created_at"`
+
+}
+*/
 
 //Account Struct Used to creat a account
 type Account struct {
-	Client
-	Balance   float64 `json:"balance"`
-	CreatedAt string  `json:"created_at"` //TODO change to date*/
+	ID        string    `json:"id"`
+	Name      string    `json:"name" validate:"min=3,max=40"`
+	CPF       string    `json:"cpf"`
+	Balance   float64   `json:"balance"`
+	Secret    string    `json:"secret" `
+	CreatedAt time.Time `json:"created_at"`
 }
 
-func (a Account) setID(name string) {
+func (a *Account) Deposit(amount float64) {
+	a.Balance += amount
+}
+
+/*func (a Account) setID(name string) {
 	a.Name = "Maria"
+}*/
+
+func (a Account) ValidName(name string) bool {
+	isValid := false
+	if name != "" {
+		isValid = true
+	}
+
+	return isValid
 }
 
 //StructAndJSON Just Test
 func StructAndJSON() {
-	accountMaria := Account{Balance: 0, CreatedAt: "17-01-2022"}
+	//var create time.Time
+	accountMaria := Account{Balance: 0, CreatedAt: time.Now()}
 	accountMaria.ID = "abc"
 	accountMaria.CPF = "111.111.111-11"
 	accountMaria.Secret = "111"

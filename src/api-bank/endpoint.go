@@ -1,9 +1,15 @@
 package m74bankapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+
+	//"github.com/marcovargas74/m74-bank-api/src/account"
+	//"github.com/marcovargas74/m74-bank-api/src/account"
+	account "github.com/marcovargas74/m74-bank-api/src/account"
+	"gopkg.in/validator.v2"
 )
 
 const (
@@ -18,8 +24,28 @@ type ServerBank struct {
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "application/json")
-	accountID := r.URL.Path[len("/accounts/"):]
-	fmt.Printf("Account Body: %v\n", r.Body)
+	//accountID := r.URL.Path[len("/accounts/"):]
+	//fmt.Printf("Account Body: %v\n", r.Body)
+	//fmt.Printf("Account R Body: %v\n", r)
+	//fmt.Printf("Account W Body: %v\n", w)
+
+	//Convert Json To struct
+	var accountJSON account.Account
+	if err := json.NewDecoder(r.Body).Decode(&accountJSON); err != nil {
+		//r.Err.NewError(err, http.StatusBadRequest).Send(w)
+		return
+	}
+
+	//acc := Account{Name: tt.inName, Balance: 0.00}
+	if errs := validator.Validate(accountJSON); errs != nil {
+		fmt.Printf("INVALIDO %v\n", errs) // do something
+		w.WriteHeader(http.StatusBadRequest)
+	}
+
+	defer r.Body.Close()
+
+	//json.Unmarshal(mariaJSON, &accountFromJSON)
+	fmt.Printf("Name:%s  cpf:%s balance %.2f\n", accountJSON.Name, accountJSON.CPF, accountJSON.Balance)
 
 	switch r.Method {
 	case http.MethodPost:
@@ -30,13 +56,13 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 		//s.processaVitoria(w, accountID)
 	case http.MethodGet:
 		message := fmt.Sprintf("GET %v", r.URL)
-		fmt.Printf("accountID GET %s", accountID)
+		//fmt.Printf("accountID GET %s", accountID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusOK)
 		//s.mostraPontuacao(w, accountID)
 	default:
 		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
-		fmt.Printf("accountID %s", accountID)
+		//fmt.Printf("accountID %s", accountID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusOK)
 	}
@@ -120,7 +146,9 @@ func NewServerBank() *ServerBank {
 
 	router := http.NewServeMux()
 	router.Handle("/", http.HandlerFunc(server.DefaultEndpoint))
-	router.Handle("/accounts/", http.HandlerFunc(server.CallbackAccounts))
+	router.Handle("/accounts", http.HandlerFunc(server.CallbackAccounts))
+	//api.Handle("/accounts/{account_id}/balance", g.buildFindBalanceAccountAction()).Methods(http.MethodGet)
+
 	router.Handle("/login/", http.HandlerFunc(server.CallbackLogin))
 	router.Handle("/transfers/", http.HandlerFunc(server.CallbackTransfer))
 
