@@ -1,11 +1,14 @@
 package account
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
 
+	_ "github.com/go-sql-driver/mysql"
+	uuid "github.com/satori/go.uuid"
 	"gopkg.in/validator.v2"
 )
 
@@ -68,6 +71,20 @@ func StructAndJSON() string {
 	fmt.Println(accountFromJSON.Name)*/
 }
 
+func NewUUID() string {
+	uuidNew, _ := uuid.NewV4()
+	//fmt.Printf("UUIDv4: %s\n", u1)
+	return uuidNew.String()
+	//return gouuid.NewV4().String()
+
+}
+
+func IsValidUUID(uuidVal string) bool {
+	//_, err := uuid.FromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	_, err := uuid.FromString(uuidVal)
+	return err == nil
+}
+
 /*
 
 A entidade Account possui os seguintes atributos:
@@ -88,7 +105,7 @@ Regras para esta rota
 balance pode iniciar com 0 ou algum valor para simplificar
 secret deve ser armazenado como hash
 
-
+´
 */
 
 func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
@@ -105,7 +122,35 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer r.Body.Close()
-	message := fmt.Sprintf("POST %v", r.URL)
+
+	a.ID = NewUUID()
+	a.CreatedAt = time.Now()
+	fmt.Printf("UUIDv4: %s\n", a.ID)
+
+	// Parsing UUID from string input
+	//IsValidUUID
+	///*u2, err := uuid.FromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
+	if !IsValidUUID(a.ID) {
+		fmt.Printf("Something gone wrong:")
+	}
+	//fmt.Printf("Successfully parsed: %s", u2)
+	/*
+		var account = domain.NewAccount(
+			domain.AccountID(domain.NewUUID()),
+			input.Name,
+			input.CPF,
+			domain.Money(input.Balance),
+			time.Now(),
+		)
+
+		account, err := a.repo.Create(ctx, account)
+		if err != nil {
+			return a.presenter.Output(domain.Account{}), err
+		}
+
+		return a.presenter.Output(account), nil*/
+
+	message := fmt.Sprintf("POST %v ID:%v", r.URL, a.ID)
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 
@@ -120,8 +165,129 @@ func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
 func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
 
 	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
+	if !IsValidUUID(ID) {
+		fmt.Printf("Something gone wrong:")
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	message := StructAndJSON()
 
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
+}
+
+/*
+
+package main
+
+import (
+	"database/sql"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+//Usuario :)
+type Usuario struct {
+	ID   int    `json:"id"`
+	Nome string `json:"nome"`
+}
+
+//UsuarioHandler analisa o request e delega para função adequada
+func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
+	sid := strings.TrimPrefix(r.URL.Path, "/usuarios/")
+	id, _ := strconv.Atoi(sid)
+
+	switch {
+	case r.Method == "GET" && id > 0:
+		usuarioPorID(w, r, id)
+
+	case r.Method == "GET":
+		usuarioTodos(w, r)
+
+	default:
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprintf(w, "Desculpa... :(")
+	}
+
+}
+
+func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var u Usuario
+	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
+	json, _ := json.Marshal(u)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+}
+
+func usuarioTodos(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, _ := db.Query("select id, nome from usuarios")
+	defer rows.Close()
+
+	var usuarios []Usuario
+	for rows.Next() {
+		var usuario Usuario
+		rows.Scan(&usuario.ID, &usuario.Nome)
+		usuarios = append(usuarios, usuario)
+	}
+
+	json, _ := json.Marshal(usuarios)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+
+}
+*/
+
+/*Antes de Usar o Banco deve-se Subir o servidor
+service mysqld start
+*/
+
+func exec(db *sql.DB, sql string) sql.Result {
+	result, err := db.Exec(sql)
+	if err != nil {
+		panic(err)
+	}
+	return result
+}
+
+func CreateDB() {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/")
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+	fmt.Println("Conectado ao Banco")
+	exec(db, "create database if not exists cursogo")
+	exec(db, "use cursogo")
+	exec(db, "drop table if exists usuarios")
+	exec(db, `create table usuarios (
+		id integer auto_increment,
+		nome varchar(80),
+		PRIMARY KEY (id)
+		)`)
+
+	fmt.Println("FIM do Banco")
+
 }
