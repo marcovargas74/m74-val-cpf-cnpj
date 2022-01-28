@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"gopkg.in/validator.v2"
 )
 
 /*
@@ -49,7 +51,7 @@ func (a Account) ValidName(name string) bool {
 }
 
 //StructAndJSON Just Test
-func StructAndJSON() {
+func StructAndJSON() string {
 	//var create time.Time
 	accountMaria := Account{Balance: 0, CreatedAt: time.Now()}
 	accountMaria.ID = "abc"
@@ -58,10 +60,12 @@ func StructAndJSON() {
 	accountMaria.Name = "Maria"
 	mariaJSON, _ := json.Marshal(accountMaria)
 	fmt.Println(string(mariaJSON))
+	return (string(mariaJSON))
+
 	//Convert Json To struct
-	var accountFromJSON Account
+	/*var accountFromJSON Account
 	json.Unmarshal(mariaJSON, &accountFromJSON)
-	fmt.Println(accountFromJSON.Name)
+	fmt.Println(accountFromJSON.Name)*/
 }
 
 /*
@@ -89,68 +93,26 @@ secret deve ser armazenado como hash
 
 func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("content-type", "application/json")
-	//accountID := r.URL.Path[len("/accounts/"):]
-	//fmt.Printf("Account Body: %v\n", r.Body)
-	//fmt.Printf("Account R Body: %v\n", r)
-	//fmt.Printf("Account W Body: %v\n", w)
-
-	//Convert Json To struct
-	/*var accountJSON Account
-	if err := json.NewDecoder(r.Body).Decode(&accountJSON); err != nil {
-		//r.Err.NewError(err, http.StatusBadRequest).Send(w)
+	if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	//acc := Account{Name: tt.inName, Balance: 0.00}
-	if errs := validator.Validate(accountJSON); errs != nil {
+	fmt.Printf("\nSaveAccount Name:%s  cpf:%s balance %.2f\n", a.Name, a.CPF, a.Balance)
+	if errs := validator.Validate(a); errs != nil {
 		fmt.Printf("INVALIDO %v\n", errs) // do something
 		w.WriteHeader(http.StatusBadRequest)
-	}*/
+	}
 
-	//defer r.Body.Close()
-
-	//json.Unmarshal(mariaJSON, &accountFromJSON)
-	fmt.Printf("Name:%s  cpf:%s balance %.2f\n", a.Name, a.CPF, a.Balance)
-
+	defer r.Body.Close()
 	message := fmt.Sprintf("POST %v", r.URL)
-	//fmt.Printf("account Post %s\n", accountID)
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
-	//accountJSON.SaveAccount(w, r)
 
 }
 
 func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
-
-	//w.Header().Set("content-type", "application/json")
-	//accountID := r.URL.Path[len("/accounts/"):]
-	//fmt.Printf("Account Body: %v\n", r.Body)
-	//fmt.Printf("Account R Body: %v\n", r)
-	//fmt.Printf("Account W Body: %v\n", w)
-
-	//Convert Json To struct
-	/*	var accountJSON Account
-		if err := json.NewDecoder(r.Body).Decode(&accountJSON); err != nil {
-			//r.Err.NewError(err, http.StatusBadRequest).Send(w)
-			return
-		}//
-
-		//acc := Account{Name: tt.inName, Balance: 0.00}
-		if errs := validator.Validate(accountJSON); errs != nil {
-			fmt.Printf("INVALIDO %v\n", errs) // do something
-			w.WriteHeader(http.StatusBadRequest)
-		}
-
-		//defer r.Body.Close()
-	*/
-	//json.Unmarshal(mariaJSON, &accountFromJSON)
-	//fmt.Printf("Name:%s  cpf:%s balance %.2f\n", accountJSON.Name, accountJSON.CPF, accountJSON.Balance)
-
-	message := fmt.Sprintf("GET %v", r.URL)
-	//fmt.Printf("account Post %s\n", accountID)
+	message := StructAndJSON()
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
-	//accountJSON.SaveAccount(w, r)
-
 }

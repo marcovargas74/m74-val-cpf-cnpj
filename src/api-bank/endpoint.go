@@ -1,7 +1,6 @@
 package m74bankapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +8,6 @@ import (
 	//"github.com/marcovargas74/m74-bank-api/src/account"
 	//"github.com/marcovargas74/m74-bank-api/src/account"
 	account "github.com/marcovargas74/m74-bank-api/src/account"
-	"gopkg.in/validator.v2"
 )
 
 const (
@@ -25,26 +23,12 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "application/json")
 
-	var accountJSON account.Account
-	if err := json.NewDecoder(r.Body).Decode(&accountJSON); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if errs := validator.Validate(accountJSON); errs != nil {
-		fmt.Printf("INVALIDO %v\n", errs) // do something
-		w.WriteHeader(http.StatusBadRequest)
-	}
-
-	defer r.Body.Close()
-
-	//json.Unmarshal(mariaJSON, &accountFromJSON)
-	//fmt.Printf("Name:%s  cpf:%s balance %.2f\n", accountJSON.Name, accountJSON.CPF, accountJSON.Balance)
-
 	switch r.Method {
 	case http.MethodPost:
+		var accountJSON account.Account
 		accountJSON.SaveAccount(w, r)
 	case http.MethodGet:
+		var accountJSON account.Account
 		accountJSON.GetAccounts(w, r)
 		//message := fmt.Sprintf("GET %v", r.URL)
 		//fmt.Printf("accountID GET %s", accountID)
