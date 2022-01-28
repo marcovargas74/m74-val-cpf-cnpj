@@ -24,19 +24,13 @@ type ServerBank struct {
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "application/json")
-	//accountID := r.URL.Path[len("/accounts/"):]
-	//fmt.Printf("Account Body: %v\n", r.Body)
-	//fmt.Printf("Account R Body: %v\n", r)
-	//fmt.Printf("Account W Body: %v\n", w)
 
-	//Convert Json To struct
 	var accountJSON account.Account
 	if err := json.NewDecoder(r.Body).Decode(&accountJSON); err != nil {
-		//r.Err.NewError(err, http.StatusBadRequest).Send(w)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	//acc := Account{Name: tt.inName, Balance: 0.00}
 	if errs := validator.Validate(accountJSON); errs != nil {
 		fmt.Printf("INVALIDO %v\n", errs) // do something
 		w.WriteHeader(http.StatusBadRequest)
@@ -45,20 +39,17 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	//json.Unmarshal(mariaJSON, &accountFromJSON)
-	fmt.Printf("Name:%s  cpf:%s balance %.2f\n", accountJSON.Name, accountJSON.CPF, accountJSON.Balance)
+	//fmt.Printf("Name:%s  cpf:%s balance %.2f\n", accountJSON.Name, accountJSON.CPF, accountJSON.Balance)
 
 	switch r.Method {
 	case http.MethodPost:
-		message := fmt.Sprintf("POST %v", r.URL)
-		//fmt.Printf("account Post %s\n", accountID)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-		//s.processaVitoria(w, accountID)
+		accountJSON.SaveAccount(w, r)
 	case http.MethodGet:
-		message := fmt.Sprintf("GET %v", r.URL)
+		accountJSON.GetAccounts(w, r)
+		//message := fmt.Sprintf("GET %v", r.URL)
 		//fmt.Printf("accountID GET %s", accountID)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
+		//fmt.Fprint(w, message)
+		//w.WriteHeader(http.StatusOK)
 		//s.mostraPontuacao(w, accountID)
 	default:
 		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
