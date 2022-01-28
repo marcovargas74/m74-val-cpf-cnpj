@@ -9,28 +9,20 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
-func newReqGetPoints(name string) *http.Request {
-	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/jogadores/%s", name), nil)
-	return request
-}
-
-func newReqEndpoints(urlPrefix, urlName string) *http.Request {
+func newReqEndpointsGET(urlPrefix, urlName string) *http.Request {
 	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
 
 	fmt.Printf("endpoint: %v\n", request.URL)
 	return request
 }
 
-/*
-func checkResult(t *testing.T, result, wait string) {
-	t.Helper()
-	if result != wait {
-		t.Errorf(erroMsg, result, wait)
-	}
-}
+func newReqEndpointsPOST(urlPrefix, urlName string) *http.Request {
+	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
 
-*/
-func TestServidorJogador(t *testing.T) {
+	fmt.Printf("endpoint: %v\n", request.URL)
+	return request
+}
+func TestServerBank(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -39,57 +31,33 @@ func TestServidorJogador(t *testing.T) {
 	}{
 		{
 			give:      "Retornar resultado de Nobody",
-			wantValue: "",
+			wantValue: "Endpoint not found",
 			inData:    "Nobody",
-		},
-		{
-			give:      "Retornar resultado de Maria",
-			wantValue: "20",
-			inData:    "Maria",
-		},
-
-		{
-			give:      "Retornar resultado de Pedro",
-			wantValue: "10",
-			inData:    "Pedro",
 		},
 	}
 
+	servidor := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpoints("/jogadores", tt.inData)
+			requisicao, _ := http.NewRequest(http.MethodGet, "/", nil)
 			resposta := httptest.NewRecorder()
 
-			ServidorJogador(resposta, requisicao)
+			servidor.ServeHTTP(resposta, requisicao)
 
 			recebido := resposta.Body.String()
-			//esperado := "10"
+			//fmt.Printf("\ndado recebido %s\n", recebido)
 
-			//checkResult(t, recebido, esperado)
 			assert.Equal(t, recebido, tt.wantValue)
-			//fmt.Printf("valor: %v\n", valorRetornado[0:4])
+			assert.Equal(t, resposta.Code, http.StatusOK)
+
 		})
 
 	}
 
 }
 
-/*
-	//*TODO endpoint usado no banc
-	func callbackAccount(w http.ResponseWriter, r *http.Request) {
-		message := fmt.Sprintf("callbackAccount data in %v\n", r.URL)
-		fmt.Fprint(w, message)
-	}
-
-	func callbackLogin(w http.ResponseWriter, r *http.Request) {
-		message := fmt.Sprintf("callbackLogin data in %v\n", r.URL)
-		fmt.Fprint(w, message)
-	}
-
-	func callbackTransfer(w http.ResponseWriter, r *http.Request) {*/
-
-func TestCallbackAccount(t *testing.T) {
+func TestCallbackAccountGET(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -98,28 +66,30 @@ func TestCallbackAccount(t *testing.T) {
 	}{
 		{
 			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: "callbackAccount data in /accounts/Nobody\n",
+			wantValue: "GET /accounts/Nobody",
 			inData:    "Nobody",
 		},
 		{
 			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: "callbackAccount data in /accounts/\n",
+			wantValue: "GET /accounts/",
 			inData:    "",
 		},
 		{
 			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: "callbackAccount data in /accounts/123\n",
+			wantValue: "GET /accounts/123",
 			inData:    "123",
 		},
 	}
 
+	server := new(ServerBank)
+
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpoints("/accounts", tt.inData)
+			requisicao := newReqEndpointsGET("/accounts", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			callbackAccount(resposta, requisicao)
+			server.CallbackAccounts(resposta, requisicao)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -129,7 +99,7 @@ func TestCallbackAccount(t *testing.T) {
 
 }
 
-func TestCallbackLogin(t *testing.T) {
+func TestCallbackAccountPost(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -137,29 +107,72 @@ func TestCallbackLogin(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint login com NOBODY",
-			wantValue: "callbackLogin data in /login/Nobody\n",
+			give:      "Testa o Endpoint Account com NOBODY",
+			wantValue: "POST /accounts/Nobody",
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint Login com caracter vazio",
-			wantValue: "callbackLogin data in /login/\n",
+			give:      "Testa o Endpoint Account com caracter vazio",
+			wantValue: "POST /accounts/",
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Login com ID 123",
-			wantValue: "callbackLogin data in /login/123\n",
+			give:      "Testa o Endpoint Account com ID 123",
+			wantValue: "POST /accounts/123",
 			inData:    "123",
 		},
 	}
 
+	server := new(ServerBank)
+
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpoints("/login", tt.inData)
+			requisicao := newReqEndpointsPOST("/accounts", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			callbackLogin(resposta, requisicao)
+			server.CallbackAccounts(resposta, requisicao)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)
+		})
+
+	}
+}
+
+func TestCallbackLoginGET(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue string
+		inData    string
+	}{
+		{
+			give:      "Testa o Endpoint Account com NOBODY",
+			wantValue: "/login/Nobody",
+			inData:    "Nobody",
+		},
+		{
+			give:      "Testa o Endpoint Account com caracter vazio",
+			wantValue: "/login/",
+			inData:    "",
+		},
+		{
+			give:      "Testa o Endpoint Account com ID 123",
+			wantValue: "/login/123",
+			inData:    "123",
+		},
+	}
+
+	server := new(ServerBank)
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			requisicao := newReqEndpointsGET("/login", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.CallbackLogin(resposta, requisicao)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)
@@ -169,7 +182,7 @@ func TestCallbackLogin(t *testing.T) {
 
 }
 
-func TestCallbackTransfer(t *testing.T) {
+func TestCallbackLoginPOST(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -177,29 +190,115 @@ func TestCallbackTransfer(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint Transfer com NOBODY",
-			wantValue: "callbackTransfer data in /transfers/Nobody\n",
+			give:      "Testa o Endpoint Account com NOBODY",
+			wantValue: "POST /login/Nobody",
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint Transfer com caracter vazio",
-			wantValue: "callbackTransfer data in /transfers/\n",
+			give:      "Testa o Endpoint Account com caracter vazio",
+			wantValue: "POST /login/",
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Transfer com ID 123",
-			wantValue: "callbackTransfer data in /transfers/123\n",
+			give:      "Testa o Endpoint Account com ID 123",
+			wantValue: "POST /login/123",
 			inData:    "123",
 		},
 	}
 
+	server := new(ServerBank)
+
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpoints("/transfers", tt.inData)
+			requisicao := newReqEndpointsPOST("/login", tt.inData)
 			resposta := httptest.NewRecorder()
 
-			callbackTransfer(resposta, requisicao)
+			server.CallbackLogin(resposta, requisicao)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)
+		})
+
+	}
+
+}
+
+func TestCallbackTransferGET(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue string
+		inData    string
+	}{
+		{
+			give:      "Testa o Endpoint TRANFER com NOBODY",
+			wantValue: "GET /transfers/Nobody",
+			inData:    "Nobody",
+		},
+		{
+			give:      "Testa o Endpoint TRANFER com caracter vazio",
+			wantValue: "GET /transfers/",
+			inData:    "",
+		},
+		{
+			give:      "Testa o Endpoint TRANFER com ID 123",
+			wantValue: "GET /transfers/123",
+			inData:    "123",
+		},
+	}
+
+	server := new(ServerBank)
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			requisicao := newReqEndpointsGET("/transfers", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.CallbackTransfer(resposta, requisicao)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)
+		})
+
+	}
+
+}
+
+func TestCallbackTransferPOST(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue string
+		inData    string
+	}{
+		{
+			give:      "Testa o Endpoint Account com NOBODY",
+			wantValue: "POST /transfers/Nobody",
+			inData:    "Nobody",
+		},
+		{
+			give:      "Testa o Endpoint Account com caracter vazio",
+			wantValue: "POST /transfers/",
+			inData:    "",
+		},
+		{
+			give:      "Testa o Endpoint Account com ID 123",
+			wantValue: "POST /transfers/123",
+			inData:    "123",
+		},
+	}
+
+	server := new(ServerBank)
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			requisicao := newReqEndpointsPOST("/transfers", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.CallbackLogin(resposta, requisicao)
 
 			recebido := resposta.Body.String()
 			assert.Equal(t, recebido, tt.wantValue)

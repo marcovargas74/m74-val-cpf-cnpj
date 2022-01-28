@@ -19,9 +19,4 @@ func main() {
 	account.StructAndJSON()
 	bank.StartAPI("dev")
 
-	/*tratador := http.HandlerFunc(bankAPI.ServidorJogador)
-	if err := http.ListenAndServe(":5000", tratador); err != nil {
-		log.Fatalf("não foi possível escutar na porta 5000 %v", err)
-	}*/
-
 }

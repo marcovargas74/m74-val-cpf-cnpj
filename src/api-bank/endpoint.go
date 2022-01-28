@@ -10,34 +10,97 @@ const (
 	serverPort = ":5000"
 )
 
-func getPlayerPoints(name string) string {
+type ServerBank struct {
+	//Armazenamento ArmazenamentoAccount
+	http.Handler
+}
 
-	if name == "Maria" {
-		return "20"
-	}
+func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
-	if name == "Pedro" {
-		return "10"
+	accountID := r.URL.Path[len("/accounts/"):]
+	fmt.Printf("Account Body: %v\n", r.Body)
+
+	//w.Header().Set("content-type", "application/json")
+
+	switch r.Method {
+	case http.MethodPost:
+		message := fmt.Sprintf("POST %v", r.URL)
+		//fmt.Printf("account Post %s\n", accountID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+		//s.processaVitoria(w, accountID)
+	case http.MethodGet:
+		message := fmt.Sprintf("GET %v", r.URL)
+		fmt.Printf("accountID GET %s", accountID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+		//s.mostraPontuacao(w, accountID)
+	default:
+		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
+		fmt.Printf("accountID %s", accountID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
 	}
-	return ""
 
 }
 
-//ServidorJogador teste
-func ServidorJogador(w http.ResponseWriter, r *http.Request) {
+func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
-	if r.Method == http.MethodPost {
-		w.WriteHeader(http.StatusAccepted)
-		return
+	client := r.URL.Path[len("/login/"):]
+	fmt.Printf("Login Body: %v\n", r.Body)
+
+	//w.Header().Set("content-type", "application/json")
+
+	switch r.Method {
+	case http.MethodPost:
+		message := fmt.Sprintf("POST %v", r.URL)
+		fmt.Printf("client POST %s\n", client)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+	case http.MethodGet:
+		message := fmt.Sprintf("%v", r.URL)
+		fmt.Printf("client GET %s", client)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+	default:
+		message := fmt.Sprintf("CallbackLogin Get data in %v", r.URL)
+		fmt.Printf("client GET %s", client)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
 	}
 
-	player := r.URL.Path[len("/jogadores/"):]
-	fmt.Println("entrada " + player)
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprint(w, getPlayerPoints(player))
 }
 
-func DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
+func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
+
+	transfer := r.URL.Path[len("/transfers/"):]
+	fmt.Printf("tranfer: %v\n", r.Body)
+
+	//w.Header().Set("content-type", "application/json")
+
+	switch r.Method {
+	case http.MethodPost:
+		message := fmt.Sprintf("POST %v", r.URL)
+		fmt.Printf("transfer Post %s\n", transfer)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+	case http.MethodGet:
+		message := fmt.Sprintf("GET %v", r.URL)
+		fmt.Printf("transfer GET %s", transfer)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+	default:
+		message := fmt.Sprintf("CallbackTransfer data in %v", r.URL)
+		fmt.Printf("transfer GET %s", transfer)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusOK)
+	}
+
+}
+
+//Codigo Antigo
+
+func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Default data in %v\n", r.URL)
 	if r.Method == http.MethodPost {
@@ -50,37 +113,28 @@ func DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 /*
  * BANK INICIA AQUI
  */
-func callbackAccount(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("callbackAccount data in %v\n", r.URL)
-	fmt.Fprint(w, message)
-}
+//NewServerBank Cria Servidor
+func NewServerBank() *ServerBank {
 
-func callbackLogin(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("callbackLogin data in %v\n", r.URL)
-	fmt.Fprint(w, message)
-}
+	server := new(ServerBank)
+	//s.Armazenamento = Armazenamento
 
-func callbackTransfer(w http.ResponseWriter, r *http.Request) {
-	message := fmt.Sprintf("callbackTransfer data in %v\n", r.URL)
-	fmt.Fprint(w, message)
+	router := http.NewServeMux()
+	router.Handle("/", http.HandlerFunc(server.DefaultEndpoint))
+	router.Handle("/accounts/", http.HandlerFunc(server.CallbackAccounts))
+	router.Handle("/login/", http.HandlerFunc(server.CallbackLogin))
+	router.Handle("/transfers/", http.HandlerFunc(server.CallbackTransfer))
+
+	server.Handler = router
+	return server
+
 }
 
 //StartAPI inicia o servidor http
 func StartAPI(modo string) {
-	//tratador := http.HandlerFunc(ServidorJogador)
-	//log.Fatal(http.ListenAndServe(serverPort, tratador))
-	HandleFuncions()
-	log.Fatal(http.ListenAndServe(serverPort, nil))
-}
+	servidor := NewServerBank()
 
-//HandleFuncions Inclui os endpoint
-func HandleFuncions() {
-	http.HandleFunc("/", DefaultEndpoint)
-	http.HandleFunc("/jogadores/Maria", ServidorJogador)
-	http.HandleFunc("/jogadores/Pedro", ServidorJogador)
-
-	//*TODO endpoint usado no banc
-	http.HandleFunc("/accounts", callbackAccount)
-	http.HandleFunc("/login", callbackLogin)
-	http.HandleFunc("/transfers", callbackTransfer)
+	if err := http.ListenAndServe(serverPort, servidor); err != nil {
+		log.Fatalf("Não foi possivel ouvir na porta 5000 %v", err)
+	}
 }
