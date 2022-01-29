@@ -31,6 +31,13 @@
 git clone https://github.com/marcovargas74/m74-bank-api
 ```
 
+- Star Docker Myql DB 
+```sh
+ ## Run compiled project
+ docker run --name bank-mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.26
+```
+
+
 - Enter in project
 
 ```sh
@@ -78,7 +85,7 @@ curl -i --request POST 'http://localhost:5000/accounts' \
 --data-raw '{
     "name": "Test",
     "cpf": "111.111.111-11",
-    "balance": 10
+    "balance": 10.00
 }'
 ```
 
@@ -88,7 +95,7 @@ curl -i --request POST 'http://localhost:5000/accounts' \
     "id":"5cf59c6c-0047-4b13-a118-65878313e329",
     "name":"Test",
     "cpf":"111.111.111-11",
-    "balance":10,
+    "balance":10.00,
     "created_at":"2022-01-24T10:10:02Z"
 }
 ```
@@ -106,7 +113,7 @@ curl -i --request GET 'http://localhost:5000/accounts'
     "id":"5cf59c6c-0047-4b13-a118-65878313e329",
     "name":"Test",
     "cpf":"111.111.111-11",
-    "balance":10,
+    "balance":10.00,
     "created_at":"2022-01-24T10:10:02Z"
     }
 ]
@@ -122,7 +129,7 @@ curl -i --request GET 'http://localhost:5000/accounts/{{account_id}}/balance'
 `Response`
 ```json
 {
-    "balance": 10
+    "balance": 10.00
 }
 ```
 
