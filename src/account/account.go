@@ -199,9 +199,16 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return a.presenter.Output(account), nil*/
-	a.SaveAccountInDB()
-	message := fmt.Sprintf("POST %v ID:%v", r.URL, a.ID)
-	fmt.Fprint(w, message)
+	if !a.SaveAccountInDB() {
+		message := fmt.Sprintf("Can´t save account from %v", a.ID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json, _ := json.Marshal(a)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
 	w.WriteHeader(http.StatusOK)
 
 }

@@ -77,28 +77,27 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 
 func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
-	client := r.URL.Path[len("/login/"):]
+	//client := r.URL.Path[len("/login/"):]
 	fmt.Printf("Login Body: %v\n", r.Body)
 
 	w.Header().Set("content-type", "application/json")
+	if r.Method == http.MethodPost {
+		loginData := mux.Vars(r)
+		//w.WriteHeader(http.StatusOK)
+		fmt.Printf("login [%s] [%s] \n", loginData["cpf"], loginData["cpf"])
 
-	switch r.Method {
-	case http.MethodPost:
-		message := fmt.Sprintf("POST %v", r.URL)
-		fmt.Printf("client POST %s\n", client)
+		//var accountJSON account.Account
+		//countJSON.CheckLoginD(w, r, loginData["account_id"])
+		message := fmt.Sprintf("Access Autorized %v", r.URL)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusOK)
-	case http.MethodGet:
-		message := fmt.Sprintf("%v", r.URL)
-		fmt.Printf("client GET %s", client)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-	default:
-		message := fmt.Sprintf("CallbackLogin Get data in %v", r.URL)
-		fmt.Printf("client GET %s", client)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
+
+		return
 	}
+	message := fmt.Sprintf("ACCESS DANIED %v", r.URL)
+	//fmt.Printf("client GET %s", client)
+	fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusForbidden)
 
 }
 
