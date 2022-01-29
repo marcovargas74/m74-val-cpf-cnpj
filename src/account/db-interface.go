@@ -114,7 +114,7 @@ func CreateDB(isDropTable bool) {
 	exec(db, "use bankAPI")
 	if isDropTable {
 		exec(db, "drop table if exists accounts")
-
+		exec(db, "drop table if exists transfers")
 	}
 
 	exec(db, `create table IF NOT EXISTS accounts(
@@ -128,15 +128,16 @@ func CreateDB(isDropTable bool) {
 	PRIMARY KEY (idx)
 	)`)
 
-	//exec(db, `create table IF NOT EXISTS accounts(
-	/*ID        string    `json:"id"`
-	Name      string    `json:"name" validate:"min=3,max=40"`
-	CPF       string    `json:"cpf"`
-	Balance   float64   `json:"balance"`
-	Secret    string    `json:"secret" `
-	CreatedAt time.Time `json:"created_at"`
-	*/
+	exec(db, `create table IF NOT EXISTS transfers(
+		idx integer auto_increment,
+		id varchar(40) ,
+		ori varchar(40),
+		dest varchar(40),
+		amount float,
+		createAt datetime,
+		PRIMARY KEY (idx)
+		)`)
+
 	fmt.Println("Conectado ao Banco com sucesso!")
-	//fmt.Println(exec(db, ".tables"))
 
 }
