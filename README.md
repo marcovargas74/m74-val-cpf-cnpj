@@ -152,7 +152,7 @@ curl -i --request POST 'http://localhost:5000/transfers' \
 --data-raw '{
 	"account_origin_id": "{{account_id}}",
 	"account_destination_id": "{{account_id}}",
-	"amount": 100
+	"amount": 100.00
 }'
 ```
 
@@ -162,7 +162,7 @@ curl -i --request POST 'http://localhost:5000/transfers' \
     "id": "b51cd6c7-a55c-491e-9140-91903fe66fa9",
     "account_origin_id": "{{account_id}}",
     "account_destination_id": "{{account_id}}",
-    "amount": 1,
+    "amount": 1.00,
     "created_at": "2022-01-24T10:12:05Z"
 }
 ```
@@ -181,7 +181,7 @@ curl -i --request GET 'http://localhost:5000/transfers'
         "id": "b51cd6c7-a55c-491e-9140-91903fe66fa9",
         "account_origin_id": "{{account_id}}",
         "account_destination_id": "{{account_id}}",
-        "amount": 1,
+        "amount": 1.00,
         "created_at": "2020-11-02T14:57:35Z"
     }
 ]
