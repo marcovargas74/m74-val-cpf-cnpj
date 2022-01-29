@@ -10,6 +10,7 @@ var isProduction = false
 
 func init() {
 	bank.SetIsProduction(isProduction)
+	bank.CreateDB()
 }
 
 func main() {

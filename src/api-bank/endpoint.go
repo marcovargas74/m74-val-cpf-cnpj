@@ -30,6 +30,7 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 	case http.MethodGet:
 		var accountJSON account.Account
 		accountJSON.GetAccounts(w, r)
+		//ShowAccountAll(w, r)
 	default:
 		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
 		//fmt.Printf("accountID %s", accountID)
@@ -64,6 +65,7 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 	if r.Method == http.MethodGet {
 		var accountJSON account.Account
 		accountJSON.GetAccountByID(w, r, accountID["account_id"])
+		return
 	}
 
 	message := fmt.Sprintf("CallbackFindAccountID data in %v", r.URL)

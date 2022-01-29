@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -133,6 +134,7 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 	if !IsValidUUID(a.ID) {
 		fmt.Printf("Something gone wrong:")
 	}
+
 	//fmt.Printf("Successfully parsed: %s", u2)
 	/*
 		var account = domain.NewAccount(
@@ -149,16 +151,40 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 		}
 
 		return a.presenter.Output(account), nil*/
-
+	a.SaveAccountInDB()
 	message := fmt.Sprintf("POST %v ID:%v", r.URL, a.ID)
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 
 }
 
+func (a *Account) SaveAccountInDB() {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	tx, _ := db.Begin()
+	stmt, _ := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
+
+	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, a.Secret, a.CreatedAt)
+	//stmt.Exec(2001, "Carlos")
+	//_, err = stmt.Exec(1, "Tiago") //chave duplicada
+
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+	}
+
+	tx.Commit()
+}
+
 func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
-	message := StructAndJSON()
-	fmt.Fprint(w, message)
+	//message := StructAndJSON()
+	a.ShowAccountAll(w, r)
+
+	//fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -172,82 +198,28 @@ func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID stri
 		return
 	}
 
-	message := StructAndJSON()
+	//message := StructAndJSON()
+	a.ShowAccountByID(w, r, ID)
 
-	fmt.Fprint(w, message)
+	//fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 }
 
-/*
-
-package main
-
-import (
-	"database/sql"
-	"encoding/json"
-	"fmt"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
-
-	_ "github.com/go-sql-driver/mysql"
-)
-
-//Usuario :)
-type Usuario struct {
-	ID   int    `json:"id"`
-	Nome string `json:"nome"`
-}
-
-//UsuarioHandler analisa o request e delega para função adequada
-func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
-	sid := strings.TrimPrefix(r.URL.Path, "/usuarios/")
-	id, _ := strconv.Atoi(sid)
-
-	switch {
-	case r.Method == "GET" && id > 0:
-		usuarioPorID(w, r, id)
-
-	case r.Method == "GET":
-		usuarioTodos(w, r)
-
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Desculpa... :(")
-	}
-
-}
-
-func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
+//ShowAccountAll mostra todos as contas
+func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	var u Usuario
-	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
-	json, _ := json.Marshal(u)
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-}
-
-func usuarioTodos(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	rows, _ := db.Query("select id, nome from usuarios")
+	rows, _ := db.Query("select id, nome from accounts")
 	defer rows.Close()
 
-	var usuarios []Usuario
+	var usuarios []Account
 	for rows.Next() {
-		var usuario Usuario
-		rows.Scan(&usuario.ID, &usuario.Nome)
+		var usuario Account
+		rows.Scan(&usuario.ID, &usuario.Name)
 		usuarios = append(usuarios, usuario)
 	}
 
@@ -257,37 +229,21 @@ func usuarioTodos(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json))
 
 }
-*/
 
-/*Antes de Usar o Banco deve-se Subir o servidor
-service mysqld start
-*/
-
-func exec(db *sql.DB, sql string) sql.Result {
-	result, err := db.Exec(sql)
+func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
+	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	if err != nil {
-		panic(err)
-	}
-	return result
-}
-
-func CreateDB() {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/")
-	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 	defer db.Close()
 
-	fmt.Println("Conectado ao Banco")
-	exec(db, "create database if not exists cursogo")
-	exec(db, "use cursogo")
-	exec(db, "drop table if exists usuarios")
-	exec(db, `create table usuarios (
-		id integer auto_increment,
-		nome varchar(80),
-		PRIMARY KEY (id)
-		)`)
+	var u Account
+	db.QueryRow("select id, nome from accounts where id = ?", findID).Scan(&u.ID, &u.Name)
+	json, _ := json.Marshal(u)
 
-	fmt.Println("FIM do Banco")
+	w.Header().Set("Content-Type", "application/json")
 
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
+
+	fmt.Fprint(w, string(json))
 }
