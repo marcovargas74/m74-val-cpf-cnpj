@@ -322,6 +322,7 @@ func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID
 	fmt.Fprint(w, string(json))
 }
 
+//TODO return error
 func GetAccountByID(findID string) Account {
 	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
@@ -334,4 +335,30 @@ func GetAccountByID(findID string) Account {
 	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
 	return account
+}
+
+func UpdateBalanceByID(accID string, transationValue float64) bool {
+
+	accountInBD := GetAccountByID(accID)
+	accountInBD.Balance = accountInBD.Balance + transationValue
+
+	fmt.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	tx, _ := db.Begin()
+	stmt, _ := tx.Prepare("update accounts set balance = ? where id = ?")
+	_, err = stmt.Exec(accountInBD.Balance, accountInBD.ID)
+	if err != nil {
+		tx.Rollback()
+		log.Fatal(err)
+		return false
+	}
+
+	tx.Commit()
+	return true
+
 }

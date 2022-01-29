@@ -11,7 +11,7 @@ var isProduction = false
 
 func init() {
 	bank.SetIsProduction(isProduction)
-	account.CreateDB()
+	account.CreateDB(false)
 }
 
 func main() {

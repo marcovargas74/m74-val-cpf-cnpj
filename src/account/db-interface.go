@@ -13,7 +13,8 @@ import (
 
 const (
 	//DBSource       = "root:Mysql#2510@/bankAPI"
-	DBSource = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+	DBSourceOpen = "root:my-secret-pw@tcp(localhost:3307)/"
+	DBSource     = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
 )
 
 //DBMySQL Data base Used in BANK
@@ -98,13 +99,11 @@ func exec(db *sql.DB, sql string) sql.Result {
 }
 
 //CreateDB Cria banco sql
-func CreateDB() {
+func CreateDB(isDropTable bool) {
 	fmt.Println("Conectado ao Banco...")
 
 	// MYSQL LOCAL
-	db, err := sql.Open("mysql", DBSource)
-	//db, err := sql.Open("mysql", "root:Mysql#my-secret-pw@/bankAPI")
-	//db, err := sql.Open("mysql", "root:Mysql#bank@/")
+	db, err := sql.Open("mysql", DBSourceOpen)
 	if err != nil {
 		panic(err)
 	}
@@ -113,7 +112,11 @@ func CreateDB() {
 	fmt.Println("Conectado ao Banco")
 	exec(db, "create database if not exists bankAPI")
 	exec(db, "use bankAPI")
-	//exec(db, "drop table if exists accounts")
+	if isDropTable {
+		exec(db, "drop table if exists accounts")
+
+	}
+
 	exec(db, `create table IF NOT EXISTS accounts(
 	idx integer auto_increment,
 	id varchar(40) ,
@@ -133,7 +136,7 @@ func CreateDB() {
 	Secret    string    `json:"secret" `
 	CreatedAt time.Time `json:"created_at"`
 	*/
-	fmt.Println("FIM do Banco")
+	fmt.Println("Conectado ao Banco com sucesso!")
 	//fmt.Println(exec(db, ".tables"))
 
 }
