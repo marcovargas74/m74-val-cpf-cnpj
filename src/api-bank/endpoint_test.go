@@ -71,22 +71,22 @@ func TestCallbackAccountGET(t *testing.T) {
 
 	tests := []struct {
 		give      string
-		wantValue string
+		wantValue int
 		inData    string
 	}{
 		{
 			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: "GET /accounts/Nobody",
+			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
 			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: "GET /accounts/",
+			wantValue: 404,
 			inData:    "",
 		},
 		{
 			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: "GET /accounts/123",
+			wantValue: 404,
 			inData:    "123",
 		},
 	}
@@ -99,9 +99,10 @@ func TestCallbackAccountGET(t *testing.T) {
 			resposta := httptest.NewRecorder()
 
 			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)
+			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+			//recebido := resposta.Body.String()
+			//recebido = resposta.Code
+			assert.Equal(t, resposta.Code, tt.wantValue)
 		})
 
 	}
@@ -112,22 +113,22 @@ func TestCallbackAccountPost(t *testing.T) {
 
 	tests := []struct {
 		give      string
-		wantValue string
+		wantValue int
 		inData    string
 	}{
 		{
 			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: "POST /accounts/Nobody",
+			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
 			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: "POST /accounts/",
+			wantValue: 404,
 			inData:    "",
 		},
 		{
 			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: "POST /accounts/123",
+			wantValue: 404,
 			inData:    "123",
 		},
 	}
@@ -140,10 +141,10 @@ func TestCallbackAccountPost(t *testing.T) {
 			resposta := httptest.NewRecorder()
 
 			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)
+			assert.Equal(t, resposta.Code, tt.wantValue)
+			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+			//recebido := resposta.Body.String()
+			//assert.Equal(t, recebido, tt.wantValue)
 		})
 
 	}
@@ -153,22 +154,22 @@ func TestCallbackLoginGET(t *testing.T) {
 
 	tests := []struct {
 		give      string
-		wantValue string
+		wantValue int
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: "/login/Nobody",
+			give:      "Testa o Endpoint LOgin com NOBODY",
+			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: "/login/",
+			give:      "Testa o Endpoint LOgin com caracter vazio",
+			wantValue: 404,
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: "/login/123",
+			give:      "Testa o Endpoint Login com ID 123",
+			wantValue: 404,
 			inData:    "123",
 		},
 	}
@@ -181,10 +182,10 @@ func TestCallbackLoginGET(t *testing.T) {
 			resposta := httptest.NewRecorder()
 
 			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)
+			assert.Equal(t, resposta.Code, tt.wantValue)
+			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+			//recebido := resposta.Body.String()
+			//assert.Equal(t, recebido, tt.wantValue)
 		})
 
 	}

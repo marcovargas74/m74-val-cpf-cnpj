@@ -20,22 +20,17 @@ type ServerBank struct {
 
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("content-type", "application/json")
-	//fmt.Printf("!!!CallbackFindAccounts %v\n", r.URL)
+	var accountJSON account.Account
 
 	switch r.Method {
 	case http.MethodPost:
-		var accountJSON account.Account
 		accountJSON.SaveAccount(w, r)
 	case http.MethodGet:
-		var accountJSON account.Account
 		accountJSON.GetAccounts(w, r)
-		//ShowAccountAll(w, r)
 	default:
-		message := fmt.Sprintf("CallbackAccounts data in %v", r.URL)
-		//fmt.Printf("accountID %s", accountID)
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
 }
@@ -68,10 +63,29 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	message := fmt.Sprintf("CallbackFindAccountID data in %v", r.URL)
-	//fmt.Printf("accountID %s", accountID)
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusBadRequest)
+
+}
+
+func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
+
+	w.Header().Set("content-type", "application/json")
+	//transfer := r.URL.Path[len("/transfers/"):]
+	//fmt.Printf("tranfer: %v\n", r.Body)
+	var aTransfer account.TransferBank
+
+	switch r.Method {
+	case http.MethodPost:
+		aTransfer.SaveTransfer(w, r)
+	case http.MethodGet:
+		aTransfer.GetTransfers(w, r)
+	default:
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
 
 }
 
@@ -98,32 +112,6 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 	//fmt.Printf("client GET %s", client)
 	fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusForbidden)
-
-}
-
-func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
-
-	w.Header().Set("content-type", "application/json")
-	transfer := r.URL.Path[len("/transfers/"):]
-	fmt.Printf("tranfer: %v\n", r.Body)
-
-	switch r.Method {
-	case http.MethodPost:
-		message := fmt.Sprintf("POST %v", r.URL)
-		fmt.Printf("transfer Post %s\n", transfer)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-	case http.MethodGet:
-		message := fmt.Sprintf("GET %v", r.URL)
-		fmt.Printf("transfer GET %s", transfer)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-	default:
-		message := fmt.Sprintf("CallbackTransfer data in %v", r.URL)
-		fmt.Printf("transfer GET %s", transfer)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-	}
 
 }
 
@@ -163,7 +151,7 @@ func NewServerBank() *ServerBank {
 	routerG.HandleFunc("/accounts", server.CallbackAccounts)
 	routerG.HandleFunc("/accounts/{account_id}/balance", server.CallbackFindAccountID)
 	routerG.HandleFunc("/login/", server.CallbackLogin)
-	routerG.HandleFunc("/transfers/", server.CallbackTransfer)
+	routerG.HandleFunc("/transfers", server.CallbackTransfer)
 
 	server.Handler = routerG
 
