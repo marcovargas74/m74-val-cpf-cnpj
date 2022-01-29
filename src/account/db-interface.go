@@ -1,4 +1,4 @@
-package m74bankapi
+package account
 
 import (
 	"database/sql"
@@ -8,7 +8,12 @@ import (
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/marcovargas74/m74-bank-api/src/account"
+	//	"github.com/marcovargas74/m74-bank-api/src/account"
+)
+
+const (
+	//DBSource       = "root:Mysql#2510@/bankAPI"
+	DBSource = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
 )
 
 //DBMySQL Data base Used in BANK
@@ -57,7 +62,7 @@ func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
 */
 //ShowAccountAll mostra todos as contas
 func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -66,9 +71,9 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	rows, _ := db.Query("select id, nome from accounts")
 	defer rows.Close()
 
-	var usuarios []account.Account
+	var usuarios []Account
 	for rows.Next() {
-		var usuario account.Account
+		var usuario Account
 		rows.Scan(&usuario.ID, &usuario.Name)
 		usuarios = append(usuarios, usuario)
 	}
@@ -96,8 +101,9 @@ func exec(db *sql.DB, sql string) sql.Result {
 func CreateDB() {
 	fmt.Println("Conectado ao Banco...")
 
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
-	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	// MYSQL LOCAL
+	db, err := sql.Open("mysql", DBSource)
+	//db, err := sql.Open("mysql", "root:Mysql#my-secret-pw@/bankAPI")
 	//db, err := sql.Open("mysql", "root:Mysql#bank@/")
 	if err != nil {
 		panic(err)
@@ -128,5 +134,6 @@ func CreateDB() {
 	CreatedAt time.Time `json:"created_at"`
 	*/
 	fmt.Println("FIM do Banco")
+	//fmt.Println(exec(db, ".tables"))
 
 }

@@ -203,7 +203,8 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Account) SaveAccountInDB() bool {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -250,20 +251,22 @@ func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID stri
 
 //ShowAccountAll mostra todos as contas
 func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	rows, _ := db.Query("select id, nome from accounts")
+	rows, _ := db.Query("select id, nome, cpf, balance, secret, createAt from accounts")
+
 	defer rows.Close()
 
 	var usuarios []Account
 	for rows.Next() {
-		var usuario Account
-		rows.Scan(&usuario.ID, &usuario.Name)
-		usuarios = append(usuarios, usuario)
+		var account Account
+		rows.Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+		usuarios = append(usuarios, account)
 	}
 
 	json, _ := json.Marshal(usuarios)
@@ -274,19 +277,35 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	var u Account
-	db.QueryRow("select id, nome from accounts where id = ?", findID).Scan(&u.ID, &u.Name)
-	json, _ := json.Marshal(u)
+	var account Account
+	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+	account.Secret = "*****"
+	json, _ := json.Marshal(account)
 
 	w.Header().Set("Content-Type", "application/json")
 
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
 
 	fmt.Fprint(w, string(json))
+}
+
+func GetAccountByID(findID string) Account {
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var account Account
+	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
+	return account
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/marcovargas74/m74-bank-api/src/account"
 	bank "github.com/marcovargas74/m74-bank-api/src/api-bank"
 )
 
@@ -10,7 +11,7 @@ var isProduction = false
 
 func init() {
 	bank.SetIsProduction(isProduction)
-	bank.CreateDB()
+	account.CreateDB()
 }
 
 func main() {
