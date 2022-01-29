@@ -64,7 +64,7 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 
 	if r.Method == http.MethodGet {
 		var accountJSON account.Account
-		accountJSON.GetAccountByID(w, r, accountID["account_id"])
+		accountJSON.ShowBalanceByID(w, r, accountID["account_id"])
 		return
 	}
 

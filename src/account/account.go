@@ -41,6 +41,10 @@ type Account struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Balance struct {
+	Value float64 `json:"balance"`
+}
+
 func (a *Account) Deposit(amount float64) {
 	a.Balance += amount
 }
@@ -293,6 +297,21 @@ func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID
 
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
 
+	fmt.Fprint(w, string(json))
+}
+
+func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID string) {
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var aBalance Balance
+	db.QueryRow("select balance from accounts where id = ?", findID).Scan(&aBalance.Value)
+	json, _ := json.Marshal(aBalance)
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
 }
 

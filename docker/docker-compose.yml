@@ -9,3 +9,18 @@ services:
       MYSQL_DATABASE: bankAPI
     ports:
       - "3307:3306"
+
+  admin:    
+    image: adminer    
+    ports:      
+      - "8080:8080"
+ 
+  mysql-old:
+    image: mysql:5.7.27
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: bankAPI
+    ports:
+      - "3309:3306" 
+
+    # Reference https://betterprogramming.pub/setting-up-mysql-database-in-a-docker-d6c69a3e9afe
