@@ -108,6 +108,50 @@ secret deve ser armazenado como hash
 
 ´
 */
+/*
+func (a Account) CreateAccount(name, cpf, secret, balance string) Account {
+	var account Account
+	account.Name = name
+	account.CPF = cpf
+	account.Secret = secret
+	account.Balance = a.Balance
+
+	account.ID = NewUUID()
+	account.CreatedAt = time.Now()
+	return account
+}*/
+
+func NewAccount(name, cpf, secret string, balance float64) Account {
+	fmt.Printf("->Name: %s CreateAt: \n ", name)
+
+	return Account{
+		ID:        NewUUID(),
+		Name:      name,
+		CPF:       cpf,
+		Secret:    secret,
+		Balance:   balance,
+		CreatedAt: time.Now(),
+	}
+}
+
+/*
+func (a Account) CreateAccount(name, cpf,secret, balance string) (Account, error) {
+
+	var account = domain.NewAccount(
+		domain.AccountID(domain.NewUUID()),
+		input.Name,
+		input.CPF,
+		domain.Money(input.Balance),
+		time.Now(),
+	)
+
+	account, err := a.repo.Create(ctx, account)
+	if err != nil {
+		return a.presenter.Output(domain.Account{}), err
+	}
+
+	return a, nil
+}*/
 
 func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
@@ -158,7 +202,7 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *Account) SaveAccountInDB() {
+func (a *Account) SaveAccountInDB() bool {
 	db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	if err != nil {
 		log.Fatal(err)
@@ -169,15 +213,14 @@ func (a *Account) SaveAccountInDB() {
 	stmt, _ := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
 
 	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, a.Secret, a.CreatedAt)
-	//stmt.Exec(2001, "Carlos")
-	//_, err = stmt.Exec(1, "Tiago") //chave duplicada
-
 	if err != nil {
 		tx.Rollback()
 		log.Fatal(err)
+		return false
 	}
 
 	tx.Commit()
+	return true
 }
 
 func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {

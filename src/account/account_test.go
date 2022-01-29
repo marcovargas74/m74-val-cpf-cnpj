@@ -25,10 +25,9 @@ func TestSetAccount(t *testing.T) {
 	t.Run("test function with true", func(t *testing.T) {
 		valorEsperado := "abc"
 
-		accountMaria := Account{Balance: 0, CreatedAt: time.Now()}
-		accountMaria.ID = valorEsperado
-
-		valorRetornado := accountMaria.ID
+		account := Account{Balance: 0, CreatedAt: time.Now()}
+		account.Name = valorEsperado
+		valorRetornado := account.Name
 
 		checkResult(t, valorRetornado, valorEsperado)
 	})
@@ -75,3 +74,198 @@ func TestValidName(t *testing.T) {
 	}
 
 }
+
+//TODO Passar para um arquivo DB
+func TestCreateAccount(t *testing.T) {
+
+	tests := []struct {
+		give        string
+		wantValue   string
+		inDataName  string
+		inDataCPF   string
+		inDataPassw string
+		inDataVal   float64
+	}{
+		{
+			give:        "Testa um nome OK Alice",
+			wantValue:   "Alice",
+			inDataName:  "Alice",
+			inDataCPF:   "111.111.111-11",
+			inDataPassw: "@Alice11",
+			inDataVal:   11.11,
+		},
+
+		{
+			give:        "Testa um nome OK Peter",
+			wantValue:   "Peter",
+			inDataName:  "Peter",
+			inDataCPF:   "222.222.222-22",
+			inDataPassw: "@Peter22",
+			inDataVal:   22.22,
+		},
+		{
+			give:        "Testa um nome OK NOBODY",
+			wantValue:   "Nobody",
+			inDataName:  "Nobody",
+			inDataCPF:   "000.000.000-00",
+			inDataPassw: "@Nobody00",
+			inDataVal:   00.00,
+		},
+	}
+
+	//server := NewServerBank()
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
+			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
+			assert.Equal(t, aAccount.Name, tt.wantValue)
+			//func (a *Account) SaveAccountInDB() bool {
+
+			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)*/
+		})
+
+	}
+
+}
+
+//TODO Passar para um arquivo DB
+func TestSaveAccountInDB(t *testing.T) {
+
+	tests := []struct {
+		give        string
+		wantValue   string
+		inDataName  string
+		inDataCPF   string
+		inDataPassw string
+		inDataVal   float64
+	}{
+		{
+			give:        "Testa um nome OK Alice",
+			wantValue:   "Alice",
+			inDataName:  "Alice",
+			inDataCPF:   "111.111.111-11",
+			inDataPassw: "@Alice11",
+			inDataVal:   11.11,
+		},
+
+		{
+			give:        "Testa um nome OK Peter",
+			wantValue:   "Peter",
+			inDataName:  "Peter",
+			inDataCPF:   "222.222.222-22",
+			inDataPassw: "@Peter22",
+			inDataVal:   22.22,
+		},
+		{
+			give:        "Testa um nome OK NOBODY",
+			wantValue:   "Nobody",
+			inDataName:  "Nobody",
+			inDataCPF:   "000.000.000-00",
+			inDataPassw: "@Nobody00",
+			inDataVal:   00.00,
+		},
+	}
+
+	//server := NewServerBank()
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
+			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
+			if aAccount.SaveAccountInDB() {
+				//log.Error("Cant save data in Bank")
+				fmt.Println("Cant save data in Bank")
+			}
+			//func (a *Account) SaveAccountInDB() bool {
+
+			assert.Equal(t, aAccount.Name, tt.wantValue)
+			//func (a *Account) SaveAccountInDB() bool {
+
+			//aAccount.GetAccountByID(aAccount.ID)
+			//assert.Equal(t, aAccount.Name, tt.wantValue)
+			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)*/
+		})
+
+	}
+
+}
+
+/*
+func TestShowAccountAll(t *testing.T) {
+
+	tests := []struct {
+		give        string
+		wantValue   string
+		inDataName  string
+		inDataCPF   string
+		inDataPassw string
+		inDataVal   float64
+	}{
+		{
+			give:        "Testa um nome OK Alice",
+			wantValue:   "Alice",
+			inDataName:  "Alice",
+			inDataCPF:   "111.111.111-11",
+			inDataPassw: "@Alice11",
+			inDataVal:   11.11,
+		},
+
+		{
+			give:        "Testa um nome OK Peter",
+			wantValue:   "Peter",
+			inDataName:  "Peter",
+			inDataCPF:   "222.222.222-22",
+			inDataPassw: "@Peter22",
+			inDataVal:   22.22,
+		},
+		{
+			give:        "Testa um nome OK NOBODY",
+			wantValue:   "Nobody",
+			inDataName:  "Nobody",
+			inDataCPF:   "000.000.000-00",
+			inDataPassw: "@Nobody00",
+			inDataVal:   00.00,
+		},
+	}
+
+	//server := NewServerBank()
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
+			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
+			if aAccount.SaveAccountInDB() {
+				//log.Error("Cant save data in Bank")
+				fmt.Println("Cant save data in Bank")
+			}
+			//func (a *Account) SaveAccountInDB() bool {
+
+			assert.Equal(t, aAccount.Name, tt.wantValue)
+			//func (a *Account) SaveAccountInDB() bool {
+
+			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
+			resposta := httptest.NewRecorder()
+
+			server.ServeHTTP(resposta, requisicao)
+			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+
+			recebido := resposta.Body.String()
+			assert.Equal(t, recebido, tt.wantValue)* /
+		})
+
+	}
+
+}
+*/
