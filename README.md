@@ -33,10 +33,20 @@ git clone https://github.com/marcovargas74/m74-bank-api
 
 - Star Docker Myql DB 
 ```sh
- ## Run compiled project
  docker run --name bank-mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.26
 ```
 
+
+- Star Docker Myql DB 
+```sh
+ cd m74-bank-api/docker
+
+ ## start dockers
+ docker-compose up
+
+ ## stop dockers
+ docker-compose down
+```
 
 - Enter in project
 
