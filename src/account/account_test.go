@@ -187,8 +187,8 @@ func TestSaveAccountInDB(t *testing.T) {
 			assert.Equal(t, aAccount.Name, tt.wantValue)
 			//func (a *Account) SaveAccountInDB() bool {
 
-			//aAccount.GetAccountByID(aAccount.ID)
-			//assert.Equal(t, aAccount.Name, tt.wantValue)
+			accountInBD := GetAccountByID(aAccount.ID)
+			assert.Equal(t, accountInBD.Name, tt.inDataName)
 			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
 			resposta := httptest.NewRecorder()
 
