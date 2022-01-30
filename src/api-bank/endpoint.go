@@ -19,6 +19,45 @@ type ServerBank struct {
 	http.Handler
 }
 
+type handler func(w http.ResponseWriter, r *http.Request)
+
+//BasicAuth Used To authentic the user to access API
+func BasicAuth(pass handler) handler {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, passw, _ := r.BasicAuth()
+		fmt.Printf("login [%s] [%s] \n", user, passw)
+
+		if user == "" || passw == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			http.Error(w, "authorization failed", http.StatusUnauthorized)
+			fmt.Fprint(w, "Authentication Required")
+			return
+		}
+
+		userLogin, err := account.GetAccountByCPF(user)
+		if err != nil {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "PASS NOT FOUND")
+			return
+		}
+
+		if account.HashToSecret(userLogin.Secret) != passw {
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
+			return
+		}
+		json, _ := json.Marshal(userLogin.ID)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, string(json))
+		w.WriteHeader(http.StatusOK)
+
+		pass(w, r)
+	}
+}
+
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	var accountJSON account.Account
@@ -184,7 +223,10 @@ func NewServerBank() *ServerBank {
 	//GORILAS
 	routerG := mux.NewRouter()
 	//routerG := mux.NewRouter().StrictSlash(true)
-	//secure := routerG.PathPrefix("/auth").Subrouter()
+	//routerG.PathPrefix("/auth").Subrouter()
+
+	//secure := routerG.PathPrefix("/login/").Subrouter()
+	//secure.HandleFunc("/accounts", server.CallbackAccounts)
 	//routerG.
 
 	//router := mux.NewRouter().StrictSlash(true)
@@ -196,13 +238,15 @@ func NewServerBank() *ServerBank {
 	//authenticator.Wrap(MyUserHandler)
 	//routerG.HandleFunc("/login/", authenticator.Wrap(server.CallbackLogin))
 
-	routerG.HandleFunc("/", server.DefaultEndpoint)
-	routerG.HandleFunc("/accounts", server.CallbackAccounts)
-	routerG.HandleFunc("/accounts/{account_id}/balance", server.CallbackFindAccountID)
 	routerG.HandleFunc("/login/", server.CallbackLogin)
+	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
+	routerG.HandleFunc("/accounts", BasicAuth(server.CallbackAccounts))
+	routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 
-	routerG.HandleFunc("/transfers", server.CallbackTransfer)
-	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
+	routerG.HandleFunc("/transfers", BasicAuth(server.CallbackTransfer))
+	routerG.HandleFunc("/transfers/{account_id}", BasicAuth(server.CallbackTransferByID))
+
+	//routerG.HandleFunc("/transfers/{account_id}", BasicAuth2(server.CallbackTransferByID))
 
 	server.Handler = routerG
 
