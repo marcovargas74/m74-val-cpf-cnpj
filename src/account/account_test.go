@@ -188,12 +188,13 @@ func TestSaveAccountInDB(t *testing.T) {
 			assert.Equal(t, aAccount.Name, tt.wantValue)
 			//func (a *Account) SaveAccountInDB() bool {
 
-			accountInBD := GetAccountByID(aAccount.ID)
+			accountInBD, _ := GetAccountByID(aAccount.ID)
+
 			assert.Equal(t, accountInBD.Name, tt.inDataName)
 
 			assert.Equal(t, accountInBD.Balance, tt.inDataVal)
 			UpdateBalanceByID(aAccount.ID, tt.inDataVal)
-			accountInBD = GetAccountByID(aAccount.ID)
+			accountInBD, _ = GetAccountByID(aAccount.ID)
 			assert.Equal(t, accountInBD.Balance, (tt.inDataVal * 2))
 			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
 			resposta := httptest.NewRecorder()

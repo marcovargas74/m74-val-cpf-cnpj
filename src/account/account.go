@@ -323,23 +323,28 @@ func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID
 }
 
 //TODO return error
-func GetAccountByID(findID string) Account {
+func GetAccountByID(findID string) (Account, error) {
 	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
+		return Account{}, err
 	}
 	defer db.Close()
 
 	var account Account
 	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
-	return account
+	return account, nil
 }
 
 func UpdateBalanceByID(accID string, transationValue float64) bool {
 
-	accountInBD := GetAccountByID(accID)
+	accountInBD, err := GetAccountByID(accID)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
 	accountInBD.Balance = accountInBD.Balance + transationValue
 
 	fmt.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
