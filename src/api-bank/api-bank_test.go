@@ -6,10 +6,6 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
-const (
-	erroMsg = "Valor esperado %v, resultado encontrado %v"
-)
-
 func TestGetVersion(t *testing.T) {
 
 	tests := []struct {
