@@ -73,7 +73,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request) {
 	if !IsValidUUID(t.AccountOriginID) || !IsValidUUID(t.AccountDestinationID) {
 		fmt.Printf("Something gone wrong:")
 		fmt.Printf("INVALID ID \n") // do something
-		message := fmt.Sprintf("Invalid ID %s or %s", t.AccountOriginID, t.AccountDestinationID)
+		message := fmt.Sprintf("invalid ID %s or %s", t.AccountOriginID, t.AccountDestinationID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusNotAcceptable)
 		return
@@ -83,6 +83,14 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request) {
 		message := fmt.Sprintf("Can´t save account from %v", t.ID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err := t.ExecTransation(w, r)
+	if err != nil {
+		//message := fmt.Sprintf("Fail to Exec Transation %s", t.ID)
+		//fmt.Fprint(w, message)
+		//w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -163,8 +171,32 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func GetTranferByID(findID string) (TransferBank, error) {
+
+	if !IsValidUUID(findID) {
+		return TransferBank{}, fmt.Errorf("invalid ID: %s", findID)
+	}
+
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+		return TransferBank{}, err
+	}
+	defer db.Close()
+
+	var aTransfer TransferBank
+	db.QueryRow("select id, ori, dest, amount from transfers where id = ?", findID).Scan(&aTransfer.ID, &aTransfer.AccountOriginID, &aTransfer.AccountDestinationID, &aTransfer.Amount)
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s %s]\n", findID, aTransfer.AccountOriginID, aTransfer.AccountDestinationID)
+
+	if !IsValidUUID(aTransfer.ID) {
+		return aTransfer, fmt.Errorf("transfer not found ID[%s]", findID)
+	}
+
+	return aTransfer, nil
+}
+
 /*
-func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
+func (a *Account) GetTansferAccountByID( findID string) {
 	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
@@ -186,17 +218,74 @@ func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID
 */
 
 // MakeTransfer withdraw from source account and credit to destination account
-func (t *TransferBank) MakeTransfer(source, destination *Account, amount float64) (bool, error) {
+func (t *TransferBank) MakeTransfer(source, destination *Account) (bool, error) {
 
 	fmt.Printf(" MakeTransfer check -->>Atual Values Destino:[%.2f] <- ORIGIN:[%.2f]\n", destination.Balance, source.Balance)
-	if source.Balance < amount {
+	if source.Balance < t.Amount {
 		return false, fmt.Errorf("Account to be debited does not have sufficient balance[%.2f]", source.Balance)
 	}
 
-	source.Balance = source.Balance - amount
-	destination.Balance = destination.Balance + amount
+	source.Balance = source.Balance - t.Amount
+	destination.Balance = destination.Balance + t.Amount
 	fmt.Printf(" transferencia SUCCESS   -->>New Values Destino:[%.2f] <- ORIGIN:[%.2f]\n", destination.Balance, source.Balance)
 	return true, nil
+}
+
+/*FUNCAO PRINCIPAL USado para fazer a transação*/
+func (t *TransferBank) ExecTransation(w http.ResponseWriter, r *http.Request) error {
+
+	/*aTransfer, err := GetTranferByID(t.ID)
+	if err != nil {
+		//fmt.Println(err)
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return err
+	}*/
+
+	accountToDeb, err := GetAccountByID(t.AccountOriginID)
+	if err != nil {
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusNotFound)
+		return err
+	}
+
+	accountToCred, err := GetAccountByID(t.AccountDestinationID)
+	if err != nil {
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusNotFound)
+		return err
+	}
+
+	_, err = t.MakeTransfer(&accountToDeb, &accountToCred)
+	if err != nil {
+		fmt.Println(err)
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusPreconditionFailed)
+		return err
+	}
+
+	//TODO Refatorar criando um função para a conta atualizar seus dados
+	if !UpdateBalanceByID(accountToDeb.ID, accountToDeb.Balance) {
+		fmt.Printf("fail to update Debit account %s\n", err)
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusPreconditionFailed)
+		return err
+	}
+
+	if !UpdateBalanceByID(accountToCred.ID, accountToCred.Balance) {
+		fmt.Printf("fail to update Debit account %s\n", err)
+		fmt.Fprint(w, err)
+		w.WriteHeader(http.StatusPreconditionFailed)
+		return err
+	}
+
+	return nil
+	/*json, _ := json.Marshal(aTransfer)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+	w.WriteHeader(http.StatusOK)*/
+
 }
 
 /*
