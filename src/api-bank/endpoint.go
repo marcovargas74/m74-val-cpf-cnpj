@@ -28,6 +28,9 @@ func BasicAuth(pass handler) handler {
 		user, passw, _ := r.BasicAuth()
 		fmt.Printf("login [%s] [%s] \n", user, passw)
 
+		//fmt.Printf("Login Body: %v\n", r.Body)
+		//fmt.Printf("Login Header: %v\n", r.Header)
+
 		if user == "" || passw == "" {
 			w.WriteHeader(http.StatusUnauthorized)
 			//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
@@ -54,6 +57,7 @@ func BasicAuth(pass handler) handler {
 		fmt.Fprint(w, string(json))
 		w.WriteHeader(http.StatusOK)
 
+		r.Header.Add("token", userLogin.ID)
 		pass(w, r)
 	}
 }
@@ -61,6 +65,7 @@ func BasicAuth(pass handler) handler {
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	var accountJSON account.Account
+	fmt.Printf("CallbackAccounts TOKEN: %v\n", r.Header.Get("token"))
 
 	switch r.Method {
 	case http.MethodPost:
@@ -115,40 +120,18 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 	//transfer := r.URL.Path[len("/transfers/"):]
 	//fmt.Printf("tranfer: %v\n", r.Body)
 	var aTransfer account.TransferBank
+	tokenAccount := r.Header.Get("token")
+	fmt.Printf("CallbackTransfer TOKEN: %v\n", r.Header.Get("token"))
 
 	//TOD deve estar autenticada
 	// filterID string
 
 	switch r.Method {
 	case http.MethodPost:
-		aTransfer.SaveTransfer(w, r)
+		aTransfer.SaveTransfer(w, r, tokenAccount)
 	case http.MethodGet:
-		aTransfer.GetTransfers(w, r)
-	default:
-		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-
-}
-
-func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
-
-	//w.Header().Set("content-type", "application/json")
-	//transfer := r.URL.Path[len("/transfers/"):]
-	//fmt.Printf("tranfer: %v\n", r.Body)
-	var aTransfer account.TransferBank
-
-	accountID := mux.Vars(r)
-	w.WriteHeader(http.StatusOK)
-	fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
-	// filterID string
-
-	switch r.Method {
-	case http.MethodPost:
-		aTransfer.SaveTransfer(w, r)
-	case http.MethodGet:
-		aTransfer.GetTransfersByID(w, r, accountID["account_id"])
+		//aTransfer.GetTransfers(w, r)
+		aTransfer.GetTransfersByID(w, r, tokenAccount)
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -211,46 +194,16 @@ func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 func NewServerBank() *ServerBank {
 
 	server := new(ServerBank)
-	//s.Armazenamento = Armazenamento
-
-	/*router := http.NewServeMux()
-	router.Handle("/", http.HandlerFunc(server.DefaultEndpoint))
-	router.Handle("/accounts", http.HandlerFunc(server.CallbackAccounts))
-	router.Handle("/accounts/{account_id}/balance", http.HandlerFunc(server.CallbackFindAccountID))
-	router.Handle("/login/", http.HandlerFunc(server.CallbackLogin))
-	router.Handle("/transfers/", http.HandlerFunc(server.CallbackTransfer))*/
 
 	//GORILAS
 	routerG := mux.NewRouter()
-	//routerG := mux.NewRouter().StrictSlash(true)
-	//routerG.PathPrefix("/auth").Subrouter()
-
-	//secure := routerG.PathPrefix("/login/").Subrouter()
-	//secure.HandleFunc("/accounts", server.CallbackAccounts)
-	//routerG.
-
-	//router := mux.NewRouter().StrictSlash(true)
-	//secure := router.PathPrefix("/auth").Subrouter()
-	//secure.Use(auth.JwtVerify)
-	//secure.HandleFunc("/login/", server.CallbackLogin)
-
-	//authenticator := auth.NewBasicAuthenticator("example.com", Secret)
-	//authenticator.Wrap(MyUserHandler)
-	//routerG.HandleFunc("/login/", authenticator.Wrap(server.CallbackLogin))
-
 	routerG.HandleFunc("/login/", server.CallbackLogin)
 	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/accounts", BasicAuth(server.CallbackAccounts))
 	routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 
 	routerG.HandleFunc("/transfers", BasicAuth(server.CallbackTransfer))
-	routerG.HandleFunc("/transfers/{account_id}", BasicAuth(server.CallbackTransferByID))
-
-	//routerG.HandleFunc("/transfers/{account_id}", BasicAuth2(server.CallbackTransferByID))
-
 	server.Handler = routerG
-
-	//server.Handler = router
 	return server
 
 }
@@ -263,3 +216,35 @@ func StartAPI(modo string) {
 		log.Fatalf("Não foi possivel ouvir na porta 5000 %v", err)
 	}
 }
+
+//Trash CODE
+
+/*
+func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
+
+	//w.Header().Set("content-type", "application/json")
+	//transfer := r.URL.Path[len("/transfers/"):]
+	//fmt.Printf("tranfer: %v\n", r.Body)
+	var aTransfer account.TransferBank
+	fmt.Printf("CallbackTransferByID TOKEN: %v\n", r.Header.Get("token"))
+
+	//accountID := mux.Vars(r)
+	tokenAccount := r.Header.Get("token")
+	//w.WriteHeader(http.StatusOK)
+	//fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
+	// filterID string
+
+	switch r.Method {
+	case http.MethodPost:
+		aTransfer.SaveTransfer(w, r, tokenAccount)
+	case http.MethodGet:
+		//aTransfer.GetTransfersByID(w, r, accountID["account_id"])
+		aTransfer.GetTransfersByID(w, r, tokenAccount)
+	default:
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+
+}
+*/

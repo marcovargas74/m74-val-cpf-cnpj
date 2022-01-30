@@ -46,13 +46,14 @@ func structAndJSONTransfer() {
 	fmt.Println(aTransfFromJSON.ID)
 }*/
 
-func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request) {
+func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, tokeOrigin string) {
 
 	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	t.AccountOriginID = tokeOrigin
 	fmt.Printf("\nSaveTransfer OriID:%s  DestID:%s value %.2f\n", t.AccountOriginID, t.AccountDestinationID, t.Amount)
 	if errs := validator.Validate(t); errs != nil {
 		fmt.Printf("INVALIDO %v\n", errs) // do something
