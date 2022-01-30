@@ -1,6 +1,7 @@
 package m74bankapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -120,27 +121,36 @@ func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request
 func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 	//client := r.URL.Path[len("/login/"):]
-	fmt.Printf("Login Body: %v\n", r.Body)
+	//fmt.Printf("Login Body: %v\n", r.Body)
+	//fmt.Printf("Login Body: %v\n", r.Header.Get())
 
-	w.Header().Set("content-type", "application/json")
-	if r.Method == http.MethodPost {
-		loginData := mux.Vars(r)
-		//w.WriteHeader(http.StatusOK)
-		fmt.Printf("login [%s] [%s] \n", loginData["cpf"], loginData["cpf"])
+	user, passw, _ := r.BasicAuth()
+	fmt.Printf("login [%s] [%s] \n", user, passw)
 
-		//var accountJSON account.Account
-		//countJSON.CheckLoginD(w, r, loginData["account_id"])
-		message := fmt.Sprintf("Access Autorized %v", r.URL)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusOK)
-
+	if user == "" || passw == "" || r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusUnauthorized)
+		//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+		fmt.Fprint(w, "Authentication Required")
 		return
 	}
-	message := fmt.Sprintf("ACCESS DANIED %v", r.URL)
-	//fmt.Printf("client GET %s", client)
-	fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusForbidden)
 
+	userLogin, err := account.GetAccountByCPF(user)
+	if err != nil {
+		log.Fatal(err)
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "PASS NOT FOUND")
+		return
+	}
+
+	if userLogin.Secret != passw {
+		w.WriteHeader(http.StatusForbidden)
+		fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
+		return
+	}
+	json, _ := json.Marshal(userLogin.ID)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+	w.WriteHeader(http.StatusOK)
 }
 
 //Codigo Antigo
@@ -174,11 +184,24 @@ func NewServerBank() *ServerBank {
 
 	//GORILAS
 	routerG := mux.NewRouter()
+	//routerG := mux.NewRouter().StrictSlash(true)
+	//secure := routerG.PathPrefix("/auth").Subrouter()
 	//routerG.
+
+	//router := mux.NewRouter().StrictSlash(true)
+	//secure := router.PathPrefix("/auth").Subrouter()
+	//secure.Use(auth.JwtVerify)
+	//secure.HandleFunc("/login/", server.CallbackLogin)
+
+	//authenticator := auth.NewBasicAuthenticator("example.com", Secret)
+	//authenticator.Wrap(MyUserHandler)
+	//routerG.HandleFunc("/login/", authenticator.Wrap(server.CallbackLogin))
+
 	routerG.HandleFunc("/", server.DefaultEndpoint)
 	routerG.HandleFunc("/accounts", server.CallbackAccounts)
 	routerG.HandleFunc("/accounts/{account_id}/balance", server.CallbackFindAccountID)
 	routerG.HandleFunc("/login/", server.CallbackLogin)
+
 	routerG.HandleFunc("/transfers", server.CallbackTransfer)
 	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
 
