@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	erroMsg = "Valor esperado %v, resultado encontrado %v"
+	erroMsg = "Test fail got Value[%v], wait Value [%v]"
 )
 
 func TestSetAccount(t *testing.T) {
