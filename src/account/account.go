@@ -338,6 +338,21 @@ func GetAccountByID(findID string) (Account, error) {
 	return account, nil
 }
 
+func GetAccountByCPF(findID string) (Account, error) {
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+		return Account{}, err
+	}
+	defer db.Close()
+
+	var account Account
+	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where cpf = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
+	return account, nil
+}
+
 func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 
 	accountInBD, err := GetAccountByID(accID)
