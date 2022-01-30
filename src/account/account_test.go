@@ -174,7 +174,8 @@ func TestSaveAccountInDB(t *testing.T) {
 	}
 
 	//server := NewServerBank()
-	CreateDB(true)
+	CreateDB(false)
+	//CreateDB(true)
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
@@ -193,7 +194,7 @@ func TestSaveAccountInDB(t *testing.T) {
 			assert.Equal(t, accountInBD.Name, tt.inDataName)
 
 			assert.Equal(t, accountInBD.Balance, tt.inDataVal)
-			UpdateBalanceByID(aAccount.ID, tt.inDataVal)
+			UpdateBalanceByID(aAccount.ID, (tt.inDataVal * 2))
 			accountInBD, _ = GetAccountByID(aAccount.ID)
 			assert.Equal(t, accountInBD.Balance, (tt.inDataVal * 2))
 			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)

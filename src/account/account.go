@@ -338,14 +338,14 @@ func GetAccountByID(findID string) (Account, error) {
 	return account, nil
 }
 
-func UpdateBalanceByID(accID string, transationValue float64) bool {
+func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 
 	accountInBD, err := GetAccountByID(accID)
 	if err != nil {
 		fmt.Println(err)
 		return false
 	}
-	accountInBD.Balance = accountInBD.Balance + transationValue
+	accountInBD.Balance = newTransationValue
 
 	fmt.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
 	db, err := sql.Open("mysql", DBSource)
