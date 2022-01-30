@@ -78,8 +78,9 @@ func TestMakeTransfer(t *testing.T) {
 			origAccount := Account{Name: tt.inNameOri, Balance: tt.inValueOri}
 			dstAccount := Account{Name: tt.inNameDst, Balance: tt.inValueDst}
 
-			var fakeTransfer TransferBank
-			recebido, err := fakeTransfer.MakeTransfer(&origAccount, &dstAccount, tt.inValueTrasfer)
+			//var fakeTransfer TransferBank
+			fakeTransfer := TransferBank{Amount: tt.inValueTrasfer}
+			recebido, err := fakeTransfer.MakeTransfer(&origAccount, &dstAccount)
 			if err != nil {
 				fmt.Println(err)
 			}
@@ -87,6 +88,59 @@ func TestMakeTransfer(t *testing.T) {
 
 			checkIfEqualFloat(t, origAccount.Balance, tt.wantValueOri)
 			checkIfEqualFloat(t, dstAccount.Balance, tt.wantValueDst)
+		})
+
+	}
+
+}
+
+func TestGetTransfer(t *testing.T) {
+
+	tests := []struct {
+		give          string
+		wantValue     bool
+		inFindID      string
+		inValueAmount float64
+	}{
+		{
+			give:          "Testa Busca por ID Vazio",
+			wantValue:     false,
+			inFindID:      "",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por ID Invalido",
+			wantValue:     false,
+			inFindID:      "b1080263",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por ID Inexistente",
+			wantValue:     false,
+			inFindID:      "b1080263-f5e0-495a-8e70-60a303a7a8d3",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por ID Valido",
+			wantValue:     true,
+			inFindID:      "3b582666-4600-4640-ab9c-bc01b66def0e",
+			inValueAmount: 10.00,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.give, func(t *testing.T) {
+			result := true
+			aTransfer, err := GetTranferByID(tt.inFindID)
+			if err != nil {
+				fmt.Println(err)
+				result = false
+			}
+
+			fmt.Println(aTransfer.AccountOriginID)
+			checkIfTruOrFalse(t, result, tt.wantValue)
+			checkIfEqualFloat(t, aTransfer.Amount, tt.inValueAmount)
 		})
 
 	}
