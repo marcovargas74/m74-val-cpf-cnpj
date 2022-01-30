@@ -71,16 +71,44 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 
 func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set("content-type", "application/json")
+	//w.Header().Set("content-type", "application/json")
 	//transfer := r.URL.Path[len("/transfers/"):]
 	//fmt.Printf("tranfer: %v\n", r.Body)
 	var aTransfer account.TransferBank
+
+	//TOD deve estar autenticada
+	// filterID string
 
 	switch r.Method {
 	case http.MethodPost:
 		aTransfer.SaveTransfer(w, r)
 	case http.MethodGet:
 		aTransfer.GetTransfers(w, r)
+	default:
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+
+}
+
+func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
+
+	//w.Header().Set("content-type", "application/json")
+	//transfer := r.URL.Path[len("/transfers/"):]
+	//fmt.Printf("tranfer: %v\n", r.Body)
+	var aTransfer account.TransferBank
+
+	accountID := mux.Vars(r)
+	w.WriteHeader(http.StatusOK)
+	fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
+	// filterID string
+
+	switch r.Method {
+	case http.MethodPost:
+		aTransfer.SaveTransfer(w, r)
+	case http.MethodGet:
+		aTransfer.GetTransfersByID(w, r, accountID["account_id"])
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -152,6 +180,7 @@ func NewServerBank() *ServerBank {
 	routerG.HandleFunc("/accounts/{account_id}/balance", server.CallbackFindAccountID)
 	routerG.HandleFunc("/login/", server.CallbackLogin)
 	routerG.HandleFunc("/transfers", server.CallbackTransfer)
+	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
 
 	server.Handler = routerG
 

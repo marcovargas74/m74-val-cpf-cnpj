@@ -171,6 +171,33 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//ShowAccountAll mostra todos as contas
+func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, UserID string) {
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, _ := db.Query("select id, ori, dest, amount, createAt from transfers where ori = ?", UserID)
+
+	defer rows.Close()
+
+	var transfers []TransferBank
+	for rows.Next() {
+		var aTransfer TransferBank
+		rows.Scan(&aTransfer.ID, &aTransfer.AccountOriginID, &aTransfer.AccountDestinationID, &aTransfer.Amount, &aTransfer.CreatedAt)
+		fmt.Printf(">>ID Destino:[%s] <- ID ORIGIN:[%s]\n", aTransfer.AccountOriginID, aTransfer.AccountDestinationID)
+		transfers = append(transfers, aTransfer)
+	}
+
+	json, _ := json.Marshal(transfers)
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+
+}
+
 func GetTranferByID(findID string) (TransferBank, error) {
 
 	if !IsValidUUID(findID) {
