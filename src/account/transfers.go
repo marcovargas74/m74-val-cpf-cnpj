@@ -185,6 +185,20 @@ func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID
 }
 */
 
+// MakeTransfer withdraw from source account and credit to destination account
+func (t *TransferBank) MakeTransfer(source, destination *Account, amount float64) (bool, error) {
+
+	fmt.Printf(" MakeTransfer check -->>Atual Values Destino:[%.2f] <- ORIGIN:[%.2f]\n", destination.Balance, source.Balance)
+	if source.Balance < amount {
+		return false, fmt.Errorf("Account to be debited does not have sufficient balance[%.2f]", source.Balance)
+	}
+
+	source.Balance = source.Balance - amount
+	destination.Balance = destination.Balance + amount
+	fmt.Printf(" transferencia SUCCESS   -->>New Values Destino:[%.2f] <- ORIGIN:[%.2f]\n", destination.Balance, source.Balance)
+	return true, nil
+}
+
 /*
 /transfers
 A entidade Transfer possui os seguintes atributos:
