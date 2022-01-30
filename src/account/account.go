@@ -2,6 +2,7 @@ package account
 
 import (
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -89,6 +90,21 @@ func IsValidUUID(uuidVal string) bool {
 	_, err := uuid.FromString(uuidVal)
 	return err == nil
 }
+
+func SecretToHash(password string) string {
+	return base64.StdEncoding.EncodeToString([]byte(password))
+
+}
+
+func HashToSecret(hashIn string) string {
+	passw, _ := base64.StdEncoding.DecodeString(hashIn)
+	return string(passw)
+}
+
+/*
+func BasicAuth(password string) string {
+	return base64.StdEncoding.EncodeToString([]byte(password))
+}*/
 
 /*
 
@@ -223,8 +239,8 @@ func (a *Account) SaveAccountInDB() bool {
 
 	tx, _ := db.Begin()
 	stmt, _ := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
-
-	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, a.Secret, a.CreatedAt)
+	secretHash := SecretToHash(a.Secret)
+	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, secretHash, a.CreatedAt)
 	if err != nil {
 		tx.Rollback()
 		log.Fatal(err)

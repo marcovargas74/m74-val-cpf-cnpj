@@ -120,7 +120,6 @@ func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request
 
 func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
-	//client := r.URL.Path[len("/login/"):]
 	//fmt.Printf("Login Body: %v\n", r.Body)
 	//fmt.Printf("Login Body: %v\n", r.Header.Get())
 
@@ -142,7 +141,7 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if userLogin.Secret != passw {
+	if account.HashToSecret(userLogin.Secret) != passw {
 		w.WriteHeader(http.StatusForbidden)
 		fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
 		return
