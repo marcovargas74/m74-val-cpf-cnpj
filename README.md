@@ -19,6 +19,7 @@
 ## Requirements/dependencies
 - Docker
 - Docker-compose
+- MySQL must be install in same machine or Network of the api-bank(bank-api will be conect at 127.0.0.1:3037)
 
 ## Getting Started
 
