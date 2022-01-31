@@ -47,7 +47,7 @@ func BasicAuth(pass handler) handler {
 
 		userLogin, err := account.GetAccountByCPF(user)
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 			w.WriteHeader(http.StatusNotFound)
 			fmt.Fprint(w, "PASS NOT FOUND")
 			return

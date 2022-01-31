@@ -46,28 +46,7 @@ type Balance struct {
 	Value float64 `json:"balance"`
 }
 
-func (a *Account) Deposit(amount float64) {
-	a.Balance += amount
-}
-
-func (a Account) ValidName(name string) bool {
-	isValid := false
-	if name != "" {
-		isValid = true
-	}
-
-	return isValid
-}
-
-func (a Account) ValiCPF(cpf string) bool {
-	isValid := true
-	if cpf == "" || len(cpf) != 14 {
-		isValid = false
-	}
-
-	return isValid
-}
-
+/*
 //StructAndJSON Just Test
 func StructAndJSON() string {
 	//var create time.Time
@@ -83,12 +62,22 @@ func StructAndJSON() string {
 	//Convert Json To struct
 	/*var accountFromJSON Account
 	json.Unmarshal(mariaJSON, &accountFromJSON)
-	fmt.Println(accountFromJSON.Name)*/
+	fmt.Println(accountFromJSON.Name)* /
+}
+*/
+
+//IsValidCPF Check if cpf is valid
+func IsValidCPF(cpf string) bool {
+	isValid := true
+	if len(cpf) != 14 {
+		isValid = false
+	}
+	return isValid
 }
 
+//NewUUID Cria um novo UUID valido
 func NewUUID() string {
 	uuidNew, _ := uuid.NewV4()
-	//fmt.Printf("UUIDv4: %s\n", u1)
 	return uuidNew.String()
 	//return gouuid.NewV4().String()
 
@@ -113,57 +102,8 @@ func HashToSecret(hashIn string) string {
 	return string(passw)
 }
 
-//IsValidCPF Check if cpf is valid
-func IsValidCPF(cpf string) bool {
-	isValid := true
-	if len(cpf) != 14 {
-		isValid = false
-	}
-	return isValid
-}
-
-/*
-func BasicAuth(password string) string {
-	return base64.StdEncoding.EncodeToString([]byte(password))
-}*/
-
-/*
-
-A entidade Account possui os seguintes atributos:
-
-id
-name
-cpf
-secret
-balance
-created_at
-Espera-se as seguintes ações:
-
-GET /accounts - obtém a lista de contas
-GET /accounts/{account_id}/balance - obtém o saldo da conta
-POST /accounts - cria uma Account
-Regras para esta rota
-
-balance pode iniciar com 0 ou algum valor para simplificar
-secret deve ser armazenado como hash
-
-´
-*/
-/*
-func (a Account) CreateAccount(name, cpf, secret, balance string) Account {
-	var account Account
-	account.Name = name
-	account.CPF = cpf
-	account.Secret = secret
-	account.Balance = a.Balance
-
-	account.ID = NewUUID()
-	account.CreatedAt = time.Now()
-	return account
-}*/
-
 func NewAccount(name, cpf, secret string, balance float64) Account {
-	fmt.Printf("->Name: %s CreateAt: \n ", name)
+	//fmt.Printf("->Name: %s CreateAt: \n ", name)
 
 	return Account{
 		ID:        NewUUID(),
@@ -175,25 +115,7 @@ func NewAccount(name, cpf, secret string, balance float64) Account {
 	}
 }
 
-/*
-func (a Account) CreateAccount(name, cpf,secret, balance string) (Account, error) {
-
-	var account = domain.NewAccount(
-		domain.AccountID(domain.NewUUID()),
-		input.Name,
-		input.CPF,
-		domain.Money(input.Balance),
-		time.Now(),
-	)
-
-	account, err := a.repo.Create(ctx, account)
-	if err != nil {
-		return a.presenter.Output(domain.Account{}), err
-	}
-
-	return a, nil
-}*/
-
+//SaveAccount main fuction to save a new account in system
 func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
@@ -201,9 +123,9 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("\nSaveAccount Name:%s  cpf:%s balance %.2f\n", a.Name, a.CPF, a.Balance)
+	log.Printf("\nSaveAccount Name:%s  cpf:%s balance %.2f\n", a.Name, a.CPF, a.Balance)
 	if errs := validator.Validate(a); errs != nil {
-		fmt.Printf("INVALIDO %v\n", errs) // do something
+		log.Printf("INVALIDO %v\n", errs)
 		w.WriteHeader(http.StatusBadRequest)
 	}
 
@@ -213,30 +135,11 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 	a.CreatedAt = time.Now()
 	fmt.Printf("UUIDv4: %s\n", a.ID)
 
-	// Parsing UUID from string input
-	//IsValidUUID
-	///*u2, err := uuid.FromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	if !IsValidUUID(a.ID) {
 		fmt.Printf("Something gone wrong:")
 	}
 
-	//fmt.Printf("Successfully parsed: %s", u2)
-	/*
-		var account = domain.NewAccount(
-			domain.AccountID(domain.NewUUID()),
-			input.Name,
-			input.CPF,
-			domain.Money(input.Balance),
-			time.Now(),
-		)
-
-		account, err := a.repo.Create(ctx, account)
-		if err != nil {
-			return a.presenter.Output(domain.Account{}), err
-		}
-
-		return a.presenter.Output(account), nil*/
-	if !a.SaveAccountInDB() {
+	if !a.saveAccountInDB() {
 		message := fmt.Sprintf("Can´t save account from %v", a.ID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -250,11 +153,10 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *Account) SaveAccountInDB() bool {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+func (a *Account) saveAccountInDB() bool {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -264,7 +166,7 @@ func (a *Account) SaveAccountInDB() bool {
 	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, secretHash, a.CreatedAt)
 	if err != nil {
 		tx.Rollback()
-		log.Fatal(err)
+		log.Println(err)
 		return false
 	}
 
@@ -272,37 +174,32 @@ func (a *Account) SaveAccountInDB() bool {
 	return true
 }
 
+//GetAccounts show All account save in system
 func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
-	//message := StructAndJSON()
 	a.ShowAccountAll(w, r)
-
-	//fmt.Fprint(w, message)
 	w.WriteHeader(http.StatusOK)
 }
 
+//GetAccountByID return account pass token ID in arg
 func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
 
-	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
+	//log.Printf("   -->GetAccountByID [%s] \n", ID)
 	if !IsValidUUID(ID) {
-		fmt.Printf("Something gone wrong:")
+		log.Printf("Something gone wrong: Invalid ID:%s\n", ID)
 		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	//message := StructAndJSON()
-	a.ShowAccountByID(w, r, ID)
-
-	//fmt.Fprint(w, message)
+	a.showAccountByID(w, r, ID)
 	w.WriteHeader(http.StatusOK)
 }
 
 //ShowAccountAll mostra todos as contas
 func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -324,11 +221,10 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -339,16 +235,16 @@ func (a *Account) ShowAccountByID(w http.ResponseWriter, r *http.Request, findID
 
 	w.Header().Set("Content-Type", "application/json")
 
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
+	log.Printf("DADOS DO DB id[%s] data[%s]\n", findID, string(json))
 
 	fmt.Fprint(w, string(json))
 }
 
+//ShowBalanceByID return Balance account pass token ID in arg
 func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID string) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -359,12 +255,42 @@ func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID
 	fmt.Fprint(w, string(json))
 }
 
-//TODO return error
-func GetAccountByID(findID string) (Account, error) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+//UpdateBalanceByID update balance value account in DB
+func UpdateBalanceByID(accID string, newTransationValue float64) bool {
+
+	accountInBD, err := GetAccountByID(accID)
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	accountInBD.Balance = newTransationValue
+
+	log.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+	}
+	defer db.Close()
+
+	tx, _ := db.Begin()
+	stmt, _ := tx.Prepare("update accounts set balance = ? where id = ?")
+	_, err = stmt.Exec(accountInBD.Balance, accountInBD.ID)
+	if err != nil {
+		tx.Rollback()
+		log.Println(err)
+		return false
+	}
+
+	tx.Commit()
+	return true
+
+}
+
+//GetAccountByID return account pass token ID in arg
+func GetAccountByID(findID string) (Account, error) {
+	db, err := sql.Open("mysql", DBSource)
+	if err != nil {
+		log.Println(err)
 		return Account{}, err
 	}
 	defer db.Close()
@@ -384,7 +310,7 @@ func GetAccountByCPF(findCPF string) (Account, error) {
 
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return Account{}, err
 	}
 	defer db.Close()
@@ -393,34 +319,4 @@ func GetAccountByCPF(findCPF string) (Account, error) {
 	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where cpf = ?", findCPF).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findCPF, account.CPF)
 	return account, nil
-}
-
-func UpdateBalanceByID(accID string, newTransationValue float64) bool {
-
-	accountInBD, err := GetAccountByID(accID)
-	if err != nil {
-		fmt.Println(err)
-		return false
-	}
-	accountInBD.Balance = newTransationValue
-
-	fmt.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
-	db, err := sql.Open("mysql", DBSource)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	tx, _ := db.Begin()
-	stmt, _ := tx.Prepare("update accounts set balance = ? where id = ?")
-	_, err = stmt.Exec(accountInBD.Balance, accountInBD.ID)
-	if err != nil {
-		tx.Rollback()
-		log.Fatal(err)
-		return false
-	}
-
-	tx.Commit()
-	return true
-
 }

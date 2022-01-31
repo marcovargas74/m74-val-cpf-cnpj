@@ -166,7 +166,7 @@ func TestSaveAccountInDB(t *testing.T) {
 		t.Run(tt.give, func(t *testing.T) {
 			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
 			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
-			if aAccount.SaveAccountInDB() {
+			if aAccount.saveAccountInDB() {
 				fmt.Println("Cant save data in Bank")
 			}
 			CheckIfEqualString(t, aAccount.Name, tt.wantValue)

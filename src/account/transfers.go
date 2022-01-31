@@ -107,7 +107,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 func (t *TransferBank) SaveTransferInDB() bool {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer db.Close()
 
@@ -117,7 +117,7 @@ func (t *TransferBank) SaveTransferInDB() bool {
 	_, err = stmt.Exec(t.ID, t.AccountOriginID, t.AccountDestinationID, t.Amount, t.CreatedAt)
 	if err != nil {
 		tx.Rollback()
-		log.Fatal(err)
+		log.Print(err)
 		return false
 	}
 	fmt.Printf("    -->>SAVE ID Destino:[%s] <- ID ORIGIN:[%s]\n", t.AccountOriginID, t.AccountDestinationID)
@@ -126,30 +126,11 @@ func (t *TransferBank) SaveTransferInDB() bool {
 	return true
 }
 
-/*
-func (t *TransferBank) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
-
-	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
-	if !IsValidUUID(ID) {
-		fmt.Printf("Something gone wrong:")
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	//message := StructAndJSON()
-	a.ShowAccountByID(w, r, ID)
-
-	//fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusOK)
-}
-*/
-
 //ShowAccountAll mostra todos as contas
 func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer db.Close()
 
@@ -176,7 +157,7 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, UserID string) {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer db.Close()
 
@@ -207,7 +188,7 @@ func GetTranferByID(findID string) (TransferBank, error) {
 
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		return TransferBank{}, err
 	}
 	defer db.Close()
@@ -228,7 +209,7 @@ func (a *Account) GetTansferAccountByID( findID string) {
 	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	defer db.Close()
 
@@ -316,7 +297,27 @@ func (t *TransferBank) ExecTransation(w http.ResponseWriter, r *http.Request) er
 
 }
 
+/*  TRASH CODE
 /*
+func (t *TransferBank) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
+
+	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
+	if !IsValidUUID(ID) {
+		fmt.Printf("Something gone wrong:")
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	//message := StructAndJSON()
+	a.ShowAccountByID(w, r, ID)
+
+	//fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusOK)
+}
+
+
+
 /transfers
 A entidade Transfer possui os seguintes atributos:
 

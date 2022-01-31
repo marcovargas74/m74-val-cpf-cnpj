@@ -49,7 +49,7 @@ func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
 func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
 	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 
@@ -65,7 +65,7 @@ func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
 func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer db.Close()
 

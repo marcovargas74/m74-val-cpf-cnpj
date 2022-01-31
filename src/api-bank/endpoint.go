@@ -142,7 +142,7 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 	userLogin, err := account.GetAccountByCPF(user)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "PASS NOT FOUND")
 		return
@@ -203,7 +203,7 @@ func StartAPI(mode string) {
 	servidor := NewServerBank(mode)
 
 	if err := http.ListenAndServe(serverPort, servidor); err != nil {
-		log.Fatalf("Não foi possivel ouvir na porta 5000 %v", err)
+		log.Printf("Não foi possivel ouvir na porta 5000 %v", err)
 	}
 }
 
