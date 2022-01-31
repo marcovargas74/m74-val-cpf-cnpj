@@ -105,7 +105,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 /* TODO so executar se tiver saldo na conta Origim
  */
 func (t *TransferBank) SaveTransferInDB() bool {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
 	}
@@ -128,7 +128,7 @@ func (t *TransferBank) SaveTransferInDB() bool {
 
 //ShowAccountAll mostra todos as contas
 func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
 	}
@@ -155,7 +155,7 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 
 //ShowAccountAll mostra todos as contas
 func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, UserID string) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
 	}
@@ -186,7 +186,7 @@ func GetTranferByID(findID string) (TransferBank, error) {
 		return TransferBank{}, fmt.Errorf("invalid ID: %s", findID)
 	}
 
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
 		return TransferBank{}, err
@@ -207,7 +207,7 @@ func GetTranferByID(findID string) (TransferBank, error) {
 /*
 func (a *Account) GetTansferAccountByID( findID string) {
 	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
 	}

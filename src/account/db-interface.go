@@ -13,9 +13,16 @@ import (
 
 const (
 	//DBSource       = "root:Mysql#2510@/bankAPI"
-	DBSourceOpen = "root:my-secret-pw@tcp(localhost:3307)/"
-	DBSource     = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+	DBSourceOpenLocal = "root:my-secret-pw@tcp(localhost:3307)/"
+	DBSourceLocal     = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+
+	DBSourceOpenDocker = "root:my-secret-pw@tcp(172.17.0.2:3306)/"
+	DBSourceDocker     = "root:my-secret-pw@tcp(172.17.0.2:3306)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+
 )
+
+var AddrOpenDB string
+var AddrDB string
 
 //DBMySQL Data base Used in BANK
 //var DBMySQL *sql.DB
@@ -63,7 +70,7 @@ func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
 */
 //ShowAccountAll mostra todos as contas
 func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -93,20 +100,30 @@ service mysqld start
 func exec(db *sql.DB, sql string) sql.Result {
 	result, err := db.Exec(sql)
 	if err != nil {
-		panic(err)
+		log.Print(err)
 	}
 	return result
 }
 
 //CreateDB Cria banco sql
 func CreateDB(isDropTable bool) {
-	fmt.Println("Conectado ao Banco...")
-
 	// MYSQL LOCAL
-	db, err := sql.Open("mysql", DBSourceOpen)
+	AddrOpenDB = DBSourceOpenLocal
+	AddrDB = DBSourceLocal
+
+	db, err := sql.Open("mysql", AddrOpenDB)
 	if err != nil {
-		panic(err)
+		log.Printf("FALHA ao conectar ao Banco Mysql LOCAL...")
+		AddrOpenDB = DBSourceOpenDocker
+		AddrDB = DBSourceDocker
+		db, err = sql.Open("mysql", AddrOpenDB)
+		if err != nil {
+			log.Printf("FALHA ao conectar ao Banco Mysql do DOKER IP 172.17.0.2")
+			log.Print(err)
+		}
+
 	}
+
 	defer db.Close()
 
 	fmt.Println("Conectado ao Banco")

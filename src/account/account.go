@@ -154,7 +154,7 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Account) saveAccountInDB() bool {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -197,7 +197,7 @@ func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID stri
 
 //ShowAccountAll mostra todos as contas
 func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -222,7 +222,7 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -242,7 +242,7 @@ func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID
 
 //ShowBalanceByID return Balance account pass token ID in arg
 func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID string) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -266,7 +266,7 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 	accountInBD.Balance = newTransationValue
 
 	log.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 	}
@@ -288,7 +288,7 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 
 //GetAccountByID return account pass token ID in arg
 func GetAccountByID(findID string) (Account, error) {
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 		return Account{}, err
@@ -308,7 +308,7 @@ func GetAccountByCPF(findCPF string) (Account, error) {
 		return Account{}, fmt.Errorf("CPF inválido: %s", findCPF)
 	}
 
-	db, err := sql.Open("mysql", DBSource)
+	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 		return Account{}, err
