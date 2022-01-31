@@ -59,6 +59,15 @@ func (a Account) ValidName(name string) bool {
 	return isValid
 }
 
+func (a Account) ValiCPF(cpf string) bool {
+	isValid := true
+	if cpf == "" || len(cpf) != 14 {
+		isValid = false
+	}
+
+	return isValid
+}
+
 //StructAndJSON Just Test
 func StructAndJSON() string {
 	//var create time.Time
@@ -85,20 +94,32 @@ func NewUUID() string {
 
 }
 
+//IsValidUUID Check if IUUID is valid
 func IsValidUUID(uuidVal string) bool {
 	//_, err := uuid.FromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	_, err := uuid.FromString(uuidVal)
 	return err == nil
 }
 
+//SecretToHash change a string in a HAshValue
 func SecretToHash(password string) string {
 	return base64.StdEncoding.EncodeToString([]byte(password))
 
 }
 
+//HashToSecret change a HAshValue in a visible string
 func HashToSecret(hashIn string) string {
 	passw, _ := base64.StdEncoding.DecodeString(hashIn)
 	return string(passw)
+}
+
+//IsValidCPF Check if cpf is valid
+func IsValidCPF(cpf string) bool {
+	isValid := true
+	if len(cpf) != 14 {
+		isValid = false
+	}
+	return isValid
 }
 
 /*
@@ -354,8 +375,13 @@ func GetAccountByID(findID string) (Account, error) {
 	return account, nil
 }
 
-func GetAccountByCPF(findID string) (Account, error) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+//GetAccountByCPF Retorna a conta passando o CPF como parametro
+func GetAccountByCPF(findCPF string) (Account, error) {
+
+	if !IsValidCPF(findCPF) {
+		return Account{}, fmt.Errorf("CPF inválido: %s", findCPF)
+	}
+
 	db, err := sql.Open("mysql", DBSource)
 	if err != nil {
 		log.Fatal(err)
@@ -364,8 +390,8 @@ func GetAccountByCPF(findID string) (Account, error) {
 	defer db.Close()
 
 	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where cpf = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
+	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where cpf = ?", findCPF).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findCPF, account.CPF)
 	return account, nil
 }
 
