@@ -21,8 +21,9 @@ func TestGetVersion(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 			version := GetVersion()
-			//fmt.Printf("valor: %v\n", valorRetornado[0:4])
 			assert.Equal(t, version[0:4], tt.wantValue)
+			assert.Equal(t, version[0:4], tt.wantValue)
+
 		})
 
 	}

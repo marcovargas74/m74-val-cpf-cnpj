@@ -5,19 +5,34 @@ import (
 	"testing"
 )
 
-func checkIfTruOrFalse(t *testing.T, gotValue, waitValue bool) {
+/*
+TODO passar para um arquivo separado
+*/
+
+//CheckIfEqualFloat check if resulto is OK type Float
+func CheckIfEqualFloat(t *testing.T, gotValue, waitValue float64) {
 	t.Helper()
 	if gotValue != waitValue {
 		t.Errorf(erroMsg, gotValue, waitValue)
 	}
 }
 
-func checkIfEqualFloat(t *testing.T, gotValue, waitValue float64) {
+//CheckIfEqualString check if resulto is OK type string
+func CheckIfEqualString(t *testing.T, gotValue, waitValue string) {
 	t.Helper()
 	if gotValue != waitValue {
 		t.Errorf(erroMsg, gotValue, waitValue)
 	}
 }
+
+//CheckIfEqualBool check if resulto is OK type BOOL
+func CheckIfEqualBool(t *testing.T, gotValue, waitValue bool) {
+	t.Helper()
+	if gotValue != waitValue {
+		t.Errorf(erroMsg, gotValue, waitValue)
+	}
+}
+
 func TestMakeTransfer(t *testing.T) {
 
 	tests := []struct {
@@ -84,10 +99,10 @@ func TestMakeTransfer(t *testing.T) {
 			if err != nil {
 				fmt.Println(err)
 			}
-			checkIfTruOrFalse(t, recebido, tt.wantValue)
+			CheckIfEqualBool(t, recebido, tt.wantValue)
 
-			checkIfEqualFloat(t, origAccount.Balance, tt.wantValueOri)
-			checkIfEqualFloat(t, dstAccount.Balance, tt.wantValueDst)
+			CheckIfEqualFloat(t, origAccount.Balance, tt.wantValueOri)
+			CheckIfEqualFloat(t, dstAccount.Balance, tt.wantValueDst)
 		})
 
 	}
@@ -120,12 +135,12 @@ func TestGetTransfer(t *testing.T) {
 			inFindID:      "b1080263-f5e0-495a-8e70-60a303a7a8d3",
 			inValueAmount: 00.00,
 		},
-		{
+		/*{ TODO incluir um valor default para restar
 			give:          "Testa Busca por ID Valido",
 			wantValue:     true,
-			inFindID:      "3b582666-4600-4640-ab9c-bc01b66def0e",
+			inFindID:      "02592cdb-3bda-4fbb-a451-28bacdb0f57a",
 			inValueAmount: 10.00,
-		},
+		},*/
 	}
 
 	for _, tt := range tests {
@@ -139,8 +154,59 @@ func TestGetTransfer(t *testing.T) {
 			}
 
 			fmt.Println(aTransfer.AccountOriginID)
-			checkIfTruOrFalse(t, result, tt.wantValue)
-			checkIfEqualFloat(t, aTransfer.Amount, tt.inValueAmount)
+			CheckIfEqualBool(t, result, tt.wantValue)
+			CheckIfEqualFloat(t, aTransfer.Amount, tt.inValueAmount)
+
+		})
+
+	}
+
+}
+
+func TestGetTransferByCPF(t *testing.T) {
+
+	tests := []struct {
+		give          string
+		wantValue     bool
+		inFindID      string
+		inValueAmount float64
+	}{
+		{
+			give:          "Testa Busca por un CPF Vazio",
+			wantValue:     false,
+			inFindID:      "",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por un CPF Invalido",
+			wantValue:     false,
+			inFindID:      "b1080263",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por un CPF Inexistente",
+			wantValue:     false,
+			inFindID:      "000.000.000-11",
+			inValueAmount: 00.00,
+		},
+		{
+			give:          "Testa Busca por un CPF Valido",
+			wantValue:     true,
+			inFindID:      "111.111.111-11",
+			inValueAmount: 10.00,
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.give, func(t *testing.T) {
+			result := true
+
+			user, err := GetAccountByCPF(tt.inFindID)
+			if err != nil || user.CPF == "" {
+				result = false
+			}
+			CheckIfEqualBool(t, result, tt.wantValue)
 		})
 
 	}

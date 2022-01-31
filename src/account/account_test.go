@@ -5,7 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/magiconair/properties/assert"
 	"gopkg.in/validator.v2"
 )
 
@@ -68,7 +67,7 @@ func TestValidName(t *testing.T) {
 				recebido = false
 			}
 
-			assert.Equal(t, recebido, tt.wantValue)
+			CheckIfEqualBool(t, recebido, tt.wantValue)
 		})
 
 	}
@@ -113,22 +112,11 @@ func TestCreateAccount(t *testing.T) {
 		},
 	}
 
-	//server := NewServerBank()
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
 			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
-			assert.Equal(t, aAccount.Name, tt.wantValue)
-			//func (a *Account) SaveAccountInDB() bool {
-
-			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
-			resposta := httptest.NewRecorder()
-
-			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)*/
+			CheckIfEqualString(t, aAccount.Name, tt.wantValue)
 		})
 
 	}
@@ -173,38 +161,67 @@ func TestSaveAccountInDB(t *testing.T) {
 		},
 	}
 
-	//server := NewServerBank()
 	CreateDB(false)
-	//CreateDB(true)
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
 			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
 			if aAccount.SaveAccountInDB() {
-				//log.Error("Cant save data in Bank")
 				fmt.Println("Cant save data in Bank")
 			}
-			//func (a *Account) SaveAccountInDB() bool {
-
-			assert.Equal(t, aAccount.Name, tt.wantValue)
-			//func (a *Account) SaveAccountInDB() bool {
+			CheckIfEqualString(t, aAccount.Name, tt.wantValue)
 
 			accountInBD, _ := GetAccountByID(aAccount.ID)
+			CheckIfEqualString(t, accountInBD.Name, tt.inDataName)
+			CheckIfEqualFloat(t, accountInBD.Balance, tt.inDataVal)
 
-			assert.Equal(t, accountInBD.Name, tt.inDataName)
-
-			assert.Equal(t, accountInBD.Balance, tt.inDataVal)
 			UpdateBalanceByID(aAccount.ID, (tt.inDataVal * 2))
 			accountInBD, _ = GetAccountByID(aAccount.ID)
-			assert.Equal(t, accountInBD.Balance, (tt.inDataVal * 2))
-			/*requisicao := newReqEndpointsPOST("/transfers", tt.inData)
-			resposta := httptest.NewRecorder()
+			CheckIfEqualFloat(t, accountInBD.Balance, (tt.inDataVal * 2))
+		})
 
-			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+	}
 
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)*/
+}
+
+func TestIsValidCPF(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue bool
+		inFindID  string
+	}{
+		{
+			give:      "Testa Se CPF Vazio",
+			wantValue: false,
+			inFindID:  "",
+		},
+		{
+			give:      "Testa se CPF Invalido",
+			wantValue: false,
+			inFindID:  "b1080263",
+		},
+		{
+			give:      "Testa se o CPF invalido",
+			wantValue: true,
+			inFindID:  "000.000.000-11",
+		},
+		{
+			give:      "Testa Busca por un CPF Valido",
+			wantValue: true,
+			inFindID:  "111.111.111-11",
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.give, func(t *testing.T) {
+			result := true
+
+			if !IsValidCPF(tt.inFindID) {
+				result = false
+			}
+			CheckIfEqualBool(t, result, tt.wantValue)
 		})
 
 	}

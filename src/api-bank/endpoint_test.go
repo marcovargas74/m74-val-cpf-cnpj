@@ -46,7 +46,7 @@ func TestServerBank(t *testing.T) {
 		},
 	}
 
-	servidor := NewServerBank()
+	servidor := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -91,7 +91,7 @@ func TestCallbackAccountGET(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -99,9 +99,6 @@ func TestCallbackAccountGET(t *testing.T) {
 			resposta := httptest.NewRecorder()
 
 			server.ServeHTTP(resposta, requisicao)
-			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-			//recebido := resposta.Body.String()
-			//recebido = resposta.Code
 			assert.Equal(t, resposta.Code, tt.wantValue)
 		})
 
@@ -133,7 +130,7 @@ func TestCallbackAccountPost(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -142,9 +139,6 @@ func TestCallbackAccountPost(t *testing.T) {
 
 			server.ServeHTTP(resposta, requisicao)
 			assert.Equal(t, resposta.Code, tt.wantValue)
-			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-			//recebido := resposta.Body.String()
-			//assert.Equal(t, recebido, tt.wantValue)
 		})
 
 	}
@@ -174,7 +168,7 @@ func TestCallbackLoginGET(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -183,9 +177,6 @@ func TestCallbackLoginGET(t *testing.T) {
 
 			server.ServeHTTP(resposta, requisicao)
 			assert.Equal(t, resposta.Code, tt.wantValue)
-			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
-			//recebido := resposta.Body.String()
-			//assert.Equal(t, recebido, tt.wantValue)
 		})
 
 	}
@@ -216,7 +207,7 @@ func TestCallbackLoginPOST(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -258,7 +249,7 @@ func TestCallbackTransferGET(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
@@ -300,7 +291,7 @@ func TestCallbackTransferPOST(t *testing.T) {
 		},
 	}
 
-	server := NewServerBank()
+	server := NewServerBank("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
