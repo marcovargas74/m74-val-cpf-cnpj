@@ -140,6 +140,34 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
+
+	//w.Header().Set("content-type", "application/json")
+	//transfer := r.URL.Path[len("/transfers/"):]
+	//fmt.Printf("tranfer: %v\n", r.Body)
+	var aTransfer account.TransferBank
+	//fmt.Printf("CallbackTransferByID TOKEN: %v\n", r.Header.Get("token"))
+
+	accountID := mux.Vars(r)
+	//tokenAccount := r.Header.Get("token")
+	//w.WriteHeader(http.StatusOK)
+	fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
+	// filterID string
+
+	switch r.Method {
+	case http.MethodPost:
+		aTransfer.SaveTransfer(w, r, accountID["account_id"])
+	case http.MethodGet:
+		aTransfer.GetTransfersByID(w, r, accountID["account_id"])
+		//aTransfer.GetTransfersByID(w, r, tokenAccount)
+	default:
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+
+}
+
 func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 	//fmt.Printf("Login Body: %v\n", r.Body)
@@ -191,7 +219,7 @@ func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
  * BANK INICIA AQUI
  */
 //NewServerBank Cria Servidor
-func NewServerBank() *ServerBank {
+func NewServerBank(mode string) *ServerBank {
 
 	server := new(ServerBank)
 
@@ -203,14 +231,19 @@ func NewServerBank() *ServerBank {
 	routerG.HandleFunc("/accounts", server.CallbackAccounts)
 	routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 	routerG.HandleFunc("/transfers", BasicAuth(server.CallbackTransfer))
+
+	if mode == "dev" {
+		//Incluir endpoint para testar não precisa authenticação(SOMENTE PARA TESTE)
+		routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
+	}
 	server.Handler = routerG
 	return server
 
 }
 
 //StartAPI inicia o servidor http
-func StartAPI(modo string) {
-	servidor := NewServerBank()
+func StartAPI(mode string) {
+	servidor := NewServerBank(mode)
 
 	if err := http.ListenAndServe(serverPort, servidor); err != nil {
 		log.Fatalf("Não foi possivel ouvir na porta 5000 %v", err)
@@ -218,33 +251,3 @@ func StartAPI(modo string) {
 }
 
 //Trash CODE
-
-/*
-func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
-
-	//w.Header().Set("content-type", "application/json")
-	//transfer := r.URL.Path[len("/transfers/"):]
-	//fmt.Printf("tranfer: %v\n", r.Body)
-	var aTransfer account.TransferBank
-	fmt.Printf("CallbackTransferByID TOKEN: %v\n", r.Header.Get("token"))
-
-	//accountID := mux.Vars(r)
-	tokenAccount := r.Header.Get("token")
-	//w.WriteHeader(http.StatusOK)
-	//fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
-	// filterID string
-
-	switch r.Method {
-	case http.MethodPost:
-		aTransfer.SaveTransfer(w, r, tokenAccount)
-	case http.MethodGet:
-		//aTransfer.GetTransfersByID(w, r, accountID["account_id"])
-		aTransfer.GetTransfersByID(w, r, tokenAccount)
-	default:
-		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-	}
-
-}
-*/

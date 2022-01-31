@@ -171,7 +171,11 @@ curl -i --request POST 'http://localhost:5000/transfers' \
 
 `Request`
 ```bash
+#need authentication 
 curl -i --request GET 'http://localhost:5000/transfers'
+
+# or to test mode development
+curl -i --request GET 'http://localhost:5000/transfers/{{account_id}}'
 ```
 
 `Response`
