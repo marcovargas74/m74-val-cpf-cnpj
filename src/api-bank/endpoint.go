@@ -199,9 +199,9 @@ func NewServerBank() *ServerBank {
 	routerG := mux.NewRouter()
 	routerG.HandleFunc("/login/", server.CallbackLogin)
 	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
-	routerG.HandleFunc("/accounts", BasicAuth(server.CallbackAccounts))
+	//routerG.HandleFunc("/accounts", BasicAuth(server.CallbackAccounts))
+	routerG.HandleFunc("/accounts", server.CallbackAccounts)
 	routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
-
 	routerG.HandleFunc("/transfers", BasicAuth(server.CallbackTransfer))
 	server.Handler = routerG
 	return server
