@@ -3,8 +3,13 @@ package m74bankapi
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
+
+	account "github.com/marcovargas74/m74-bank-api/src/account"
 )
 
+/*
 // LoginBank
 type Login struct {
 	CPF    string `json:"cpf"`
@@ -21,94 +26,44 @@ func StructAndJson() {
 	json.Unmarshal(loginJson, &myNewLogin)
 	fmt.Println(myNewLogin.Secret)
 
-}
-
-/*
-func Secret(user, realm string) string {
-	if user == "john" {
-		// password is "hello"
-		return "$1$dlPL2MqE$oQmn16q49SqdmhenQuNgs1"
-	}
-	return ""
-}*/
-/*
-func (l *Login) Prepare() {
-	authenticator := auth.NewBasicAuthenticator("example.com", Secret)
-
-	//a := auth.NewBasicAuthenticator("example.com", Secret)
-	if username := authenticator.CheckAuth(this.Ctx.Request); username == "" {
-		authenticator.RequireAuth(this.Ctx.ResponseWriter, this.Ctx.Request)
-	}
 }*/
 
-/*
-type MainController struct {
-	beego.Controller
-}
+type handler func(w http.ResponseWriter, r *http.Request)
 
-func (this *MainController) Prepare() {
-	a := auth.NewBasicAuthenticator("example.com", Secret)
-	if username := a.CheckAuth(this.Ctx.Request); username == "" {
-		a.RequireAuth(this.Ctx.ResponseWriter, this.Ctx.Request)
+//BasicAuth Used To authentic the user to access API
+func BasicAuth(pass handler) handler {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		user, passw, _ := r.BasicAuth()
+		fmt.Printf("login [%s] [%s] \n", user, passw)
+
+		if user == "" || passw == "" {
+			w.WriteHeader(http.StatusUnauthorized)
+			//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
+			http.Error(w, "authorization failed", http.StatusUnauthorized)
+			fmt.Fprint(w, "Authentication Required")
+			return
+		}
+
+		userLogin, err := account.GetAccountByCPF(user)
+		if err != nil {
+			log.Fatal(err)
+			w.WriteHeader(http.StatusNotFound)
+			fmt.Fprint(w, "PASS NOT FOUND")
+			return
+		}
+
+		if account.HashToSecret(userLogin.Secret) != passw {
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
+			return
+		}
+		json, _ := json.Marshal(userLogin.ID)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, string(json))
+		w.WriteHeader(http.StatusOK)
+
+		r.Header.Add("token", userLogin.ID)
+		pass(w, r)
 	}
 }
-
-func (this *MainController) Get() {
-	this.Data["Username"] = "astaxie"
-	this.Data["Email"] = "astaxie@gmail.com"
-	this.TplNames = "index.tpl"
-}
-*/
-/*
-/login
-A entidade Login possui os seguintes atributos:
-
-cpf
-secret
-Espera-se as seguintes ações:
-
-POST /login - autentica a usuaria
-Regras para esta rota
-
-Deve retornar token para ser usado nas rotas autenticadas
-*/
-
-/*
-
-		http.StatusNetworkAuthenticationRequired
-
-package controllers
-
-import (
-    "github.com/abbot/go-http-auth"
-    "github.com/astaxie/beego"
-)
-
-func Secret(user, realm string) string {
-    if user == "john" {
-        // password is "hello"
-        return "$1$dlPL2MqE$oQmn16q49SqdmhenQuNgs1"
-    }
-    return ""
-}
-
-type MainController struct {
-    beego.Controller
-}
-
-func (this *MainController) Prepare() {
-    a := auth.NewBasicAuthenticator("example.com", Secret)
-    if username := a.CheckAuth(this.Ctx.Request); username == "" {
-        a.RequireAuth(this.Ctx.ResponseWriter, this.Ctx.Request)
-    }
-}
-
-func (this *MainController) Get() {
-    this.Data["Username"] = "astaxie"
-    this.Data["Email"] = "astaxie@gmail.com"
-    this.TplNames = "index.tpl"
-}
-
-
-
-*/

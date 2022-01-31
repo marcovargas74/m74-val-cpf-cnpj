@@ -19,49 +19,6 @@ type ServerBank struct {
 	http.Handler
 }
 
-type handler func(w http.ResponseWriter, r *http.Request)
-
-//BasicAuth Used To authentic the user to access API
-func BasicAuth(pass handler) handler {
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		user, passw, _ := r.BasicAuth()
-		fmt.Printf("login [%s] [%s] \n", user, passw)
-
-		//fmt.Printf("Login Body: %v\n", r.Body)
-		//fmt.Printf("Login Header: %v\n", r.Header)
-
-		if user == "" || passw == "" {
-			w.WriteHeader(http.StatusUnauthorized)
-			//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
-			http.Error(w, "authorization failed", http.StatusUnauthorized)
-			fmt.Fprint(w, "Authentication Required")
-			return
-		}
-
-		userLogin, err := account.GetAccountByCPF(user)
-		if err != nil {
-			log.Fatal(err)
-			w.WriteHeader(http.StatusNotFound)
-			fmt.Fprint(w, "PASS NOT FOUND")
-			return
-		}
-
-		if account.HashToSecret(userLogin.Secret) != passw {
-			w.WriteHeader(http.StatusForbidden)
-			fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
-			return
-		}
-		json, _ := json.Marshal(userLogin.ID)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprint(w, string(json))
-		w.WriteHeader(http.StatusOK)
-
-		r.Header.Add("token", userLogin.ID)
-		pass(w, r)
-	}
-}
-
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	var accountJSON account.Account
