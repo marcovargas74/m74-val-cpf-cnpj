@@ -35,17 +35,7 @@ type TransferBank struct {
 	CreatedAt            time.Time `json:"created_at"`
 }
 
-/*
-func structAndJSONTransfer() {
-	transfer1 := TransferBank{"xyz", "abc", "def", 12.00, "17-01-2022"}
-	transfJSON, _ := json.Marshal(transfer1)
-	fmt.Println(string(transfJSON))
-	//Convert Json To struct
-	var aTransfFromJSON TransferBank
-	json.Unmarshal(transfJSON, &aTransfFromJSON)
-	fmt.Println(aTransfFromJSON.ID)
-}*/
-
+//SaveTransfer function to pre save transfer in system
 func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, tokeOrigin string) {
 
 	if err := json.NewDecoder(r.Body).Decode(&t); err != nil {
@@ -81,7 +71,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 	}
 
 	if !t.SaveTransferInDB() {
-		message := fmt.Sprintf("Can´t save account from %v", t.ID)
+		message := fmt.Sprintf("Can not save account from %v", t.ID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -102,8 +92,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 
 }
 
-/* TODO so executar se tiver saldo na conta Origim
- */
+//SaveTransferInDB function to save transfer in DB - Save only have balance in source account
 func (t *TransferBank) SaveTransferInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -126,7 +115,7 @@ func (t *TransferBank) SaveTransferInDB() bool {
 	return true
 }
 
-//ShowAccountAll mostra todos as contas
+//GetTransfers Show All transfers
 func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -153,7 +142,7 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//ShowAccountAll mostra todos as contas
+//GetTransfersByID Show All transfers by ID
 func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, UserID string) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -180,6 +169,7 @@ func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, 
 
 }
 
+//GetTransfersByID Get All transfers by ID - Return a Transfers List
 func GetTranferByID(findID string) (TransferBank, error) {
 
 	if !IsValidUUID(findID) {
@@ -204,28 +194,6 @@ func GetTranferByID(findID string) (TransferBank, error) {
 	return aTransfer, nil
 }
 
-/*
-func (a *Account) GetTansferAccountByID( findID string) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Print(err)
-	}
-	defer db.Close()
-
-	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	account.Secret = "*****"
-	json, _ := json.Marshal(account)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
-
-	fmt.Fprint(w, string(json))
-}
-*/
-
 // MakeTransfer withdraw from source account and credit to destination account
 func (t *TransferBank) MakeTransfer(source, destination *Account) (bool, error) {
 
@@ -240,16 +208,8 @@ func (t *TransferBank) MakeTransfer(source, destination *Account) (bool, error) 
 	return true, nil
 }
 
-/*FUNCAO PRINCIPAL USado para fazer a transação*/
+//ExecTransation FUNCAO PRINCIPAL USado para fazer a transação*/
 func (t *TransferBank) ExecTransation(w http.ResponseWriter, r *http.Request) error {
-
-	/*aTransfer, err := GetTranferByID(t.ID)
-	if err != nil {
-		//fmt.Println(err)
-		fmt.Fprint(w, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return err
-	}*/
 
 	accountToDeb, err := GetAccountByID(t.AccountOriginID)
 	if err != nil {
@@ -316,7 +276,27 @@ func (t *TransferBank) GetAccountByID(w http.ResponseWriter, r *http.Request, ID
 	w.WriteHeader(http.StatusOK)
 }
 
+/*
+func (a *Account) GetTansferAccountByID( findID string) {
+	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
+	db, err := sql.Open("mysql", AddrDB)
+	if err != nil {
+		log.Print(err)
+	}
+	defer db.Close()
 
+	var account Account
+	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
+	account.Secret = "*****"
+	json, _ := json.Marshal(account)
+
+	w.Header().Set("Content-Type", "application/json")
+
+	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
+
+	fmt.Fprint(w, string(json))
+}
+* /
 
 /transfers
 A entidade Transfer possui os seguintes atributos:
