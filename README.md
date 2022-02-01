@@ -1,10 +1,3 @@
-
-
-<h1 align="center">WAIT... MANS AT WORK... </h1>
-<p>
-  <div style="text-align:center"><img src="atWork.png" /></div>
-</p>
-
 <h2 align="center">API Go Bank Transfer :bank:</h2>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-0.00.1-blue.svg?cacheSeconds=2592000" />
@@ -32,13 +25,7 @@
 git clone https://github.com/marcovargas74/m74-bank-api
 ```
 
-- Star Docker Myql DB 
-```sh
- docker run --name bank-mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.26
-```
-
-
-- Star Docker Myql DB 
+- HOW TO RUN A TEST - For Dommy 
 ```sh
  cd m74-bank-api/docker
 
@@ -48,6 +35,18 @@ git clone https://github.com/marcovargas74/m74-bank-api
  ## stop dockers
  docker-compose down
 ```
+
+> :warning: **Mysql DB can take up to 3 minutes to start**: Be very careful here!
+
+- OR For Advanced Users
+(Don't try this at home)  
+
+ Start Docker Myql DB 
+```sh
+ docker run --name bank-mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.26
+```
+
+
 
 - Enter in project
 
@@ -194,6 +193,12 @@ curl -i --request GET 'http://localhost:5000/transfers/{{account_id}}'
 
 ## Code status
 - Development
+
+## Next Steps
+- Make a refactory
+- Fix some bugs
+- Add more tests
+- And Drink a beer
 
 ## Author
 - Marco Antonio Vargas - [marcovargas74](https://github.com/marcovargas74)
