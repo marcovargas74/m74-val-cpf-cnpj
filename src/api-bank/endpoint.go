@@ -19,6 +19,7 @@ type ServerBank struct {
 	http.Handler
 }
 
+//CallbackAccounts function Used to handle endpoint /accounts
 func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 	var accountJSON account.Account
@@ -40,27 +41,14 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//CallbackFindAccountID function Used to handle endpoint /accounts/{}
 func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
 
-	fmt.Printf("!!!CallbackFindAccountID GET %v\n", r.URL)
-	//w.Header().Set("content-type", "application/json")
+	//fmt.Printf("!!!CallbackFindAccountID GET %v\n", r.URL)
 
-	//const logKey = "find_balance_account"
 	accountID := mux.Vars(r)
 	w.WriteHeader(http.StatusOK)
 	fmt.Printf("accountID [%s] \n", accountID["account_id"])
-	/*if !domain.IsValidUUID(accountID) {
-		var err = response.ErrParameterInvalid
-		logging.NewError(
-			a.log,
-			err,
-			logKey,
-			http.StatusBadRequest,
-		).Log("invalid parameter")
-
-		response.NewError(err, http.StatusBadRequest).Send(w)
-		return
-	}*/
 
 	if r.Method == http.MethodGet {
 		var accountJSON account.Account
@@ -74,14 +62,12 @@ func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Reques
 
 }
 
+//CallbackTransfer function Used to handle endpoint /transfers/{}
 func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("content-type", "application/json")
-	//transfer := r.URL.Path[len("/transfers/"):]
-	//fmt.Printf("tranfer: %v\n", r.Body)
 	var aTransfer account.TransferBank
 	tokenAccount := r.Header.Get("token")
-	fmt.Printf("CallbackTransfer TOKEN: %v\n", r.Header.Get("token"))
+	log.Printf("CallbackTransfer TOKEN: %v\n", r.Header.Get("token"))
 
 	//TOD deve estar autenticada
 	// filterID string
@@ -90,7 +76,6 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		aTransfer.SaveTransfer(w, r, tokenAccount)
 	case http.MethodGet:
-		//aTransfer.GetTransfers(w, r)
 		aTransfer.GetTransfersByID(w, r, tokenAccount)
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
@@ -100,19 +85,14 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//CallbackTransferByID function Used to handle endpoint /transfers/{}
 func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("content-type", "application/json")
-	//transfer := r.URL.Path[len("/transfers/"):]
-	//fmt.Printf("tranfer: %v\n", r.Body)
 	var aTransfer account.TransferBank
 	//fmt.Printf("CallbackTransferByID TOKEN: %v\n", r.Header.Get("token"))
 
 	accountID := mux.Vars(r)
-	//tokenAccount := r.Header.Get("token")
-	//w.WriteHeader(http.StatusOK)
-	fmt.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
-	// filterID string
+	log.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
 
 	switch r.Method {
 	case http.MethodPost:
@@ -128,18 +108,15 @@ func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request
 
 }
 
+//CallbackLogin function Used to handle endpoint /login - just for test
 func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
-	//fmt.Printf("Login Body: %v\n", r.Body)
-	//fmt.Printf("Login Body: %v\n", r.Header.Get())
 	account.CreateDB(false)
-
 	user, passw, _ := r.BasicAuth()
-	fmt.Printf("login [%s] [%s] \n", user, passw)
+	//fmt.Printf("login [%s] [%s] \n", user, passw)
 
 	if user == "" || passw == "" || r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusUnauthorized)
-		//w.WriteHeader(http.StatusNetworkAuthenticationRequired)
 		fmt.Fprint(w, "Authentication Required")
 		return
 	}
@@ -163,8 +140,9 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-//Codigo Antigo
+//DEPRECATED CODE
 
+//DefaultEndpoint function Used to handle endpoint /- can be a load a page in html to configure
 func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-type", "application/json")
@@ -210,5 +188,3 @@ func StartAPI(mode string) {
 		log.Printf("Não foi possivel ouvir na porta 5000 %v", err)
 	}
 }
-
-//Trash CODE
