@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/validator.v2"
 )
@@ -42,6 +41,7 @@ type Account struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+//Balance used to create a Json Return to endpoint
 type Balance struct {
 	Value float64 `json:"balance"`
 }
@@ -102,7 +102,7 @@ func HashToSecret(hashIn string) string {
 	return string(passw)
 }
 
-func NewAccount(name, cpf, secret string, balance float64) Account {
+func newAccount(name, cpf, secret string, balance float64) Account {
 	//fmt.Printf("->Name: %s CreateAt: \n ", name)
 
 	return Account{
@@ -140,7 +140,7 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !a.saveAccountInDB() {
-		message := fmt.Sprintf("Can´t save account from %v", a.ID)
+		message := fmt.Sprintf("Can not save account from %v", a.ID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

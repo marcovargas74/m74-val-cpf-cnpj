@@ -12,11 +12,6 @@ import (
 )
 
 /*
-func transfer() {
-	fmt.Println("transfer")
-}*/
-
-/*
 type TransferBank struct {
 	ID                   string    `json:"id" validate:"required,uuid4"`
 	AccountOriginID      string    `json:"acount_origin_id" validate:"required,uuid4"`
@@ -79,9 +74,6 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 
 	err := t.ExecTransation(w, r)
 	if err != nil {
-		//message := fmt.Sprintf("Fail to Exec Transation %s", t.ID)
-		//fmt.Fprint(w, message)
-		//w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -169,7 +161,7 @@ func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, 
 
 }
 
-//GetTransfersByID Get All transfers by ID - Return a Transfers List
+//GetTranferByID Get All transfers by ID - Return a Transfers List
 func GetTranferByID(findID string) (TransferBank, error) {
 
 	if !IsValidUUID(findID) {
@@ -249,71 +241,5 @@ func (t *TransferBank) ExecTransation(w http.ResponseWriter, r *http.Request) er
 	}
 
 	return nil
-	/*json, _ := json.Marshal(aTransfer)
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-	w.WriteHeader(http.StatusOK)*/
 
 }
-
-/*  TRASH CODE
-/*
-func (t *TransferBank) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
-
-	fmt.Printf("   -->GetAccountByID [%s] \n", ID)
-	if !IsValidUUID(ID) {
-		fmt.Printf("Something gone wrong:")
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	//message := StructAndJSON()
-	a.ShowAccountByID(w, r, ID)
-
-	//fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusOK)
-}
-
-/*
-func (a *Account) GetTansferAccountByID( findID string) {
-	//db, err := sql.Open("mysql", "root:Mysql#2510@/bankAPI")
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Print(err)
-	}
-	defer db.Close()
-
-	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	account.Secret = "*****"
-	json, _ := json.Marshal(account)
-
-	w.Header().Set("Content-Type", "application/json")
-
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, string(json))
-
-	fmt.Fprint(w, string(json))
-}
-* /
-
-/transfers
-A entidade Transfer possui os seguintes atributos:
-
-id
-account_origin_id
-account_destination_id
-amount
-created_at
-Espera-se as seguintes ações:
-
-GET /transfers - obtém a lista de transferencias da usuaria autenticada.
-POST /transfers - faz transferencia de uma Account para outra.
-Regras para esta rota
-
-Quem fizer a transferência precisa estar autenticada.
-O account_origin_id deve ser obtido no Token enviado.
-Caso Account de origem não tenha saldo, retornar um código de erro apropriado
-Atualizar o balance das contas
-*/

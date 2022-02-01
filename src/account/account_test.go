@@ -114,7 +114,7 @@ func TestCreateAccount(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
+			aAccount := newAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
 			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
 			CheckIfEqualString(t, aAccount.Name, tt.wantValue)
 		})
@@ -164,7 +164,7 @@ func TestSaveAccountInDB(t *testing.T) {
 	CreateDB(false)
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			aAccount := NewAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
+			aAccount := newAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
 			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
 			if aAccount.saveAccountInDB() {
 				fmt.Println("Cant save data in Bank")
