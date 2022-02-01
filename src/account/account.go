@@ -208,8 +208,14 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	rows, _ := db.Query("select id, nome, cpf, balance, secret, createAt from accounts")
+	rows, err := db.Query("select id, nome, cpf, balance, secret, createAt from accounts")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
 
+	}
 	defer rows.Close()
 
 	var usuarios []Account

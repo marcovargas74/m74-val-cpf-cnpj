@@ -119,8 +119,13 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	rows, _ := db.Query("select id, ori, dest, amount, createAt from transfers")
-
+	rows, err := db.Query("select id, ori, dest, amount, createAt from transfers")
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
 	defer rows.Close()
 
 	var transfers []TransferBank
@@ -149,7 +154,13 @@ func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, 
 	}
 	defer db.Close()
 
-	rows, _ := db.Query("select id, ori, dest, amount, createAt from transfers where ori = ?", UserID)
+	rows, err := db.Query("select id, ori, dest, amount, createAt from transfers where ori = ?", UserID)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
 
 	defer rows.Close()
 
@@ -157,7 +168,7 @@ func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, 
 	for rows.Next() {
 		var aTransfer TransferBank
 		rows.Scan(&aTransfer.ID, &aTransfer.AccountOriginID, &aTransfer.AccountDestinationID, &aTransfer.Amount, &aTransfer.CreatedAt)
-		fmt.Printf(">>ID Destino:[%s] <- ID ORIGIN:[%s]\n", aTransfer.AccountOriginID, aTransfer.AccountDestinationID)
+		log.Printf(">>ID Destino:[%s] <- ID ORIGIN:[%s]\n", aTransfer.AccountOriginID, aTransfer.AccountDestinationID)
 		transfers = append(transfers, aTransfer)
 	}
 
