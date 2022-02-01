@@ -14,6 +14,7 @@ const (
 	serverPort = ":5000"
 )
 
+//ServerBank is a Mais struct to start server
 type ServerBank struct {
 	//Armazenamento ArmazenamentoAccount
 	http.Handler
@@ -157,6 +158,7 @@ func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 /*
  * BANK INICIA AQUI
  */
+
 //NewServerBank Cria Servidor
 func NewServerBank(mode string) *ServerBank {
 

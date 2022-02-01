@@ -12,7 +12,7 @@ func GetVersion() string {
 	return versionPackage
 }
 
-//SetLocalVar Set variable test
+//SetIsProduction Set variable test
 //default is false
 func SetIsProduction(isInProduction bool) {
 	isProd = isInProduction
