@@ -136,7 +136,10 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("UUIDv4: %s\n", a.ID)
 
 	if !IsValidUUID(a.ID) {
-		fmt.Printf("Something gone wrong:")
+		log.Printf("Something gone wrong: Invalid ID:%s\n", a.ID)
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	if !a.saveAccountInDB() {

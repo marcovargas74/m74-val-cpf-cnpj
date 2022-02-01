@@ -41,7 +41,7 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 	t.AccountOriginID = tokeOrigin
 	fmt.Printf("\nSaveTransfer OriID:%s  DestID:%s value %.2f\n", t.AccountOriginID, t.AccountDestinationID, t.Amount)
 	if errs := validator.Validate(t); errs != nil {
-		fmt.Printf("INVALIDO %v\n", errs) // do something
+		log.Printf("INVALIDO %v\n", errs)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -50,10 +50,12 @@ func (t *TransferBank) SaveTransfer(w http.ResponseWriter, r *http.Request, toke
 
 	t.ID = NewUUID()
 	t.CreatedAt = time.Now()
-	fmt.Printf("UUIDv4: %s\n", t.ID)
+	log.Printf("UUIDv4: %s\n", t.ID)
 
 	if !IsValidUUID(t.ID) {
-		fmt.Printf("Something gone wrong:")
+		log.Printf("invalid UUID:")
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	if !IsValidUUID(t.AccountOriginID) || !IsValidUUID(t.AccountDestinationID) {
@@ -93,8 +95,17 @@ func (t *TransferBank) SaveTransferInDB() bool {
 	}
 	defer db.Close()
 
-	tx, _ := db.Begin()
-	stmt, _ := tx.Prepare("insert into transfers(id, ori, dest, amount, createAt) values(?,?,?,?,?)")
+	tx, err := db.Begin()
+	if err != nil {
+		log.Print(err)
+		return false
+	}
+
+	stmt, err := tx.Prepare("insert into transfers(id, ori, dest, amount, createAt) values(?,?,?,?,?)")
+	if err != nil {
+		log.Print(err)
+		return false
+	}
 
 	_, err = stmt.Exec(t.ID, t.AccountOriginID, t.AccountDestinationID, t.Amount, t.CreatedAt)
 	if err != nil {
@@ -102,7 +113,7 @@ func (t *TransferBank) SaveTransferInDB() bool {
 		log.Print(err)
 		return false
 	}
-	fmt.Printf("    -->>SAVE ID Destino:[%s] <- ID ORIGIN:[%s]\n", t.AccountOriginID, t.AccountDestinationID)
+	log.Printf("    -->>SAVE ID Destino:[%s] <- ID ORIGIN:[%s]\n", t.AccountOriginID, t.AccountDestinationID)
 
 	tx.Commit()
 	return true
