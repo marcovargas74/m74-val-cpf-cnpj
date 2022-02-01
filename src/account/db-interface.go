@@ -7,67 +7,31 @@ import (
 	"log"
 	"net/http"
 
+	//Used blank to can used mysql commands
 	_ "github.com/go-sql-driver/mysql"
-	//	"github.com/marcovargas74/m74-bank-api/src/account"
 )
 
 const (
-	//DBSource       = "root:Mysql#2510@/bankAPI"
+	//DBSourceOpenLocal Const used to Open Local db
 	DBSourceOpenLocal = "root:my-secret-pw@tcp(localhost:3307)/"
-	DBSourceLocal     = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
-	//mysql-api é o nome do serviço no docker-composer
-	DBSourceOpenDocker = "root:my-secret-pw@tcp(mysql-api)/"
-	DBSourceDocker     = "root:my-secret-pw@tcp(mysql-api)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+
+	//DBSourceLocal Const used to acces Local db
+	DBSourceLocal = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+
+	//DBSourceOpenDocker Const used to Open Docker db
+	DBSourceOpenDocker = "root:my-secret-pw@tcp(mysql-api)/" //mysql-api é o nome do serviço no docker-composer
+
+	//DBSourceDocker Const used to acces Docker db
+	DBSourceDocker = "root:my-secret-pw@tcp(mysql-api)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
 
 )
 
+//AddrOpenDB VAR used to open and to access BD
 var AddrOpenDB string
+
+//AddrDB VAR used to to access BD (selects/Update/Insert)
 var AddrDB string
 
-//DBMySQL Data base Used in BANK
-//var DBMySQL *sql.DB
-
-/*
-//Usuario :)
-type Usuario struct {
-	ID   int    `json:"id"`
-	Nome string `json:"nome"`
-}
-
-//UsuarioHandler analisa o request e delega para função adequada
-func UsuarioHandler(w http.ResponseWriter, r *http.Request) {
-	sid := strings.TrimPrefix(r.URL.Path, "/usuarios/")
-	id, _ := strconv.Atoi(sid)
-
-	switch {
-	case r.Method == "GET" && id > 0:
-		usuarioPorID(w, r, id)
-
-	case r.Method == "GET":
-		usuarioTodos(w, r)
-
-	default:
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Desculpa... :(")
-	}
-
-}
-
-func usuarioPorID(w http.ResponseWriter, r *http.Request, id int) {
-	db, err := sql.Open("mysql", "root:Mysql#2510@/cursogo")
-	if err != nil {
-		log.Println(err)
-	}
-	defer db.Close()
-
-	var u Usuario
-	db.QueryRow("select id, nome from usuarios where id = ?", id).Scan(&u.ID, &u.Nome)
-	json, _ := json.Marshal(u)
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-}
-*/
 //ShowAccountAll mostra todos as contas
 func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
