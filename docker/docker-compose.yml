@@ -1,31 +1,27 @@
-version: '3'
-
+version: '3.1'
 services:
-
-  mysql-development:
-    image: mysql:8.0.26
+  mysql-api:
+    #image: mysql:5.7.37
+    image: mysql:8.0.28
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    container_name: godockerDB
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
       MYSQL_DATABASE: bankAPI
     ports:
-      - "3307:3306"
+      - "3307:3306" 
 
   admin:    
     image: adminer    
     ports:      
       - "8080:8080"
- 
+
   my-bank-api:    
-    image: marcovargas74/m74bank-api:1.0    
+    image: marcovargas74/m74bank-api:1.2    
     ports:      
       - "5000:5000"
- 
-  mysql-old:
-    image: mysql:5.7.27
-    environment:
-      MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: bankAPI
-    ports:
-      - "3309:3306" 
+    depends_on:
+      - mysql-api
 
     # Reference https://betterprogramming.pub/setting-up-mysql-database-in-a-docker-d6c69a3e9afe
