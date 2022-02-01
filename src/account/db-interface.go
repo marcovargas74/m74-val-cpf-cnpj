@@ -15,9 +15,9 @@ const (
 	//DBSource       = "root:Mysql#2510@/bankAPI"
 	DBSourceOpenLocal = "root:my-secret-pw@tcp(localhost:3307)/"
 	DBSourceLocal     = "root:my-secret-pw@tcp(localhost:3307)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
-
-	DBSourceOpenDocker = "root:my-secret-pw@tcp(172.17.0.2:3306)/"
-	DBSourceDocker     = "root:my-secret-pw@tcp(172.17.0.2:3306)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
+	//mysql-api é o nome do serviço no docker-composer
+	DBSourceOpenDocker = "root:my-secret-pw@tcp(mysql-api)/"
+	DBSourceDocker     = "root:my-secret-pw@tcp(mysql-api)/bankAPI" //root:Mysql#my-secret-pw@/bankAPI"
 
 )
 
@@ -108,17 +108,17 @@ func exec(db *sql.DB, sql string) sql.Result {
 //CreateDB Cria banco sql
 func CreateDB(isDropTable bool) {
 	// MYSQL LOCAL
-	AddrOpenDB = DBSourceOpenLocal
-	AddrDB = DBSourceLocal
+	AddrOpenDB = DBSourceOpenDocker
+	AddrDB = DBSourceDocker
 
 	db, err := sql.Open("mysql", AddrOpenDB)
 	if err != nil {
 		log.Printf("FALHA ao conectar ao Banco Mysql LOCAL...")
-		AddrOpenDB = DBSourceOpenDocker
-		AddrDB = DBSourceDocker
+		AddrOpenDB = DBSourceOpenLocal
+		AddrDB = DBSourceLocal
 		db, err = sql.Open("mysql", AddrOpenDB)
 		if err != nil {
-			log.Printf("FALHA ao conectar ao Banco Mysql do DOKER IP 172.17.0.2")
+			log.Printf("FALHA ao conectar ao Banco Mysql Local IP 127.0.0.1")
 			log.Print(err)
 		}
 

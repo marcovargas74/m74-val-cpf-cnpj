@@ -24,6 +24,9 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 	var accountJSON account.Account
 	fmt.Printf("CallbackAccounts TOKEN: %v\n", r.Header.Get("token"))
 
+	//TODO retirar depois essa conexao ao banco. Incluido aqui por seguro caso banco demore a subir.
+	account.CreateDB(false)
+
 	switch r.Method {
 	case http.MethodPost:
 		accountJSON.SaveAccount(w, r)
@@ -129,6 +132,7 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 	//fmt.Printf("Login Body: %v\n", r.Body)
 	//fmt.Printf("Login Body: %v\n", r.Header.Get())
+	account.CreateDB(false)
 
 	user, passw, _ := r.BasicAuth()
 	fmt.Printf("login [%s] [%s] \n", user, passw)
