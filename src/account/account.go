@@ -157,6 +157,7 @@ func (a *Account) saveAccountInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		return false
 	}
 	defer db.Close()
 
@@ -200,6 +201,10 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+
 	}
 	defer db.Close()
 
@@ -225,6 +230,9 @@ func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
 	}
 	defer db.Close()
 
@@ -245,6 +253,10 @@ func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+
 	}
 	defer db.Close()
 
@@ -269,6 +281,7 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		return false
 	}
 	defer db.Close()
 

@@ -187,22 +187,22 @@ func TestCallbackLoginPOST(t *testing.T) {
 
 	tests := []struct {
 		give      string
-		wantValue string
+		wantValue int
 		inData    string
 	}{
 		{
 			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: "POST /login/Nobody",
+			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
 			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: "POST /login/",
+			wantValue: 401,
 			inData:    "",
 		},
 		{
 			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: "POST /login/123",
+			wantValue: 404,
 			inData:    "123",
 		},
 	}
@@ -215,10 +215,11 @@ func TestCallbackLoginPOST(t *testing.T) {
 			resposta := httptest.NewRecorder()
 
 			server.ServeHTTP(resposta, requisicao)
-			verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
+			//verificaTipoDoConteudo(t, resposta, tipoDoConteudoJSON)
 
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)
+			//recebido := resposta.Body.String()
+			//assert.Equal(t, recebido, tt.wantValue)
+			assert.Equal(t, resposta.Code, tt.wantValue)
 		})
 
 	}

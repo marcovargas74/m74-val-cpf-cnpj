@@ -89,6 +89,7 @@ func (t *TransferBank) SaveTransferInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
+		return false
 	}
 	defer db.Close()
 
@@ -112,6 +113,9 @@ func (t *TransferBank) GetTransfers(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
 	}
 	defer db.Close()
 
@@ -139,6 +143,9 @@ func (t *TransferBank) GetTransfersByID(w http.ResponseWriter, r *http.Request, 
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
 	}
 	defer db.Close()
 

@@ -37,6 +37,9 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
 	}
 	defer db.Close()
 
