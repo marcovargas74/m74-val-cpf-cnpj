@@ -123,6 +123,7 @@ func TestCreateAccount(t *testing.T) {
 
 }
 
+/*
 //TODO Passar para um arquivo DB
 func TestSaveAccountInDB(t *testing.T) {
 
@@ -183,7 +184,7 @@ func TestSaveAccountInDB(t *testing.T) {
 	}
 
 }
-
+*/
 func TestIsValidCPF(t *testing.T) {
 
 	tests := []struct {

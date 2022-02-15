@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/gofrs/uuid"
 	"gopkg.in/validator.v2"
 )
 
