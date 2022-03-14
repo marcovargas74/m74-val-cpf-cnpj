@@ -5,8 +5,7 @@ RUN apk update && apk add --no-cache build-base git
  
 
 # Set the working directory
-WORKDIR /
-
+WORKDIR $GOPATH/src/bank-api
 
 COPY . .
 
@@ -14,12 +13,12 @@ COPY . .
 #RUN go get -v ./...
 
 # Build and strip the binary
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/api-bank src/bank/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/bank-api src/bank/main.go
 
 FROM scratch
 
 # Copy our static executable.
-COPY --from=builder /go/bin/api-bank /go/bin/api-bank
+COPY --from=builder /go/bin/bank-api /go/bin/bank-api
 
 # Run the api-bank binary.
 CMD ["/go/bin/bank-api"]
