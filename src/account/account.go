@@ -13,25 +13,6 @@ import (
 	"gopkg.in/validator.v2"
 )
 
-/*
-const (
-	aConst = "ola"
-)*/
-
-/*TODO: refatorar para validar todos os dados /
-//Account Struct Used to creat a account
-type Account struct {
-	ID        string  `json:"id" validate:"required,uuid4"`
-	Name      string  `json:"name "validate:"min=3,max=40,regexp=^[a-zA-Z]*$""`
-	CPF       string  `json:"cpf" required`
-	Balance   float64 `json:"balance" validate:"gt=0,required"`
-	Secret    string  `json:"secret" validate:"min=3,max=40,regexp=^[a-zA-Z]*$"`
-	CreatedAt string  `json:"created_at"`
-
-}
-*/
-
-//Account Struct Used to creat a account
 type Account struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name" validate:"min=3,max=40"`
@@ -46,26 +27,6 @@ type Balance struct {
 	Value float64 `json:"balance"`
 }
 
-/*
-//StructAndJSON Just Test
-func StructAndJSON() string {
-	//var create time.Time
-	accountMaria := Account{Balance: 0, CreatedAt: time.Now()}
-	accountMaria.ID = "abc"
-	accountMaria.CPF = "111.111.111-11"
-	accountMaria.Secret = "111"
-	accountMaria.Name = "Maria"
-	mariaJSON, _ := json.Marshal(accountMaria)
-	fmt.Println(string(mariaJSON))
-	return (string(mariaJSON))
-
-	//Convert Json To struct
-	/*var accountFromJSON Account
-	json.Unmarshal(mariaJSON, &accountFromJSON)
-	fmt.Println(accountFromJSON.Name)* /
-}
-*/
-
 //IsValidCPF Check if cpf is valid
 func IsValidCPF(cpf string) bool {
 	isValid := true
@@ -79,13 +40,10 @@ func IsValidCPF(cpf string) bool {
 func NewUUID() string {
 	uuidNew, _ := uuid.NewV4()
 	return uuidNew.String()
-	//return gouuid.NewV4().String()
-
 }
 
 //IsValidUUID Check if IUUID is valid
 func IsValidUUID(uuidVal string) bool {
-	//_, err := uuid.FromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8")
 	_, err := uuid.FromString(uuidVal)
 	return err == nil
 }
@@ -103,8 +61,6 @@ func HashToSecret(hashIn string) string {
 }
 
 func newAccount(name, cpf, secret string, balance float64) Account {
-	//fmt.Printf("->Name: %s CreateAt: \n ", name)
-
 	return Account{
 		ID:        NewUUID(),
 		Name:      name,
@@ -187,7 +143,6 @@ func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
 //GetAccountByID return account pass token ID in arg
 func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
 
-	//log.Printf("   -->GetAccountByID [%s] \n", ID)
 	if !IsValidUUID(ID) {
 		log.Printf("Something gone wrong: Invalid ID:%s\n", ID)
 		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")

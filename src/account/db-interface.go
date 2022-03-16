@@ -66,10 +66,6 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-/*Antes de Usar o Banco deve-se Subir o servidor
-service mysqld start
-*/
-
 func exec(db *sql.DB, sql string) sql.Result {
 	result, err := db.Exec(sql)
 	if err != nil {
@@ -80,7 +76,6 @@ func exec(db *sql.DB, sql string) sql.Result {
 
 //CreateDB Cria banco sql
 func CreateDB(isDropTable bool) {
-	// MYSQL LOCAL
 	AddrOpenDB = DBSourceOpenDocker
 	AddrDB = DBSourceDocker
 

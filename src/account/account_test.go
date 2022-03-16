@@ -123,68 +123,6 @@ func TestCreateAccount(t *testing.T) {
 
 }
 
-/*
-//TODO Passar para um arquivo DB
-func TestSaveAccountInDB(t *testing.T) {
-
-	tests := []struct {
-		give        string
-		wantValue   string
-		inDataName  string
-		inDataCPF   string
-		inDataPassw string
-		inDataVal   float64
-	}{
-		{
-			give:        "Testa um nome OK Alice",
-			wantValue:   "Alice",
-			inDataName:  "Alice",
-			inDataCPF:   "111.111.111-11",
-			inDataPassw: "@Alice11",
-			inDataVal:   11.11,
-		},
-
-		{
-			give:        "Testa um nome OK Peter",
-			wantValue:   "Peter",
-			inDataName:  "Peter",
-			inDataCPF:   "222.222.222-22",
-			inDataPassw: "@Peter22",
-			inDataVal:   22.22,
-		},
-		{
-			give:        "Testa um nome OK NOBODY",
-			wantValue:   "Nobody",
-			inDataName:  "Nobody",
-			inDataCPF:   "000.000.000-00",
-			inDataPassw: "@Nobody00",
-			inDataVal:   00.00,
-		},
-	}
-
-	CreateDB(false)
-	for _, tt := range tests {
-		t.Run(tt.give, func(t *testing.T) {
-			aAccount := newAccount(tt.inDataName, tt.inDataCPF, tt.inDataPassw, tt.inDataVal)
-			fmt.Printf("->Name: %s ID: %s CreateAt: %s\n ", aAccount.Name, aAccount.ID, aAccount.CreatedAt.Format("01-02-2006 15:04:05"))
-			if aAccount.saveAccountInDB() {
-				fmt.Println("Cant save data in Bank")
-			}
-			CheckIfEqualString(t, aAccount.Name, tt.wantValue)
-
-			accountInBD, _ := GetAccountByID(aAccount.ID)
-			CheckIfEqualString(t, accountInBD.Name, tt.inDataName)
-			CheckIfEqualFloat(t, accountInBD.Balance, tt.inDataVal)
-
-			UpdateBalanceByID(aAccount.ID, (tt.inDataVal * 2))
-			accountInBD, _ = GetAccountByID(aAccount.ID)
-			CheckIfEqualFloat(t, accountInBD.Balance, (tt.inDataVal * 2))
-		})
-
-	}
-
-}
-*/
 func TestIsValidCPF(t *testing.T) {
 
 	tests := []struct {

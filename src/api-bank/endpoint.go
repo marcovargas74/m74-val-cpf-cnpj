@@ -14,9 +14,8 @@ const (
 	serverPort = ":5000"
 )
 
-//ServerBank is a Mais struct to start server
+//ServerBank is struct to start server
 type ServerBank struct {
-	//Armazenamento ArmazenamentoAccount
 	http.Handler
 }
 
@@ -26,7 +25,6 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 	var accountJSON account.Account
 	fmt.Printf("CallbackAccounts TOKEN: %v\n", r.Header.Get("token"))
 
-	//TODO retirar depois essa conexao ao banco. Incluido aqui por seguro caso banco demore a subir.
 	account.CreateDB(false)
 
 	switch r.Method {
@@ -44,8 +42,6 @@ func (s *ServerBank) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
 
 //CallbackFindAccountID function Used to handle endpoint /accounts/{}
 func (s *ServerBank) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
-
-	//fmt.Printf("!!!CallbackFindAccountID GET %v\n", r.URL)
 
 	accountID := mux.Vars(r)
 	w.WriteHeader(http.StatusOK)
@@ -70,9 +66,6 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 	tokenAccount := r.Header.Get("token")
 	log.Printf("CallbackTransfer TOKEN: %v\n", r.Header.Get("token"))
 
-	//TOD deve estar autenticada
-	// filterID string
-
 	switch r.Method {
 	case http.MethodPost:
 		aTransfer.SaveTransfer(w, r, tokenAccount)
@@ -90,17 +83,15 @@ func (s *ServerBank) CallbackTransfer(w http.ResponseWriter, r *http.Request) {
 func (s *ServerBank) CallbackTransferByID(w http.ResponseWriter, r *http.Request) {
 
 	var aTransfer account.TransferBank
-	//fmt.Printf("CallbackTransferByID TOKEN: %v\n", r.Header.Get("token"))
 
 	accountID := mux.Vars(r)
-	log.Printf("accountID [%s] \n", accountID["account_id"]) //TOD deve estar autenticada
+	log.Printf("accountID [%s] \n", accountID["account_id"])
 
 	switch r.Method {
 	case http.MethodPost:
 		aTransfer.SaveTransfer(w, r, accountID["account_id"])
 	case http.MethodGet:
 		aTransfer.GetTransfersByID(w, r, accountID["account_id"])
-		//aTransfer.GetTransfersByID(w, r, tokenAccount)
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -114,7 +105,6 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 
 	account.CreateDB(false)
 	user, passw, _ := r.BasicAuth()
-	//fmt.Printf("login [%s] [%s] \n", user, passw)
 
 	if user == "" || passw == "" || r.Method != http.MethodPost {
 		w.WriteHeader(http.StatusUnauthorized)
@@ -141,8 +131,6 @@ func (s *ServerBank) CallbackLogin(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-//DEPRECATED CODE
-
 //DefaultEndpoint function Used to handle endpoint /- can be a load a page in html to configure
 func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
@@ -155,26 +143,19 @@ func (s *ServerBank) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Endpoint not found")
 }
 
-/*
- * BANK INICIA AQUI
- */
-
-//NewServerBank Cria Servidor
+//NewServerBank Create Server
 func NewServerBank(mode string) *ServerBank {
 
 	server := new(ServerBank)
 
-	//GORILAS
 	routerG := mux.NewRouter()
 	routerG.HandleFunc("/login/", server.CallbackLogin)
 	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
-	//routerG.HandleFunc("/accounts", BasicAuth(server.CallbackAccounts))
 	routerG.HandleFunc("/accounts", server.CallbackAccounts)
 	routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 	routerG.HandleFunc("/transfers", BasicAuth(server.CallbackTransfer))
 
 	if mode == "dev" {
-		//Incluir endpoint para testar não precisa authenticação(SOMENTE PARA TESTE)
 		routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
 	}
 	server.Handler = routerG
@@ -182,7 +163,7 @@ func NewServerBank(mode string) *ServerBank {
 
 }
 
-//StartAPI inicia o servidor http
+//StartAPI http starter server
 func StartAPI(mode string) {
 	servidor := NewServerBank(mode)
 

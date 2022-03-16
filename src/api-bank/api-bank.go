@@ -1,10 +1,9 @@
 package m74bankapi
 
 const (
-	versionPackage = "2022-01-31"
+	versionPackage = "2022-03-16"
 )
 
-//usado para dizer se está em modo producao ou desenvolvimento
 var isProd = false
 
 //GetVersion Get the number version of packet

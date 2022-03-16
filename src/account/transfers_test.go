@@ -5,10 +5,6 @@ import (
 	"testing"
 )
 
-/*
-TODO passar para um arquivo separado
-*/
-
 //CheckIfEqualFloat check if resulto is OK type Float
 func CheckIfEqualFloat(t *testing.T, gotValue, waitValue float64) {
 	t.Helper()
@@ -135,12 +131,6 @@ func TestGetTransfer(t *testing.T) {
 			inFindID:      "b1080263-f5e0-495a-8e70-60a303a7a8d3",
 			inValueAmount: 00.00,
 		},
-		/*{ TODO incluir um valor default para restar
-			give:          "Testa Busca por ID Valido",
-			wantValue:     true,
-			inFindID:      "02592cdb-3bda-4fbb-a451-28bacdb0f57a",
-			inValueAmount: 10.00,
-		},*/
 	}
 
 	for _, tt := range tests {
@@ -189,12 +179,6 @@ func TestGetTransferByCPF(t *testing.T) {
 			inFindID:      "000.000.000-11",
 			inValueAmount: 00.00,
 		},
-		/*{
-			give:          "Testa Busca por un CPF Valido",
-			wantValue:     true,
-			inFindID:      "111.111.111-11",
-			inValueAmount: 10.00,
-		},*/
 	}
 
 	for _, tt := range tests {

@@ -11,16 +11,6 @@ import (
 	"gopkg.in/validator.v2"
 )
 
-/*
-type TransferBank struct {
-	ID                   string    `json:"id" validate:"required,uuid4"`
-	AccountOriginID      string    `json:"acount_origin_id" validate:"required,uuid4"`
-	AccountDestinationID string    `json:"Account_destination_id" validate:"required,uuid4"`
-	Amount               float64   `json:"Amount" validate:"gt=0,required"`
-	CreatedAt            time.Time `json:"created_at"`
-}
-*/
-
 //TransferBank is A struct to used to make a transfer
 type TransferBank struct {
 	ID                   string    `json:"id"`

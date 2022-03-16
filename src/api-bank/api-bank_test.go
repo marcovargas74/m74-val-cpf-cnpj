@@ -53,41 +53,8 @@ func TestSetAnGetIsProduction(t *testing.T) {
 		t.Run(tt.give, func(t *testing.T) {
 			SetIsProduction(tt.inData)
 			assert.Equal(t, GetIsProduction(), tt.wantValue)
-			//checkResultBool(t, tt.wantValue, valorRetornado)
-			//checkResult(t, valorRetornado, wantValue)
 		})
 
 	}
 
 }
-
-/*
-func TestExampleTesteFunc(t *testing.T) {
-	tests := []struct {
-		entrada  bool
-		esperado bool
-	}{
-		//testes ok
-		{true, true},
-		//Testes de entradas invalidas
-		//{"teste", []byte("teste")},
-		//{ 257,0},
-	}
-
-	for _, teste := range tests {
-		t.Logf("Teste %v", teste)
-
-		//valorEsperado := teste.entrue
-		SetIsProduction(teste.entrada)
-		//valorRetornado := GetIsProduction()
-
-		//checkResult(t, valorRetornado, valorEsperado)
-
-		//atual := ExampleTesteFunc(teste.entrada)
-		valorRetornado := GetIsProduction()
-		if valorRetornado != teste.esperado {
-			t.Errorf(erroMsg, teste.esperado, valorRetornado)
-		}
-	}
-
-}*/
