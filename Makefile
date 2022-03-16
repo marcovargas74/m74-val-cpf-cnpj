@@ -1,4 +1,4 @@
-all: clean deps test test-web docker-build docker-deploy-up
+all: clean deps test build docker-build docker-deploy-up
 
 clean:
 	@go clean
@@ -11,15 +11,11 @@ test:
 	@go test -v ./...
 
 
-# coverage:
-# 	@mkdir -p build
-# 	@go test -coverprofile build/cover.out ./...
-# 	@go tool cover -html=build/cover.out -o build/cover.html
-# 	@cd web && npm test -- --verbose --silent --coverage --watchAll=false
+build:
+	@cd src/bank && go build main.go 
 
-#docker-build:
-#	@cd src/bank && go build main.go .
-  
+docker-build:
+	@docker build -t m74bank-api .
 
 docker-deploy-up:
 	@cd docker && docker-compose up -d

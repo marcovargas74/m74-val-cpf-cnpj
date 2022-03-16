@@ -17,8 +17,7 @@ services:
       - "8080:8080"
 
   my-bank-api:    
-    #image: marcovargas74/m74bank-api:1.3  //nova versao com alguns BUGs corrigidos. Ainda nao testado  
-    image: m74bank-api:1.4 
+    image: m74bank-api:latest 
     container_name: m74bank-api 
     ports:      
       - "5000:5000"
