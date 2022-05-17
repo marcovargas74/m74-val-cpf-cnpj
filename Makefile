@@ -12,7 +12,7 @@ test:
 
 
 build:
-	@cd src/bank && go build main.go 
+	@cd src/bank && go vet && go build main.go 
 
 docker-build:
 	@docker build -t m74bank-api .
