@@ -29,10 +29,10 @@ const (
 //AddrOpenDB VAR used to open and to access BD
 var AddrOpenDB string
 
-//AddrDB VAR used to to access BD (selects/Update/Insert)
+//AddrDB VAR data source name
 var AddrDB string
 
-//ShowAccountAll mostra todos as contas
+//ShowAccountAll Show all accounts
 func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -59,7 +59,10 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 		usuarios = append(usuarios, usuario)
 	}
 
-	json, _ := json.Marshal(usuarios)
+	json, err := json.Marshal(usuarios)
+	if err != nil {
+		log.Println(err)
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
@@ -74,7 +77,7 @@ func exec(db *sql.DB, sql string) sql.Result {
 	return result
 }
 
-//CreateDB Cria banco sql
+//CreateDB Create SQL dataBase
 func CreateDB(isDropTable bool) {
 	AddrOpenDB = DBSourceOpenDocker
 	AddrDB = DBSourceDocker
