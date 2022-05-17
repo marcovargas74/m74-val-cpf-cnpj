@@ -38,7 +38,10 @@ func IsValidCPF(cpf string) bool {
 
 //NewUUID Cria um novo UUID valido
 func NewUUID() string {
-	uuidNew, _ := uuid.NewV4()
+	uuidNew, err := uuid.NewV4()
+	if err != nil {
+		log.Println(err)
+	}
 	return uuidNew.String()
 }
 
@@ -56,10 +59,14 @@ func SecretToHash(password string) string {
 
 //HashToSecret change a HAshValue in a visible string
 func HashToSecret(hashIn string) string {
-	passw, _ := base64.StdEncoding.DecodeString(hashIn)
+	passw, err := base64.StdEncoding.DecodeString(hashIn)
+	if err != nil {
+		log.Println(err)
+	}
 	return string(passw)
 }
 
+//newAccount Create a new account
 func newAccount(name, cpf, secret string, balance float64) Account {
 	return Account{
 		ID:        NewUUID(),
@@ -105,7 +112,11 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json, _ := json.Marshal(a)
+	json, err := json.Marshal(a)
+	if err != nil {
+		log.Println(err)
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
 	w.WriteHeader(http.StatusOK)
@@ -120,8 +131,16 @@ func (a *Account) saveAccountInDB() bool {
 	}
 	defer db.Close()
 
-	tx, _ := db.Begin()
-	stmt, _ := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println(err)
+	}
+
+	stmt, err := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
+	if err != nil {
+		log.Println(err)
+	}
+
 	secretHash := SecretToHash(a.Secret)
 	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, secretHash, a.CreatedAt)
 	if err != nil {
@@ -154,7 +173,7 @@ func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID stri
 	w.WriteHeader(http.StatusOK)
 }
 
-//ShowAccountAll mostra todos as contas
+//ShowAccountAll show All accounts in a Bank
 func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -183,8 +202,10 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 		usuarios = append(usuarios, account)
 	}
 
-	json, _ := json.Marshal(usuarios)
-
+	json, err := json.Marshal(usuarios)
+	if err != nil {
+		log.Println(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
 
@@ -203,8 +224,10 @@ func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID
 	var account Account
 	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
 	account.Secret = "*****"
-	json, _ := json.Marshal(account)
-
+	json, err := json.Marshal(account)
+	if err != nil {
+		log.Println(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 
 	log.Printf("DADOS DO DB id[%s] data[%s]\n", findID, string(json))
@@ -226,7 +249,10 @@ func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID
 
 	var aBalance Balance
 	db.QueryRow("select balance from accounts where id = ?", findID).Scan(&aBalance.Value)
-	json, _ := json.Marshal(aBalance)
+	json, err := json.Marshal(aBalance)
+	if err != nil {
+		log.Println(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
 }
@@ -249,8 +275,16 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 	}
 	defer db.Close()
 
-	tx, _ := db.Begin()
-	stmt, _ := tx.Prepare("update accounts set balance = ? where id = ?")
+	tx, err := db.Begin()
+	if err != nil {
+		log.Println(err)
+	}
+
+	stmt, err := tx.Prepare("update accounts set balance = ? where id = ?")
+	if err != nil {
+		log.Println(err)
+	}
+
 	_, err = stmt.Exec(accountInBD.Balance, accountInBD.ID)
 	if err != nil {
 		tx.Rollback()
