@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"regexp"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -29,10 +30,17 @@ type Balance struct {
 
 //IsValidCPF Check if cpf is valid
 func IsValidCPF(cpf string) bool {
+	var CPFRegexp = regexp.MustCompile(`^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$`)
+
 	isValid := true
 	if len(cpf) != 14 {
 		isValid = false
 	}
+
+	if !CPFRegexp.MatchString(cpf) {
+		return false
+	}
+
 	return isValid
 }
 
