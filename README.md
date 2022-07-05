@@ -72,13 +72,11 @@ go build -o main.go
 | Endpoint        | HTTP Method           | Description           |
 | --------------- | :-------------------: | :-------------------: |
 | `/cpfs`         | `POST`                | `Create CPF`          |
-| `/cpfs`         | `GET`                 | `Find CPF`            |
+| `/cpfs`         | `GET`                 | `List CPF`            |
 | `/cpfs`         | `DELETE`              | `Delete CPF`          |
-| `/cpfs/all`     | `GET`                 | `List CPF`            |
 | `/cnpjs`        | `POST`                | `Create CPF`          |
-| `/cnpjs`        | `GET`                 | `Find CPF`            |
+| `/cnpjs`        | `GET`                 | `List CPF`            |
 | `/cnpjs`        | `DELETE`              | `Delete CPF`          |
-| `/cnpjs/all`    | `GET`                 | `List CPF`            |
 | `/status`       | `GET`                 | `Get status`          |
 
 
@@ -110,7 +108,7 @@ curl -i --request POST 'http://localhost:5000/cpfs' \
 
 `Request`
 ```bash
-curl -i --request GET 'http://localhost:5000/cpfs/all'
+curl -i --request GET 'http://localhost:5000/cpfs'
 ```
 
 `Response`
