@@ -1,4 +1,4 @@
-<h2 align="center">API Go Bank Transfer :bank:</h2>
+<h2 align="center">APP Go Valid CPF and CNPJ:</h2>
 <p>
   <img alt="Version" src="https://img.shields.io/badge/version-0.00.1-blue.svg?cacheSeconds=2592000" />
   <a href="#" target="_blank">
@@ -7,12 +7,13 @@
 
 </p>
 
-- Go Bank Transfer is a simple API for some banking routines, such as creating accounts, listing accounts, listing balance for a specific account, transfers between accounts and listing transfers.
+- Go Valid CPF and CNPJ is a simple CPF and CNPJ number validator. It also has a CRUD.
 
 ## Requirements/dependencies
+- GO
 - Docker
 - Docker-compose
-- MySQL must be install in same machine or Network of the api-bank(bank-api will be conect at 127.0.0.1:3037)
+- MongoDB 
 
 ## Getting Started
 
@@ -20,38 +21,29 @@
 - [How To install Go](https://github.com/larien/aprenda-go-com-testes/blob/master/primeiros-passos-com-go/instalacao-do-go.md) 
 
 
-- [Clone project](https://github.com/marcovargas74/m74-bank-api)
+- [Clone project](https://github.com/marcovargas74/m74-val-cpf-cnpj.git)
 ```sh
-git clone https://github.com/marcovargas74/m74-bank-api
+git clone https://github.com/marcovargas74/m74-val-cpf-cnpj.git
 ```
 
-- HOW TO RUN A TEST - For Dommy 
+- HOW TO RUN   
 ```sh
- cd m74-bank-api/docker
+ cd m74-val-cpf-cnpj
 
  ## start dockers
- docker-compose up
+ make all
 
  ## stop dockers
- docker-compose down
+ make stop
 ```
 
-> :warning: **Mysql DB can take up to 3 minutes to start**: Be very careful here!
-
-- OR For Advanced Users
-(Don't try this at home)  
-
- Start Docker Myql DB 
-```sh
- docker run --name bank-mysql -p 3307:3306 -e MYSQL_ROOT_PASSWORD=my-secret-pw -d mysql:8.0.26
-```
-
+> :warning: **Mongo DB can take up to 3 minutes to start**: Be very careful here!
 
 
 - Enter in project
 
 ```sh
-cd m74-bank-api/src/bank
+cd m74-val-cpf-cnpj/src/bank
 ```
 
 - Build e RUN golang project
@@ -75,27 +67,29 @@ go build -o main.go
 
 ## API Request
 
-| Endpoint        | HTTP Method           | Description       |
-| --------------- | :---------------------: | :-----------------: |
-| `/accounts` | `POST`                | `Create accounts` |
-| `/accounts` | `GET`                 | `List accounts`   |
-| `/accounts/{{account_id}}/balance`   | `GET`                |    `Find balance account` |
-| `/transfers`| `POST`                | `Create transfer` |
-| `/transfers`| `GET`                 | `List transfers`  |
+| Endpoint        | HTTP Method           | Description           |
+| --------------- | :-------------------: | :-------------------: |
+| `/cpfs`         | `POST`                | `Create CPF`          |
+| `/cpfs`         | `GET`                 | `Find CPF`            |
+| `/cpfs`         | `DELETE`              | `Delete CPF`          |
+| `/cpfs/all`     | `GET`                 | `List CPF`            |
+| `/cnpjs`        | `POST`                | `Create CPF`          |
+| `/cnpjs`        | `GET`                 | `Find CPF`            |
+| `/cnpjs`        | `DELETE`              | `Delete CPF`          |
+| `/cnpjs/all`    | `GET`                 | `List CPF`            |
+| `/status`       | `GET`                 | `Get status`          |
 
 
 ## Test endpoints API using curl
 
-- #### Creating new account
+- #### Creating new CPF
 
 `Request`
 ```bash
-curl -i --request POST 'http://localhost:5000/accounts' \
+curl -i --request POST 'http://localhost:5000/cpfs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "name": "Test",
     "cpf": "111.111.111-11",
-    "balance": 10.00
 }'
 ```
 
@@ -103,17 +97,16 @@ curl -i --request POST 'http://localhost:5000/accounts' \
 ```json
 {
     "id":"5cf59c6c-0047-4b13-a118-65878313e329",
-    "name":"Test",
     "cpf":"111.111.111-11",
-    "balance":10.00,
+    "status":"isValid",
     "created_at":"2022-01-24T10:10:02Z"
 }
 ```
-- #### Listing accounts
+- #### Listing CPFs
 
 `Request`
 ```bash
-curl -i --request GET 'http://localhost:5000/accounts'
+curl -i --request GET 'http://localhost:5000/cpfs/all'
 ```
 
 `Response`
@@ -121,75 +114,115 @@ curl -i --request GET 'http://localhost:5000/accounts'
 [
     {
     "id":"5cf59c6c-0047-4b13-a118-65878313e329",
-    "name":"Test",
     "cpf":"111.111.111-11",
-    "balance":10.00,
+    "status":"isValid",
     "created_at":"2022-01-24T10:10:02Z"
     }
 ]
 ```
 
-- #### Fetching account balance
+- #### Fetching CPF number is Valid
 
 `Request`
 ```bash
-curl -i --request GET 'http://localhost:5000/accounts/{{account_id}}/balance'
+curl -i --request GET 'http://localhost:5000/cpfs/{{cpf_number}}'
 ```
 
 `Response`
 ```json
 {
-    "balance": 10.00
+    "status":"isValid",
 }
 ```
-
-- #### Creating new transfer
+- #### Delete CPF Number
 
 `Request`
 ```bash
-curl -i --request POST 'http://localhost:5000/transfers' \
+curl -i --request DELETE 'http://localhost:5000/cpfs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-	"account_origin_id": "{{account_id}}",
-	"account_destination_id": "{{account_id}}",
-	"amount": 100.00
+    "cpf": "111.111.111-11",
+}'
+```
+
+- #### Creating new CNPJ
+
+`Request`
+```bash
+curl -i --request POST 'http://localhost:5000/cnpj' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "cpf": "73.212.132/0001-50",
 }'
 ```
 
 `Response`
 ```json
 {
-    "id": "b51cd6c7-a55c-491e-9140-91903fe66fa9",
-    "account_origin_id": "{{account_id}}",
-    "account_destination_id": "{{account_id}}",
-    "amount": 1.00,
-    "created_at": "2022-01-24T10:12:05Z"
+    "id":"7cf59c6c-0047-4b13-a118-65878313e329",
+    "cnpj":"73.212.132/0001-50",
+    "status":"isValid",
+    "created_at":"2022-01-24T10:10:02Z"
 }
 ```
-
-- #### Listing transfers
+- #### Listing CNPJs
 
 `Request`
 ```bash
-#need authentication 
-curl -i --request GET 'http://localhost:5000/transfers'
-
-# or to test mode development
-curl -i --request GET 'http://localhost:5000/transfers/{{account_id}}'
+curl -i --request GET 'http://localhost:5000/cnpj/all'
 ```
 
 `Response`
 ```json
 [
     {
-        "id": "b51cd6c7-a55c-491e-9140-91903fe66fa9",
-        "account_origin_id": "{{account_id}}",
-        "account_destination_id": "{{account_id}}",
-        "amount": 1.00,
-        "created_at": "2020-11-02T14:57:35Z"
+    "id":"7cf59c6c-0047-4b13-a118-65878313e329",
+    "cnpj":"73.212.132/0001-50",
+    "status":"isValid",
+    "created_at":"2022-01-24T10:10:02Z"
     }
 ]
 ```
+
+- #### Fetching CNPJ number is Valid
+
+`Request`
+```bash
+curl -i --request GET 'http://localhost:5000/cnpj/{{cnpj_number}}'
+```
+
+`Response`
+```json
+{
+    "status":"isValid",
+}
+```
+- #### Delete CNPJ Number
+
+`Request`
+```bash
+curl -i --request DELETE 'http://localhost:5000/cnpj' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "cnpj":"73.212.132/0001-50",
+}'
+```
+
+- #### Check status
+
+`Request`
+```bash
+curl -i --request GET 'http://localhost:5000/status' \
+```
+
+`Response`
+```json
+{
+    "number_of_queries_made": 1,
+    "up-time_at": "2022-01-24T10:12:05Z"
+}
+```
+
 
 ## Code status
 - Development
@@ -198,8 +231,6 @@ curl -i --request GET 'http://localhost:5000/transfers/{{account_id}}'
 - Make a refactory
 - Fix some bugs
 - Add more tests
-- And Drink a beer
-- [TODO List](https://github.com/marcovargas74/m74-bank-api/projects/1)
 
 ## Author
 - Marco Antonio Vargas - [marcovargas74](https://github.com/marcovargas74)
