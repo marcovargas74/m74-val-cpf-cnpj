@@ -1,5 +1,7 @@
 all: clean deps test build docker-build docker-deploy-up
 
+stop: docker-deploy-down
+
 clean:
 	@go clean
 	@rm -rf build
@@ -15,7 +17,7 @@ build:
 	@cd src/bank && go vet && go build main.go 
 
 docker-build:
-	@docker build -t m74bank-api .
+	@docker build -t m74cpfcnpj .
 
 docker-deploy-up:
 	@cd docker && docker-compose up -d
