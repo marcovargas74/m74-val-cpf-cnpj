@@ -17,8 +17,8 @@ services:
       - "8080:8080"
 
   my-bank-api:    
-    image: m74bank-api:latest 
-    container_name: m74bank-api 
+    image: m74cpfcnpj:latest 
+    container_name: m74cpfcnpj 
     ports:      
       - "5000:5000"
     depends_on:
