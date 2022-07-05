@@ -1,14 +1,13 @@
 package m74validatorapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 
-	account "github.com/marcovargas74/m74-val-cpf-cnpj/src/cpf-cnpj"
+	cpfcnpj "github.com/marcovargas74/m74-val-cpf-cnpj/src/cpf-cnpj"
 )
 
 const (
@@ -20,19 +19,19 @@ type ServerValidator struct {
 	http.Handler
 }
 
-//CallbackAccounts function Used to handle endpoint /accounts
-func (s *ServerValidator) CallbackAccounts(w http.ResponseWriter, r *http.Request) {
+//CallbackQuerys function Used to handle endpoint /cpfs and /cnpjs
+func (s *ServerValidator) CallbackQuerys(w http.ResponseWriter, r *http.Request) {
 
-	var accountJSON account.Account
-	fmt.Printf("CallbackAccounts TOKEN: %v\n", r.Header.Get("token"))
+	var aQueryJSON cpfcnpj.MyQuery
+	fmt.Printf("CallbackQuerys TOKEN: %v\n", r.Header.Get("token"))
 
-	account.CreateDB(false)
+	cpfcnpj.CreateDB(false)
 
 	switch r.Method {
 	case http.MethodPost:
-		accountJSON.SaveAccount(w, r)
+		aQueryJSON.SaveQuery(w, r)
 	case http.MethodGet:
-		accountJSON.GetAccounts(w, r)
+		aQueryJSON.GetQuerys(w, r)
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -41,6 +40,7 @@ func (s *ServerValidator) CallbackAccounts(w http.ResponseWriter, r *http.Reques
 
 }
 
+/*
 //CallbackFindAccountID function Used to handle endpoint /accounts/{}
 func (s *ServerValidator) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
 
@@ -90,7 +90,7 @@ func (s *ServerValidator) CallbackLogin(w http.ResponseWriter, r *http.Request) 
 	fmt.Fprint(w, string(json))
 	w.WriteHeader(http.StatusOK)
 }
-
+*/
 //DefaultEndpoint function Used to handle endpoint /- can be a load a page in html to configure
 func (s *ServerValidator) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
@@ -109,10 +109,10 @@ func NewServerValidator(mode string) *ServerValidator {
 	server := new(ServerValidator)
 
 	routerG := mux.NewRouter()
-	routerG.HandleFunc("/login/", server.CallbackLogin)
+	//routerG.HandleFunc("/login/", server.CallbackLogin)
 	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
-	routerG.HandleFunc("/cpfs", server.CallbackAccounts)
-	routerG.HandleFunc("/cnpjs", server.CallbackAccounts)
+	routerG.HandleFunc("/cpfs", server.CallbackQuerys)
+	routerG.HandleFunc("/cnpjs", server.CallbackQuerys)
 	//routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 	//routerG.HandleFunc("/status", BasicAuth(server.CallbackTransfer))
 
@@ -129,6 +129,6 @@ func StartAPI(mode string) {
 	servidor := NewServerValidator(mode)
 
 	if err := http.ListenAndServe(serverPort, servidor); err != nil {
-		log.Printf("Não foi possivel ouvir na porta 5000 %v", err)
+		log.Printf("Fail to conect in a port-> 5000 %v", err)
 	}
 }
