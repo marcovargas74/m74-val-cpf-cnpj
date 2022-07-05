@@ -91,17 +91,19 @@ go build -o main.go
 curl -i --request POST 'http://localhost:5000/cpfs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "cpf": "111.111.111-11",
+    "cpf": "111.111.111-11"
 }'
 ```
 
 `Response`
 ```json
 {
-    "id":"5cf59c6c-0047-4b13-a118-65878313e329",
-    "cpf":"111.111.111-11",
-    "status":"isValid",
-    "created_at":"2022-01-24T10:10:02Z"
+    "id": "28f0d8fa-f76f-47bd-bd65-58a3c4ee9c12",
+    "cpf": "111.111.111-11",
+    "is_valid": true,
+    "is_cpf": false,
+    "is_cnpj": false,
+    "created_at": "2022-07-05T12:44:29.770512516Z"
 }
 ```
 - #### Listing CPFs
