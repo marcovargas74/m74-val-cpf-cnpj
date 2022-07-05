@@ -32,8 +32,8 @@ var AddrOpenDB string
 //AddrDB VAR data source name
 var AddrDB string
 
-//ShowAccountAll Show all accounts
-func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
+//ShowQueryAll Show all querys
+func ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -43,7 +43,7 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
-	rows, err := db.Query("select id, nome from accounts")
+	rows, err := db.Query("select * from querys")
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -52,14 +52,14 @@ func ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 	}
 	defer rows.Close()
 
-	var usuarios []Account
+	var queryList []MyQuery
 	for rows.Next() {
-		var usuario Account
-		rows.Scan(&usuario.ID, &usuario.Name)
-		usuarios = append(usuarios, usuario)
+		var aQuery MyQuery
+		rows.Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+		queryList = append(queryList, aQuery)
 	}
 
-	json, err := json.Marshal(usuarios)
+	json, err := json.Marshal(queryList)
 	if err != nil {
 		log.Println(err)
 	}
@@ -84,12 +84,12 @@ func CreateDB(isDropTable bool) {
 
 	db, err := sql.Open("mysql", AddrOpenDB)
 	if err != nil {
-		log.Printf("FALHA ao conectar ao Banco Mysql LOCAL...")
+		log.Printf("Failed to connect to db Local Mysql...")
 		AddrOpenDB = DBSourceOpenLocal
 		AddrDB = DBSourceLocal
 		db, err = sql.Open("mysql", AddrOpenDB)
 		if err != nil {
-			log.Printf("FALHA ao conectar ao Banco Mysql Local IP 127.0.0.1")
+			log.Printf("Failed to connect to db Local Mysql IP 127.0.0.1")
 			log.Print(err)
 		}
 
@@ -97,35 +97,24 @@ func CreateDB(isDropTable bool) {
 
 	defer db.Close()
 
-	fmt.Println("Conectado ao Banco")
+	fmt.Println("Successfully connected to the DB")
 	exec(db, "create database if not exists validatorAPP")
 	exec(db, "use validatorAPP")
 	if isDropTable {
-		exec(db, "drop table if exists accounts")
-		exec(db, "drop table if exists transfers")
+		exec(db, "drop table if exists querys")
 	}
 
-	exec(db, `create table IF NOT EXISTS accounts(
+	exec(db, `create table IF NOT EXISTS querys(
 	idx integer auto_increment,
 	id varchar(40) ,
-	nome varchar(80),
-	cpf varchar(15),
-	balance float,
-	secret varchar(80),
+	number varchar(18),
+	is_valid boolean,
+	is_cpf boolean,
+	is_cnpj boolean,
     createAt datetime,
 	PRIMARY KEY (idx)
 	)`)
 
-	exec(db, `create table IF NOT EXISTS transfers(
-		idx integer auto_increment,
-		id varchar(40) ,
-		ori varchar(40),
-		dest varchar(40),
-		amount float,
-		createAt datetime,
-		PRIMARY KEY (idx)
-		)`)
-
-	fmt.Println("Conectado ao Banco com sucesso!")
+	fmt.Println("Successfully connected to the DB!")
 
 }

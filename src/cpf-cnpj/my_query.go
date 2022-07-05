@@ -14,6 +14,15 @@ import (
 	"gopkg.in/validator.v2"
 )
 
+type MyQuery struct {
+	ID        string    `json:"id"`
+	Number    string    `json:"cpf"`
+	IsValid   bool      `json:"is_valid" `
+	IsCPF     bool      `json:"is_cpf" `
+	IsCNPJ    bool      `json:"is_cnpj" `
+	CreatedAt time.Time `json:"created_at"`
+}
+
 type Account struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name" validate:"min=3,max=40"`
@@ -86,41 +95,43 @@ func newAccount(name, cpf, secret string, balance float64) Account {
 	}
 }
 
-//SaveAccount main fuction to save a new account in system
-func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
+//SaveQuery main fuction to save a new query in system
+func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request) {
 
-	if err := json.NewDecoder(r.Body).Decode(&a); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&q); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	log.Printf("\nSaveAccount Name:%s  cpf:%s balance %.2f\n", a.Name, a.CPF, a.Balance)
-	if errs := validator.Validate(a); errs != nil {
+	q.IsValid = true
+	log.Printf("\nSaveQuery Number:%s\n", q.Number)
+	if errs := validator.Validate(q); errs != nil {
 		log.Printf("INVALIDO %v\n", errs)
 		w.WriteHeader(http.StatusBadRequest)
+		q.IsValid = false
 	}
 
 	defer r.Body.Close()
+	q.IsValid = true
+	q.ID = NewUUID()
+	q.CreatedAt = time.Now()
+	fmt.Printf("UUIDv4: %s\n", q.ID)
 
-	a.ID = NewUUID()
-	a.CreatedAt = time.Now()
-	fmt.Printf("UUIDv4: %s\n", a.ID)
-
-	if !IsValidUUID(a.ID) {
-		log.Printf("Something gone wrong: Invalid ID:%s\n", a.ID)
+	if !IsValidUUID(q.ID) {
+		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
 		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	if !a.saveAccountInDB() {
-		message := fmt.Sprintf("Can not save account from %v", a.ID)
+	if !q.saveQueryInDB() {
+		message := fmt.Sprintf("Can not save account from %v", q.ID)
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	json, err := json.Marshal(a)
+	json, err := json.Marshal(q)
 	if err != nil {
 		log.Println(err)
 	}
@@ -131,7 +142,7 @@ func (a *Account) SaveAccount(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *Account) saveAccountInDB() bool {
+func (q *MyQuery) saveQueryInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -144,13 +155,14 @@ func (a *Account) saveAccountInDB() bool {
 		log.Println(err)
 	}
 
-	stmt, err := tx.Prepare("insert into accounts(id, nome, cpf, balance, secret, createAt) values(?,?,?,?,?,?)")
+	stmt, err := tx.Prepare("insert into querys(id, number, is_valid, is_cpf, is_cnpj, createAt) values(?,?,?,?,?,?)")
 	if err != nil {
 		log.Println(err)
 	}
 
-	secretHash := SecretToHash(a.Secret)
-	_, err = stmt.Exec(a.ID, a.Name, a.CPF, a.Balance, secretHash, a.CreatedAt)
+	// secretHash := SecretToHash(a.Secret)
+	// TODO: varificar se é cpf ou cnpj
+	_, err = stmt.Exec(q.ID, q.Number, q.IsValid, q.IsCPF, q.IsCNPJ, q.CreatedAt)
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
@@ -161,12 +173,50 @@ func (a *Account) saveAccountInDB() bool {
 	return true
 }
 
-//GetAccounts show All account save in system
-func (a *Account) GetAccounts(w http.ResponseWriter, r *http.Request) {
-	a.ShowAccountAll(w, r)
+//GetQuerys show All querys save in system
+func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
+	q.ShowQueryAll(w, r)
 	w.WriteHeader(http.StatusOK)
 }
 
+//ShowQueryAll Show all querys
+func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
+	db, err := sql.Open("mysql", AddrDB)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
+	defer db.Close()
+
+	rows, err := db.Query("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys")
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
+	defer rows.Close()
+
+	var queryList []MyQuery
+	for rows.Next() {
+		var aQuery MyQuery
+		rows.Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+		queryList = append(queryList, aQuery)
+	}
+
+	json, err := json.Marshal(queryList)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+
+}
+
+/*
 //GetAccountByID return account pass token ID in arg
 func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
 
@@ -305,6 +355,7 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 
 }
 
+
 //GetAccountByID return account pass token ID in arg
 func GetAccountByID(findID string) (Account, error) {
 	db, err := sql.Open("mysql", AddrDB)
@@ -319,6 +370,7 @@ func GetAccountByID(findID string) (Account, error) {
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
 	return account, nil
 }
+
 
 //GetAccountByCPF Retorna a conta passando o CPF como parametro
 func GetAccountByCPF(findCPF string) (Account, error) {
@@ -339,3 +391,4 @@ func GetAccountByCPF(findCPF string) (Account, error) {
 	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findCPF, account.CPF)
 	return account, nil
 }
+*/
