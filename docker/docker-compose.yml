@@ -7,7 +7,7 @@ services:
     container_name: godockerDB
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: bankAPI
+      MYSQL_DATABASE: validatorAPP
     ports:
       - "3307:3306" 
 
@@ -16,7 +16,7 @@ services:
     ports:      
       - "8080:8080"
 
-  my-bank-api:    
+  my-validate-api:    
     image: m74cpfcnpj:latest 
     container_name: m74cpfcnpj 
     ports:      
