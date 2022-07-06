@@ -30,6 +30,7 @@ func (s *ServerValidator) CallbackQuerys(w http.ResponseWriter, r *http.Request)
 	switch r.Method {
 	case http.MethodPost:
 		aQueryJSON.SaveQuery(w, r)
+		cpfcnpj.UpdateStatus()
 	case http.MethodGet:
 		aQueryJSON.GetQuerys(w, r)
 	default:
