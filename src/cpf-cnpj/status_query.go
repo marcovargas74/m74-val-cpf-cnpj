@@ -18,13 +18,14 @@ var StatusQuery QueryStatus
 // //Status used to create a Json Return to endpoint
 type QueryStatus struct {
 	NumTotalQuery uint64    `json:"num_total_query"`
-	UpTime        time.Time `json:"up_time"`
+	StartTime     time.Time `json:"start_time"`
+	UpTime        float64   `json:"up_time"`
 }
 
 //CreateDB Create SQL dataBase
 func CreateStatus() {
 	StatusQuery.NumTotalQuery = 0
-	StatusQuery.UpTime = time.Now()
+	StatusQuery.StartTime = time.Now()
 }
 
 func UpdateStatus() {
@@ -42,7 +43,7 @@ func GetUptimeQuery() float64 {
 	//newTime := StatusQuery.UpTime
 	// Prints time elapse
 	//	fmt.Println("time elapse:", time.Since(StatusQuery.UpTime))
-	timeElapse := time.Since(StatusQuery.UpTime)
+	timeElapse := time.Since(StatusQuery.StartTime)
 
 	fmt.Println("time elapse2:", timeElapse)
 	return (timeElapse.Seconds())
@@ -59,6 +60,7 @@ func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
 //func (q *QueryStatus) ShowStatus(w http.ResponseWriter, r *http.Request) {
 func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
+	StatusQuery.UpTime = GetUptimeQuery()
 	json, err := json.Marshal(StatusQuery)
 	if err != nil {
 		log.Println(err)
