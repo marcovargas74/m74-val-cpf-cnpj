@@ -10,6 +10,7 @@ import (
 
 func init() {
 	myquery.CreateDB(false)
+	myquery.CreateStatus()
 
 }
 
