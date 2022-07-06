@@ -40,6 +40,25 @@ func (s *ServerValidator) CallbackQuerys(w http.ResponseWriter, r *http.Request)
 
 }
 
+//CallbackStatus function Used to handle endpoint /status/
+func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
+
+	accountID := mux.Vars(r)
+	w.WriteHeader(http.StatusOK)
+	fmt.Printf("accountID [%s] \n", accountID["account_id"])
+
+	if r.Method == http.MethodGet {
+		//var aQueryJSON cpfcnpj.MyQuery
+		cpfcnpj.ShowStatus(w, r)
+		return
+	}
+
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+	fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusBadRequest)
+
+}
+
 /*
 //CallbackFindAccountID function Used to handle endpoint /accounts/{}
 func (s *ServerValidator) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +110,7 @@ func (s *ServerValidator) CallbackLogin(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 */
+
 //DefaultEndpoint function Used to handle endpoint /- can be a load a page in html to configure
 func (s *ServerValidator) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {
 
@@ -113,6 +133,7 @@ func NewServerValidator(mode string) *ServerValidator {
 	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/cpfs", server.CallbackQuerys)
 	routerG.HandleFunc("/cnpjs", server.CallbackQuerys)
+	routerG.HandleFunc("/status", server.CallbackStatus)
 	//routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
 	//routerG.HandleFunc("/status", BasicAuth(server.CallbackTransfer))
 
