@@ -130,7 +130,8 @@ func NewServerValidator(mode string) *ServerValidator {
 
 	routerG := mux.NewRouter()
 	//routerG.HandleFunc("/login/", server.CallbackLogin)
-	routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
+	//routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
+	routerG.HandleFunc("/", server.DefaultEndpoint)
 	routerG.HandleFunc("/cpfs", server.CallbackQuerys)
 	routerG.HandleFunc("/cnpjs", server.CallbackQuerys)
 	routerG.HandleFunc("/status", server.CallbackStatus)
