@@ -1,11 +1,10 @@
 package cpfcnpj
 
 import (
-	"fmt"
+	//"fmt"
 	"testing"
 	"time"
-
-	"gopkg.in/validator.v2"
+	//"gopkg.in/validator.v2"
 )
 
 const (
@@ -60,6 +59,7 @@ func CheckIfUptimeIsOK(t *testing.T, gotValue, waitValue float64) {
 	}
 }
 
+/*
 func TestSetAccount(t *testing.T) {
 
 	checkResult := func(t *testing.T, resultado, esperado string) {
@@ -170,47 +170,4 @@ func TestCreateAccount(t *testing.T) {
 	}
 
 }
-
-func TestIsValidCPF(t *testing.T) {
-
-	tests := []struct {
-		give      string
-		wantValue bool
-		inFindID  string
-	}{
-		{
-			give:      "Testa Se CPF Vazio",
-			wantValue: false,
-			inFindID:  "",
-		},
-		{
-			give:      "Testa se CPF Invalido",
-			wantValue: false,
-			inFindID:  "b1080263",
-		},
-		{
-			give:      "Testa se o CPF invalido",
-			wantValue: true,
-			inFindID:  "000.000.000-11",
-		},
-		{
-			give:      "Testa Busca por un CPF Valido",
-			wantValue: true,
-			inFindID:  "111.111.111-11",
-		},
-	}
-
-	for _, tt := range tests {
-
-		t.Run(tt.give, func(t *testing.T) {
-			result := true
-
-			if !IsValidCPF(tt.inFindID) {
-				result = false
-			}
-			CheckIfEqualBool(t, result, tt.wantValue)
-		})
-
-	}
-
-}
+*/

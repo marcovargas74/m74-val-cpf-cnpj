@@ -2,12 +2,10 @@ package cpfcnpj
 
 import (
 	"database/sql"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -37,22 +35,6 @@ type Balance struct {
 	Value float64 `json:"balance"`
 }
 
-//IsValidCPF Check if cpf is valid
-func IsValidCPF(cpf string) bool {
-	var CPFRegexp = regexp.MustCompile(`^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$`)
-
-	isValid := true
-	if len(cpf) != 14 {
-		isValid = false
-	}
-
-	if !CPFRegexp.MatchString(cpf) {
-		return false
-	}
-
-	return isValid
-}
-
 //NewUUID Cria um novo UUID valido
 func NewUUID() string {
 	uuidNew, err := uuid.NewV4()
@@ -68,21 +50,7 @@ func IsValidUUID(uuidVal string) bool {
 	return err == nil
 }
 
-//SecretToHash change a string in a HAshValue
-func SecretToHash(password string) string {
-	return base64.StdEncoding.EncodeToString([]byte(password))
-
-}
-
-//HashToSecret change a HAshValue in a visible string
-func HashToSecret(hashIn string) string {
-	passw, err := base64.StdEncoding.DecodeString(hashIn)
-	if err != nil {
-		log.Println(err)
-	}
-	return string(passw)
-}
-
+/*
 //newAccount Create a new account
 func newAccount(name, cpf, secret string, balance float64) Account {
 	return Account{
@@ -94,9 +62,66 @@ func newAccount(name, cpf, secret string, balance float64) Account {
 		CreatedAt: time.Now(),
 	}
 }
+*/
+//SaveQuery main fuction to save a new query in system
+func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ string, isCPF bool) {
+
+	q.Number = newCPFofCNPJ
+
+	q.IsCNPJ = false
+	q.IsCPF = false
+	if isCPF {
+		q.IsCPF = true
+		if !IsValidCPF(q.Number) {
+			log.Printf("Something gone wrong: Invalid CPF:%s\n", q.Number)
+			fmt.Fprint(w, "Something gone wrong: Invalid CPF\n")
+			w.WriteHeader(http.StatusNotAcceptable)
+			q.IsValid = false
+			return
+		}
+	} else {
+		q.IsCNPJ = true
+		if !IsValidCNPJ(q.Number) {
+			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", q.Number)
+			fmt.Fprint(w, "Something gone wrong: Invalid CNPJ")
+			w.WriteHeader(http.StatusNotAcceptable)
+			q.IsValid = false
+			return
+		}
+	}
+
+	q.IsValid = true
+	q.ID = NewUUID()
+	q.CreatedAt = time.Now()
+	fmt.Printf("UUIDv4: %s\n", q.ID)
+
+	if !IsValidUUID(q.ID) {
+		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !q.saveQueryInDB() {
+		message := fmt.Sprintf("Can not save account from %v", q.ID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json, err := json.Marshal(q)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+	w.WriteHeader(http.StatusOK)
+
+}
 
 //SaveQuery main fuction to save a new query in system
-func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request) {
+func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
 
 	if err := json.NewDecoder(r.Body).Decode(&q); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -160,8 +185,6 @@ func (q *MyQuery) saveQueryInDB() bool {
 		log.Println(err)
 	}
 
-	// secretHash := SecretToHash(a.Secret)
-	// TODO: varificar se é cpf ou cnpj
 	_, err = stmt.Exec(q.ID, q.Number, q.IsValid, q.IsCPF, q.IsCNPJ, q.CreatedAt)
 	if err != nil {
 		tx.Rollback()
