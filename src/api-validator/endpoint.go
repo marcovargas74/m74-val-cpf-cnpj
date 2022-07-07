@@ -36,6 +36,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 	case http.MethodGet:
 		aQueryJSON.GetQuerys(w, r)
+		cpfcnpj.UpdateStatus()
 
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
@@ -61,6 +62,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 		aQueryJSON.SaveQuery(w, r, argCNPJ, false)
 
 	case http.MethodGet:
+		cpfcnpj.UpdateStatus()
 		aQueryJSON.GetQuerys(w, r)
 
 	default:
@@ -74,11 +76,11 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 //CallbackStatus function Used to handle endpoint /status
 func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
 
-	w.WriteHeader(http.StatusOK)
 	log.Printf("METHOD[%s] STATUS \n", r.Method)
 
 	if r.Method == http.MethodGet {
 		cpfcnpj.ShowStatus(w, r)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 

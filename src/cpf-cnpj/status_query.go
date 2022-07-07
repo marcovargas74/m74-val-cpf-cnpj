@@ -64,6 +64,8 @@ func ShowStatus(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(StatusQuery)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -199,7 +199,6 @@ func (q *MyQuery) saveQueryInDB() bool {
 //GetQuerys show All querys save in system
 func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
 	q.ShowQueryAll(w, r)
-	w.WriteHeader(http.StatusOK)
 }
 
 //ShowQueryAll Show all querys
@@ -232,11 +231,13 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	json, err := json.Marshal(queryList)
 	if err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
-
+	w.WriteHeader(http.StatusOK)
 }
 
 /*
