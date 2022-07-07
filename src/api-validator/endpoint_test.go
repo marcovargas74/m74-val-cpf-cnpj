@@ -112,6 +112,8 @@ func TestServerApi_status(t *testing.T) {
 
 }
 
+/*
+
 func TestCallbackCpfsGET(t *testing.T) {
 
 	tests := []struct {
@@ -120,6 +122,12 @@ func TestCallbackCpfsGET(t *testing.T) {
 		inData    string
 	}{
 		{
+			give:      "cpfs Endpoint test with empty char",
+			wantValue: 404,
+			inData:    "",
+		},
+
+		/*{
 			give:      "cpfs Endpoint test with NOBODY",
 			wantValue: 404,
 			inData:    "Nobody",
@@ -138,7 +146,7 @@ func TestCallbackCpfsGET(t *testing.T) {
 			give:      "cpfs Endpoint test with cpf 111.111.111-11",
 			wantValue: 404,
 			inData:    "111.111.111-11",
-		},*/
+		},* /
 	}
 
 	server := NewServerValidator("dev")
@@ -164,6 +172,11 @@ func TestCallbackCnpjGET(t *testing.T) {
 		inData    string
 	}{
 		{
+			give:      "cnpjs Endpoint test with empty char",
+			wantValue: 404,
+			inData:    "",
+		},
+		/*{
 			give:      "cnpjs Endpoint test with NOBODY",
 			wantValue: 404,
 			inData:    "Nobody",
@@ -187,12 +200,12 @@ func TestCallbackCnpjGET(t *testing.T) {
 			give:      "cnpjs Endpoint test with not formated cnpj",
 			wantValue: 406,
 			inData:    "36562098000118",
-		},
-		/*{
+		},*/
+/*{
 			give:      "cnpjs Endpoint test with complete cnpj",
 			wantValue: 200,
 			inData:    "36.562.098/0001-18",
-		},*/
+		},* /
 
 	}
 
@@ -223,7 +236,7 @@ func TestCallbackCpfsPost(t *testing.T) {
 			wantValue: 404,
 			inData:    "Nobody",
 		},
-		{
+		/*{
 			give:      "cpfs Endpoint test with empty char",
 			wantValue: 404,
 			inData:    "",
@@ -232,7 +245,7 @@ func TestCallbackCpfsPost(t *testing.T) {
 			give:      "cpfs Endpoint test with CNPJ",
 			wantValue: 404,
 			inData:    "36.562.098/0001-18",
-		},
+		},* /
 	}
 
 	server := NewServerValidator("dev")
@@ -267,10 +280,15 @@ func TestCallbackCnpjPost(t *testing.T) {
 			inData:    "",
 		},
 		{
+			give:      "cnpjs Endpoint test with cpf",
+			wantValue: 400,
+			inData:    "111.111.111-49",
+		},
+		/*{
 			give:      "cnpjs Endpoint test with cpf 36.562.098/0001-18",
 			wantValue: 400,
 			inData:    "36.562.098/0001-18",
-		},
+		},* /
 	}
 
 	server := NewServerValidator("dev")
