@@ -19,20 +19,24 @@ type ServerValidator struct {
 	http.Handler
 }
 
-//CallbackQuerys function Used to handle endpoint /cpfs and /cnpjs
-func (s *ServerValidator) CallbackQuerys(w http.ResponseWriter, r *http.Request) {
+//CallbackQuerysCPF function Used to handle endpoint /cpfs
+func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Request) {
 
 	var aQueryJSON cpfcnpj.MyQuery
-	fmt.Printf("CallbackQuerys TOKEN: %v\n", r.Header.Get("token"))
+
+	aCPFNum := mux.Vars(r)
+	log.Printf("METHOD[%s] CPF in [%s] \n", r.Method, aCPFNum["cpf_num"])
 
 	cpfcnpj.CreateDB(false)
 
 	switch r.Method {
 	case http.MethodPost:
-		aQueryJSON.SaveQuery(w, r)
+		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], true)
 		cpfcnpj.UpdateStatus()
+
 	case http.MethodGet:
 		aQueryJSON.GetQuerys(w, r)
+
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -41,15 +45,39 @@ func (s *ServerValidator) CallbackQuerys(w http.ResponseWriter, r *http.Request)
 
 }
 
-//CallbackStatus function Used to handle endpoint /status/
+//CallbackQuerysCNPJ function Used to handle endpoint /cnpjs
+func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Request) {
+
+	var aQueryJSON cpfcnpj.MyQuery
+	aCNPJ := mux.Vars(r)
+	argCNPJ := fmt.Sprintf("%s/%s", aCNPJ["cnpj_num"], aCNPJ["cnpj_part2"])
+	log.Printf("METHOD[%s] CNPJ ALL [%s] \n", r.Method, argCNPJ)
+
+	cpfcnpj.CreateDB(false)
+
+	switch r.Method {
+	case http.MethodPost:
+		cpfcnpj.UpdateStatus()
+		aQueryJSON.SaveQuery(w, r, argCNPJ, false)
+
+	case http.MethodGet:
+		aQueryJSON.GetQuerys(w, r)
+
+	default:
+		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+
+}
+
+//CallbackStatus function Used to handle endpoint /status
 func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
 
-	accountID := mux.Vars(r)
 	w.WriteHeader(http.StatusOK)
-	fmt.Printf("accountID [%s] \n", accountID["account_id"])
+	log.Printf("METHOD[%s] STATUS \n", r.Method)
 
 	if r.Method == http.MethodGet {
-		//var aQueryJSON cpfcnpj.MyQuery
 		cpfcnpj.ShowStatus(w, r)
 		return
 	}
@@ -133,12 +161,10 @@ func NewServerValidator(mode string) *ServerValidator {
 	//routerG.HandleFunc("/login/", server.CallbackLogin)
 	//routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/", server.DefaultEndpoint)
-	routerG.HandleFunc("/cpfs", server.CallbackQuerys)
-	routerG.HandleFunc("/cnpjs", server.CallbackQuerys)
+	routerG.HandleFunc("/cpfs/{cpf_num}", server.CallbackQuerysCPF)
+	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ)
+	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ)
 	routerG.HandleFunc("/status", server.CallbackStatus)
-	//routerG.HandleFunc("/accounts/{account_id}/balance", BasicAuth(server.CallbackFindAccountID))
-	//routerG.HandleFunc("/status", BasicAuth(server.CallbackTransfer))
-
 	// if mode == "dev" {
 	// 	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
 	// }

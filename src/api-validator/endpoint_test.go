@@ -1,35 +1,55 @@
 package m74validatorapi
 
 import (
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/magiconair/properties/assert"
 )
 
-/*Comentado para ver se passa nos testes apenas para testar o MAKEFILE
-
 func newReqEndpointsGET(urlPrefix, urlName string) *http.Request {
-	request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
+	request, error := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
+	if error != nil {
+		panic(error)
+	}
 
 	fmt.Printf("endpoint: %v\n", request.URL)
 	return request
 }
 
 func newReqEndpointsPOST(urlPrefix, urlName string) *http.Request {
-	request, _ := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
+	request, error := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
+	if error != nil {
+		panic(error)
+	}
 
 	fmt.Printf("endpoint: %v\n", request.URL)
 	return request
 }
-*/
 
-func TestServerBank(t *testing.T) {
+/*
+func newReqEndpointsBodyPOST(urlPrefix, bodyData string) *http.Request {
+
+	jsonData := []byte(bodyData)
+	request, error := http.NewRequest(http.MethodPost, urlPrefix, bytes.NewBuffer(jsonData))
+	if error != nil {
+		panic(error)
+	}
+
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	fmt.Printf("endpoint: %v body: %v\n", request.URL, bodyData)
+	return request
+}*/
+
+func TestServerAPI(t *testing.T) {
 	assert.Equal(t, 1, 1)
 
 }
 
-/*Comentado para ver se passa nos testes apenas para testar o MAKEFILE
-func TestServerBank(t *testing.T) {
+func TestServerApi_default(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -37,54 +57,39 @@ func TestServerBank(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Retornar resultado de Nobody",
+			give:      "Nobody return result",
 			wantValue: "Endpoint not found",
 			inData:    "Nobody",
 		},
 	}
 
-	servidor := NewServerValidator("dev")
+	server := NewServerValidator("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao, _ := http.NewRequest(http.MethodGet, "/", nil)
-			resposta := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, "/", nil)
+			answer := httptest.NewRecorder()
 
-			servidor.ServeHTTP(resposta, requisicao)
+			server.ServeHTTP(answer, request)
 
-			recebido := resposta.Body.String()
-			assert.Equal(t, recebido, tt.wantValue)
-			assert.Equal(t, resposta.Code, http.StatusOK)
+			received := answer.Body.String()
+			assert.Equal(t, received, tt.wantValue)
+			assert.Equal(t, answer.Code, http.StatusOK)
 
 		})
-
 	}
 
 }
 
-/*Comentado para ver se passa nos testes apenas para testar o MAKEFILE
-
-func TestCallbackAccountGET(t *testing.T) {
+func TestServerApi_status(t *testing.T) {
 
 	tests := []struct {
 		give      string
-		wantValue int
-		inData    string
+		wantValue string
 	}{
 		{
-			give:      "Testa o Endpoint Account com NOBODY",
-			wantValue: 404,
-			inData:    "Nobody",
-		},
-		{
-			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: 404,
-			inData:    "",
-		},
-		{
-			give:      "Testa o Endpoint Account com ID 123",
-			wantValue: 404,
-			inData:    "123",
+			give:      "status Endpoint test",
+			wantValue: "{\"num_total_query\":0,\"start_time\":\"0001-01-01T00:00:00Z\",\"up_time\":9223372036.854776}",
 		},
 	}
 
@@ -92,18 +97,22 @@ func TestCallbackAccountGET(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpointsGET("/accounts", tt.inData)
-			resposta := httptest.NewRecorder()
+			request, _ := http.NewRequest(http.MethodGet, "/status", nil)
+			answer := httptest.NewRecorder()
 
-			server.ServeHTTP(resposta, requisicao)
-			assert.Equal(t, resposta.Code, tt.wantValue)
+			server.ServeHTTP(answer, request)
+
+			received := answer.Body.String()
+			assert.Equal(t, received, tt.wantValue)
+			assert.Equal(t, answer.Code, http.StatusOK)
+
 		})
 
 	}
 
 }
 
-func TestCallbackAccountPost(t *testing.T) {
+func TestCallbackCpfsGET(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -111,39 +120,43 @@ func TestCallbackAccountPost(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint Account com NOBODY",
+			give:      "cpfs Endpoint test with NOBODY",
 			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint Account com caracter vazio",
+			give:      "cpfs Endpoint test with empty char",
 			wantValue: 404,
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Account com ID 123",
+			give:      "cpfs Endpoint test with cnpj",
 			wantValue: 404,
-			inData:    "123",
+			inData:    "36.562.098/0001-18",
 		},
+		/*{
+			give:      "cpfs Endpoint test with cpf 111.111.111-11",
+			wantValue: 404,
+			inData:    "111.111.111-11",
+		},*/
 	}
 
 	server := NewServerValidator("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpointsPOST("/accounts", tt.inData)
-			resposta := httptest.NewRecorder()
+			request := newReqEndpointsGET("/cpfs", tt.inData)
+			answer := httptest.NewRecorder()
 
-			server.ServeHTTP(resposta, requisicao)
-			assert.Equal(t, resposta.Code, tt.wantValue)
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
 		})
 
 	}
+
 }
 
-/*Comentado para ver se passa nos testes apenas para testar o MAKEFILE
-
-func TestCallbackLoginGET(t *testing.T) {
+func TestCallbackCnpjGET(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -151,39 +164,54 @@ func TestCallbackLoginGET(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint LOgin com NOBODY",
+			give:      "cnpjs Endpoint test with NOBODY",
 			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint LOgin com caracter vazio",
+			give:      "cnpjs Endpoint test with empty char",
 			wantValue: 404,
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Login com ID 123",
+			give:      "cnpjs Endpoint test with complete CPF",
 			wantValue: 404,
-			inData:    "123",
+			inData:    "111.111.111-49",
 		},
+		{
+			give:      "cnpjs Endpoint test with incomplete cnpj",
+			wantValue: 406,
+			inData:    "36.562.098",
+		},
+		{
+			give:      "cnpjs Endpoint test with not formated cnpj",
+			wantValue: 406,
+			inData:    "36562098000118",
+		},
+		/*{
+			give:      "cnpjs Endpoint test with complete cnpj",
+			wantValue: 200,
+			inData:    "36.562.098/0001-18",
+		},*/
+
 	}
 
 	server := NewServerValidator("dev")
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpointsGET("/login", tt.inData)
-			resposta := httptest.NewRecorder()
+			request := newReqEndpointsGET("/cnpjs", tt.inData)
+			answer := httptest.NewRecorder()
 
-			server.ServeHTTP(resposta, requisicao)
-			assert.Equal(t, resposta.Code, tt.wantValue)
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
 		})
 
 	}
 
 }
 
-
-func TestCallbackLoginPOST(t *testing.T) {
+func TestCallbackCpfsPost(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -191,19 +219,19 @@ func TestCallbackLoginPOST(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint Account com NOBODY",
+			give:      "cpfs Endpoint test with NOBODY",
 			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint Account com caracter vazio",
-			wantValue: 401,
+			give:      "cpfs Endpoint test with empty char",
+			wantValue: 404,
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint Account com ID 123",
+			give:      "cpfs Endpoint test with CNPJ",
 			wantValue: 404,
-			inData:    "123",
+			inData:    "36.562.098/0001-18",
 		},
 	}
 
@@ -211,18 +239,17 @@ func TestCallbackLoginPOST(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpointsPOST("/login", tt.inData)
-			resposta := httptest.NewRecorder()
+			request := newReqEndpointsPOST("/cpfs", tt.inData)
+			answer := httptest.NewRecorder()
 
-			server.ServeHTTP(resposta, requisicao)
-			assert.Equal(t, resposta.Code, tt.wantValue)
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
 		})
 
 	}
-
 }
 
-func TestCallbackTransferGET(t *testing.T) {
+func TestCallbackCnpjPost(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -230,19 +257,19 @@ func TestCallbackTransferGET(t *testing.T) {
 		inData    string
 	}{
 		{
-			give:      "Testa o Endpoint TRANFER com NOBODY",
-			wantValue: 500,
+			give:      "cnpjs Endpoint test with NOBODY",
+			wantValue: 404,
 			inData:    "Nobody",
 		},
 		{
-			give:      "Testa o Endpoint TRANFER com caracter vazio",
+			give:      "cnpjs Endpoint test with empty char",
 			wantValue: 404,
 			inData:    "",
 		},
 		{
-			give:      "Testa o Endpoint TRANFER com ID 123",
-			wantValue: 500,
-			inData:    "123",
+			give:      "cnpjs Endpoint test with cpf 36.562.098/0001-18",
+			wantValue: 400,
+			inData:    "36.562.098/0001-18",
 		},
 	}
 
@@ -250,14 +277,52 @@ func TestCallbackTransferGET(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 
-			requisicao := newReqEndpointsGET("/transfers", tt.inData)
-			resposta := httptest.NewRecorder()
+			request := newReqEndpointsPOST("/cnpjs", tt.inData)
+			answer := httptest.NewRecorder()
 
-			server.ServeHTTP(resposta, requisicao)
-			assert.Equal(t, resposta.Code, tt.wantValue)
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
 		})
 
 	}
-
 }
-*/
+
+/*
+func TestCallbackCpfsPostBody(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue int
+		inData    string
+	}{
+		{
+			give:      "cpfs Endpoint test with NOBODY",
+			wantValue: 404,
+			inData:    "Nobody",
+		},
+		{
+			give:      "cpfs Endpoint test with empty char",
+			wantValue: 404,
+			inData:    "",
+		},
+		{
+			give:      "cpfs Endpoint test with cpf 111.111.111-11",
+			wantValue: 404,
+			inData:    " \"cpf\": \"111.111.111-11\" ",
+		},
+	}
+
+	server := NewServerValidator("dev")
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			request := newReqEndpointsBodyPOST("/cpfs", tt.inData)
+			answer := httptest.NewRecorder()
+
+			fmt.Printf("endpoint TO SERVER: %v body: %v\n", request.URL, request.Body)
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
+		})
+
+	}
+}*/
