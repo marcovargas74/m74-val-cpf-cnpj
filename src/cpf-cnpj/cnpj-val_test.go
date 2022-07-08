@@ -39,6 +39,22 @@ func TestIsValidCNPJ(t *testing.T) {
 			wantValue: true,
 			inFindID:  "36.562.098/0001-18",
 		},
+
+		{
+			give:      "Valid CNPJ Test if arg is a Valid CNPJ",
+			wantValue: true,
+			inFindID:  "12.074.074/0001-51",
+		},
+		{
+			give:      "Valid CNPJ Test if arg is a Valid CNPJ",
+			wantValue: true,
+			inFindID:  "24.572.400/0001-30",
+		},
+		{
+			give:      "Valid CNPJ Test if arg is a Valid CNPJ",
+			wantValue: true,
+			inFindID:  "47.425.683/0001-92",
+		},
 	}
 
 	for _, tt := range tests {
