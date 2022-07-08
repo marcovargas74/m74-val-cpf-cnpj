@@ -2,21 +2,26 @@ package cpfcnpj
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"gopkg.in/mgo.v2"
 )
 
-func CreateDBMongo(isDropTable bool) {
-	url := os.Getenv("MONGO_URL")
+func CreateDBMongo(isDockerRun bool) bool {
 
-	fmt.Printf("[%v]\n", url)
-	session, err := mgo.Dial(url)
-	if err != nil {
-		panic(err)
+	urlMongo := "mongodb://localhost:27017"
+	if isDockerRun {
+		urlMongo = os.Getenv("MONGO_URL")
 	}
 
+	fmt.Printf("[%v]\n", urlMongo)
+	session, err := mgo.Dial(urlMongo)
+	if err != nil {
+		log.Println(err)
+	}
 	fmt.Println("ping", session.Ping())
+	return true
 }
 
 /*
