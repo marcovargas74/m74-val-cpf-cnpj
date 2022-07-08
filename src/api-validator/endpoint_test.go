@@ -9,12 +9,17 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
+const (
+	UserAgentTest = "self_test"
+)
+
 func newReqEndpointsGET(urlPrefix, urlName string) *http.Request {
 	request, error := http.NewRequest(http.MethodGet, fmt.Sprintf("%s/%s", urlPrefix, urlName), nil)
 	if error != nil {
 		panic(error)
 	}
 
+	request.Header.Set("User-Agent", UserAgentTest)
 	fmt.Printf("endpoint: %v\n", request.URL)
 	return request
 }
@@ -25,7 +30,7 @@ func newReqEndpointsPOST(urlPrefix, urlName string) *http.Request {
 		panic(error)
 	}
 
-	fmt.Printf("endpoint: %v\n", request.URL)
+	request.Header.Set("User-Agent", UserAgentTest)
 	return request
 }
 
@@ -98,6 +103,7 @@ func TestServerApi_status(t *testing.T) {
 		t.Run(tt.give, func(t *testing.T) {
 
 			request, _ := http.NewRequest(http.MethodGet, "/status", nil)
+			request.Header.Set("User-Agent", UserAgentTest)
 			answer := httptest.NewRecorder()
 
 			server.ServeHTTP(answer, request)
@@ -112,8 +118,6 @@ func TestServerApi_status(t *testing.T) {
 
 }
 
-/*
-
 func TestCallbackCpfsGET(t *testing.T) {
 
 	tests := []struct {
@@ -126,27 +130,21 @@ func TestCallbackCpfsGET(t *testing.T) {
 			wantValue: 404,
 			inData:    "",
 		},
-
-		/*{
-			give:      "cpfs Endpoint test with NOBODY",
-			wantValue: 404,
-			inData:    "Nobody",
-		},
 		{
-			give:      "cpfs Endpoint test with empty char",
-			wantValue: 404,
-			inData:    "",
+			give:      "cpfs Endpoint test with NOBODY",
+			wantValue: 406,
+			inData:    "Nobody",
 		},
 		{
 			give:      "cpfs Endpoint test with cnpj",
 			wantValue: 404,
 			inData:    "36.562.098/0001-18",
 		},
-		/*{
+		{
 			give:      "cpfs Endpoint test with cpf 111.111.111-11",
-			wantValue: 404,
+			wantValue: 200,
 			inData:    "111.111.111-11",
-		},* /
+		},
 	}
 
 	server := NewServerValidator("dev")
@@ -164,6 +162,50 @@ func TestCallbackCpfsGET(t *testing.T) {
 
 }
 
+func TestCallbackCpfsPost(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue int
+		inData    string
+	}{
+		{
+			give:      "cpfs Endpoint test with NOBODY",
+			wantValue: 400,
+			inData:    "Nobody",
+		},
+		{
+			give:      "cpfs Endpoint test with empty char",
+			wantValue: 404,
+			inData:    "",
+		},
+		{
+			give:      "cpfs Endpoint test with CNPJ",
+			wantValue: 404,
+			inData:    "36.562.098/0001-18",
+		},
+		{
+			give:      "cpfs Endpoint test with cpf 111.111.111-11",
+			wantValue: 200,
+			inData:    "111.111.111-11",
+		},
+	}
+
+	server := NewServerValidator("dev")
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			request := newReqEndpointsPOST("/cpfs", tt.inData)
+			answer := httptest.NewRecorder()
+
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
+		})
+
+	}
+}
+
+/*
 func TestCallbackCnpjGET(t *testing.T) {
 
 	tests := []struct {
@@ -224,43 +266,6 @@ func TestCallbackCnpjGET(t *testing.T) {
 
 }
 
-func TestCallbackCpfsPost(t *testing.T) {
-
-	tests := []struct {
-		give      string
-		wantValue int
-		inData    string
-	}{
-		{
-			give:      "cpfs Endpoint test with NOBODY",
-			wantValue: 404,
-			inData:    "Nobody",
-		},
-		/*{
-			give:      "cpfs Endpoint test with empty char",
-			wantValue: 404,
-			inData:    "",
-		},
-		{
-			give:      "cpfs Endpoint test with CNPJ",
-			wantValue: 404,
-			inData:    "36.562.098/0001-18",
-		},* /
-	}
-
-	server := NewServerValidator("dev")
-	for _, tt := range tests {
-		t.Run(tt.give, func(t *testing.T) {
-
-			request := newReqEndpointsPOST("/cpfs", tt.inData)
-			answer := httptest.NewRecorder()
-
-			server.ServeHTTP(answer, request)
-			assert.Equal(t, answer.Code, tt.wantValue)
-		})
-
-	}
-}
 
 func TestCallbackCnpjPost(t *testing.T) {
 

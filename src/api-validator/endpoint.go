@@ -32,9 +32,16 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 	switch r.Method {
 	case http.MethodPost:
 		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], true)
+		log.Printf("WriteHeader %v\n", w)
 		cpfcnpj.UpdateStatus()
 
 	case http.MethodGet:
+		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
+			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
+			w.WriteHeader(http.StatusNotAcceptable)
+			return
+		}
+
 		aQueryJSON.GetQuerys(w, r)
 		cpfcnpj.UpdateStatus()
 
@@ -76,7 +83,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 //CallbackStatus function Used to handle endpoint /status
 func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
 
-	log.Printf("METHOD[%s] STATUS \n", r.Method)
+	log.Printf("METHOD[%s] STATUS [%s] \n", r.Method, r.UserAgent())
 
 	if r.Method == http.MethodGet {
 		cpfcnpj.ShowStatus(w, r)

@@ -73,18 +73,18 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 	if isCPF {
 		q.IsCPF = true
 		if !IsValidCPF(q.Number) {
-			log.Printf("Something gone wrong: Invalid CPF:%s\n", q.Number)
+			w.WriteHeader(http.StatusBadRequest)
 			fmt.Fprint(w, "Something gone wrong: Invalid CPF\n")
-			w.WriteHeader(http.StatusNotAcceptable)
+			log.Printf("Something gone wrong: Invalid CPF:%s\n", q.Number)
 			q.IsValid = false
 			return
 		}
 	} else {
 		q.IsCNPJ = true
 		if !IsValidCNPJ(q.Number) {
-			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", q.Number)
-			fmt.Fprint(w, "Something gone wrong: Invalid CNPJ")
 			w.WriteHeader(http.StatusNotAcceptable)
+			fmt.Fprint(w, "Something gone wrong: Invalid CNPJ")
+			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", q.Number)
 			q.IsValid = false
 			return
 		}
@@ -96,16 +96,22 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 	fmt.Printf("UUIDv4: %s\n", q.ID)
 
 	if !IsValidUUID(q.ID) {
-		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
+		return
+	}
+
+	if r.UserAgent() == "self_test" {
+		log.Printf("Its Only a TEST [%s] number[%s] \n", r.UserAgent(), q.Number)
+		w.WriteHeader(http.StatusOK)
 		return
 	}
 
 	if !q.saveQueryInDB() {
+		w.WriteHeader(http.StatusInternalServerError)
 		message := fmt.Sprintf("Can not save account from %v", q.ID)
 		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -114,9 +120,9 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 		log.Println(err)
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
-	w.WriteHeader(http.StatusOK)
 
 }
 
@@ -198,6 +204,11 @@ func (q *MyQuery) saveQueryInDB() bool {
 
 //GetQuerys show All querys save in system
 func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
+	if r.UserAgent() == "self_test" {
+		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
 	q.ShowQueryAll(w, r)
 }
 
@@ -235,9 +246,9 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
-	w.WriteHeader(http.StatusOK)
 }
 
 /*
