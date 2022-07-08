@@ -19,7 +19,26 @@ type ServerValidator struct {
 	http.Handler
 }
 
-//CallbackQuerysCPF function Used to handle endpoint /cpfs
+//CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
+func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Request) {
+
+	var aQueryJSON cpfcnpj.MyQuery
+	log.Printf("METHOD[%s] SHOW ALL CPFs \n", r.Method)
+
+	if r.Method == http.MethodGet {
+		aQueryJSON.GetQuerys(w, r)
+		cpfcnpj.UpdateStatus()
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+	w.WriteHeader(http.StatusBadRequest)
+	fmt.Fprint(w, message)
+
+}
+
+//CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
 func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Request) {
 
 	var aQueryJSON cpfcnpj.MyQuery
@@ -39,6 +58,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
 			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
 			w.WriteHeader(http.StatusNotAcceptable)
+			fmt.Fprint(w, "Invalid CPF\n")
 			return
 		}
 
@@ -170,6 +190,7 @@ func NewServerValidator(mode string) *ServerValidator {
 	//routerG.HandleFunc("/login/", server.CallbackLogin)
 	//routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/", server.DefaultEndpoint)
+	routerG.HandleFunc("/cpfs", server.CallbackQuerysCPFAll)
 	routerG.HandleFunc("/cpfs/{cpf_num}", server.CallbackQuerysCPF)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ)
