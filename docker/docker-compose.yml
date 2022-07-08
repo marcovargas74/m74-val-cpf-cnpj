@@ -11,17 +11,28 @@ services:
     ports:
       - "3307:3306" 
 
-  admin:    
-    image: adminer    
-    ports:      
-      - "8080:8080"
+  mongo-api:
+    image: "mongo:3.6"
+    container_name: "goMongoDB"
+    ports:
+      - "27016:27017"
+    # volumes:
+    #   - "${DATABASE_DATA_PATH}:/data/db"
+
+  # admin:    
+  #   image: adminer    
+  #   ports:      
+  #     - "8080:8080"
 
   my-validate-api:    
     image: m74cpfcnpj:latest 
     container_name: m74cpfcnpj 
+    environment: 
+      - MONGO_URL=mongo-api
     ports:      
       - "5000:5000"
     depends_on:
       - mysql-api
-
+      - mongo-api
     # Reference https://betterprogramming.pub/setting-up-mysql-database-in-a-docker-d6c69a3e9afe
+
