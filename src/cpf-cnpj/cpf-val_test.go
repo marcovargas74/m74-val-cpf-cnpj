@@ -76,7 +76,7 @@ func TestGetVerifyingDigits(t *testing.T) {
 			wantValue2: 0,
 			cpfToCheck: "000.000.000-00",
 		},
-		{
+		/*{
 			give:       "Get Digits To check if arg is Zeros Numbers",
 			wantValue1: 1,
 			wantValue2: 1,
