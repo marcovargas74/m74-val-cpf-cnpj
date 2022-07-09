@@ -19,6 +19,25 @@ type ServerValidator struct {
 	http.Handler
 }
 
+//CallbackQuerysAll function Used to handle endpoint /all
+func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Request) {
+
+	var aQueryJSON cpfcnpj.MyQuery
+	log.Printf("METHOD[%s] SHOW ALL CPF AND CNPJs \n", r.Method)
+
+	if r.Method == http.MethodGet {
+		aQueryJSON.GetQuerys(w, r)
+		cpfcnpj.UpdateStatus()
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+	w.WriteHeader(http.StatusBadRequest)
+	fmt.Fprint(w, message)
+
+}
+
 //CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
 func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Request) {
 
@@ -73,6 +92,25 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 }
 
+//CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
+func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.Request) {
+
+	var aQueryJSON cpfcnpj.MyQuery
+	log.Printf("METHOD[%s] SHOW ALL CNPJs \n", r.Method)
+
+	if r.Method == http.MethodGet {
+		aQueryJSON.GetQuerys(w, r)
+		cpfcnpj.UpdateStatus()
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+	w.WriteHeader(http.StatusBadRequest)
+	fmt.Fprint(w, message)
+
+}
+
 //CallbackQuerysCNPJ function Used to handle endpoint /cnpjs
 func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Request) {
 
@@ -89,8 +127,15 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 		aQueryJSON.SaveQuery(w, r, argCNPJ, false)
 
 	case http.MethodGet:
-		cpfcnpj.UpdateStatus()
+		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
+			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", argCNPJ)
+			w.WriteHeader(http.StatusNotAcceptable)
+			fmt.Fprint(w, "Invalid CNPJ\n")
+			return
+		}
+
 		aQueryJSON.GetQuerys(w, r)
+		cpfcnpj.UpdateStatus()
 
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
@@ -190,11 +235,17 @@ func NewServerValidator(mode string) *ServerValidator {
 	//routerG.HandleFunc("/login/", server.CallbackLogin)
 	//routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/", server.DefaultEndpoint)
+	routerG.HandleFunc("/status", server.CallbackStatus)
+	routerG.HandleFunc("/all", server.CallbackQuerysAll)
+
+	//Routes CPF
 	routerG.HandleFunc("/cpfs", server.CallbackQuerysCPFAll)
 	routerG.HandleFunc("/cpfs/{cpf_num}", server.CallbackQuerysCPF)
+
+	//Routes CNPJ
+	routerG.HandleFunc("/cnpjs", server.CallbackQuerysCNPJAll)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ)
-	routerG.HandleFunc("/status", server.CallbackStatus)
 	// if mode == "dev" {
 	// 	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
 	// }
