@@ -47,7 +47,7 @@ func allDigitsIsEqual(cpfToCheck string) bool {
 		return false
 	}
 
-	for pos, _ := range cpfToCheck {
+	for pos := range cpfToCheck {
 		if cpfToCheck[0] != cpfToCheck[pos] {
 			return false
 		}
