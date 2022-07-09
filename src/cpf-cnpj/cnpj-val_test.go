@@ -124,48 +124,48 @@ func TestIsValidFormatCNPJ(t *testing.T) {
 func TestGetVerifyingDigitsCNPJ(t *testing.T) {
 
 	tests := []struct {
-		give       string
-		wantValue1 uint64
-		wantValue2 uint64
-		cpfToCheck string
+		give        string
+		wantValue1  uint64
+		wantValue2  uint64
+		cnpjToCheck string
 	}{
 		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 0,
-			wantValue2: 0,
-			cpfToCheck: "00.000.000/0000-00",
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  0,
+			wantValue2:  0,
+			cnpjToCheck: "00.000.000/0000-00",
 		},
 		{
-			give:       "Get Digits To check ",
-			wantValue1: 1,
-			wantValue2: 8,
-			cpfToCheck: "36.562.098/0001-18",
+			give:        "Get Digits To check ",
+			wantValue1:  1,
+			wantValue2:  8,
+			cnpjToCheck: "36.562.098/0001-18",
 		},
 
 		{
-			give:       "Get Digits To check ",
-			wantValue1: 5,
-			wantValue2: 1,
-			cpfToCheck: "12.074.074/0001-51",
+			give:        "Get Digits To check ",
+			wantValue1:  5,
+			wantValue2:  1,
+			cnpjToCheck: "12.074.074/0001-51",
 		},
 		{
-			give:       "Get Digits To check ",
-			wantValue1: 3,
-			wantValue2: 0,
-			cpfToCheck: "24.572.400/0001-30",
+			give:        "Get Digits To check ",
+			wantValue1:  3,
+			wantValue2:  0,
+			cnpjToCheck: "24.572.400/0001-30",
 		},
 		{
-			give:       "Get Digits To check ",
-			wantValue1: 9,
-			wantValue2: 2,
-			cpfToCheck: "47.425.683/0001-92",
+			give:        "Get Digits To check ",
+			wantValue1:  9,
+			wantValue2:  2,
+			cnpjToCheck: "47.425.683/0001-92",
 		},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			Dig1, Dig2 := getVerifyingDigits(tt.cpfToCheck)
+			Dig1, Dig2 := getVerifyingDigits(tt.cnpjToCheck)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
 		})
@@ -177,79 +177,54 @@ func TestGetVerifyingDigitsCNPJ(t *testing.T) {
 func TestMultiplyNumDigCNPJ(t *testing.T) {
 
 	tests := []struct {
-		give       string
-		wantValue1 uint64
-		wantValue2 uint64
-		cpfToCheck string
+		give        string
+		wantValue1  uint64
+		wantValue2  uint64
+		cnpjToCheck string
 	}{
 		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 3,
-			wantValue2: 5,
-			cpfToCheck: "11144477735",
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  8,
+			wantValue2:  1,
+			cnpjToCheck: "11222333000181",
 		},
 		/*{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 2,
-			wantValue2: 5,
-			cpfToCheck: "52998224725",
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  1,
+			wantValue2:  8,
+			cnpjToCheck: "36562098000118",
+		},
+		/*{
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  5,
+			wantValue2:  1,
+			cnpjToCheck: "12074074000151",
 		},
 		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 0,
-			wantValue2: 0,
-			cpfToCheck: "00000000000",
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  3,
+			wantValue2:  0,
+			cnpjToCheck: "24572400000130",
 		},
 		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 1,
-			wantValue2: 1,
-			cpfToCheck: "11111111111",
-		},
-
-		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 8,
-			wantValue2: 6,
-			cpfToCheck: "83846172286",
-		},
-		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 7,
-			wantValue2: 7,
-			cpfToCheck: "31339602377",
-		},
-		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 9,
-			wantValue2: 9,
-			cpfToCheck: "68251194199",
-		},
-		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 4,
-			wantValue2: 0,
-			cpfToCheck: "28875224340",
-		},
-		{
-			give:       "Get Digits To check if arg is Zeros Numbers",
-			wantValue1: 0,
-			wantValue2: 1,
-			cpfToCheck: "48416241201",
+			give:        "Get Digits To check if arg is Zeros Numbers",
+			wantValue1:  9,
+			wantValue2:  2,
+			cnpjToCheck: "47425683000192",
 		},*/
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			//Dig1, Dig2 := MultiplyNumDigCPF(tt.cpfToCheck)
+			//Dig1, Dig2 := MultiplyNumDigCPF(tt.cnpjToCheck)
 			//CheckIfEqualInt(t, Dig1, tt.wantValue1)
 			//CheckIfEqualInt(t, Dig2, tt.wantValue2)
 
-			Dig1 := MultiplyNumDigCNPJ(tt.cpfToCheck, SizeToValidDig1)
+			Dig1 := MultiplyNumDigCNPJ(tt.cnpjToCheck, SizeToValidDig1CNPJ)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 
-			Dig2 := MultiplyNumDigCNPJ(tt.cpfToCheck, SizeToValidDig2)
+			Dig2 := MultiplyNumDigCNPJ(tt.cnpjToCheck, SizeToValidDig2CNPJ)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
 
 		})
