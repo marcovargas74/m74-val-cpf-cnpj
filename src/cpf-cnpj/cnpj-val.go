@@ -30,57 +30,47 @@ func isValidFormatCNPJ(cnpjToCheck string) bool {
 	return cnpjRegexp.MatchString(cnpjToCheck)
 }
 
-//Multiplica os digitos do cpf por 10 ou 11 *O numero não pode ter caracter especial
+//MultiplyNumDigCNPJ os digitos do cnpj por 5 ou 6 *O numero não pode ter caracter especial
 func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
+	multiplicationResult := 0
+	str_to_sum := cpfToCheckOnlyNumber[:numIndexFinal]
+	digitMultiplier := numIndexFinal + 1
+	//fmt.Printf("str[%s] FinalIndex[%d]multiplicationResult [%d] \n", str_to_sum1, numIndexFinal, digitMultiplier)
+
+	for _, nextDigit := range str_to_sum {
+		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
+		digitMultiplier--
+	}
+
+	//fmt.Printf("\nParte 2 multiplicationResult [%d] \n", multiplicationResult)
+
+	//---Inicio da segunda parte da vaidação do cnpj
 	indexLastDigitToCheck := SizeToValidTotalCNPJDig1
 	if numIndexFinal == SizeToValidDig2CNPJ {
 		indexLastDigitToCheck++
 	}
 
 	str_cnpj_without_verifyDigit := cpfToCheckOnlyNumber[:indexLastDigitToCheck]
-	digitMultiplier := SizeToValidDigDefaultCNPJ
+	digitMultiplier = SizeToValidDigDefaultCNPJ
 
-	str_to_sum1 := str_cnpj_without_verifyDigit[4:indexLastDigitToCheck]
-	fmt.Printf("str[%s] FinalIndex[%d]multiplicationResult [%d] \n", str_to_sum1, numIndexFinal, digitMultiplier)
-
-	multiplicationResult := 0
-	for _, nextDigit := range str_to_sum1 {
-		fmt.Printf("digito[%d] multi[%d]\n", runeToInt(nextDigit), digitMultiplier)
-
+	str_to_sum = str_cnpj_without_verifyDigit[numIndexFinal:indexLastDigitToCheck]
+	for _, nextDigit := range str_to_sum {
+		//fmt.Printf("digito[%d] multi[%d]\n", runeToInt(nextDigit), digitMultiplier)
 		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
-
-	fmt.Printf("Parte 1 multiplicationResult [%d] \n", multiplicationResult)
-
-	///==== PARTE 2 ====
-	digitMultiplier = numIndexFinal + 1
-
-	str_to_sum1 = str_cnpj_without_verifyDigit[:numIndexFinal]
-	fmt.Printf("str[%s] FinalIndex[%d]multiplicationResult [%d] \n", str_to_sum1, numIndexFinal, digitMultiplier)
-
-	//multiplicationResult = 0
-	for _, nextDigit := range str_to_sum1 {
-		fmt.Printf("digito[%d] multi[%d]\n", runeToInt(nextDigit), digitMultiplier)
-
-		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
-		digitMultiplier--
-	}
-
-	fmt.Printf("\nParte 2 multiplicationResult [%d] \n", multiplicationResult)
 
 	restDivision := multiplicationResult % 11
-	compereWithDig1 := 11 - restDivision
+	compareWithDig := 11 - restDivision
 
-	fmt.Printf("str[%s] multiplicationResult [%d] resto[%d]\n", str_to_sum1, multiplicationResult, restDivision)
-
+	//fmt.Printf("str[%s] multiplicationResult [%d] resto[%d]\n", str_to_sum1, multiplicationResult, restDivision)
 	if restDivision < 2 {
-		compereWithDig1 = 0
+		compareWithDig = 0
 	}
 
-	fmt.Printf("comperToDig1 [%d]\n\nFIM\n", compereWithDig1)
-	return uint64(compereWithDig1)
+	fmt.Printf("comperToDig2 [%d]FIM\n", compareWithDig)
+	return uint64(compareWithDig)
 }
 
 /*

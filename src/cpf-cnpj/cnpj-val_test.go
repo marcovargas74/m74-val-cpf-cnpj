@@ -188,17 +188,17 @@ func TestMultiplyNumDigCNPJ(t *testing.T) {
 			wantValue2:  1,
 			cnpjToCheck: "11222333000181",
 		},
-		/*{
+		{
 			give:        "Get Digits To check if arg is Zeros Numbers",
 			wantValue1:  1,
 			wantValue2:  8,
 			cnpjToCheck: "36562098000118",
 		},
-		/*{
+		{
 			give:        "Get Digits To check if arg is Zeros Numbers",
-			wantValue1:  5,
+			wantValue1:  6,
 			wantValue2:  1,
-			cnpjToCheck: "12074074000151",
+			cnpjToCheck: "11444777000161",
 		},
 		{
 			give:        "Get Digits To check if arg is Zeros Numbers",
@@ -211,7 +211,7 @@ func TestMultiplyNumDigCNPJ(t *testing.T) {
 			wantValue1:  9,
 			wantValue2:  2,
 			cnpjToCheck: "47425683000192",
-		},*/
+		},
 	}
 
 	for _, tt := range tests {
