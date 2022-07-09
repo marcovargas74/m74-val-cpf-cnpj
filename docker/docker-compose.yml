@@ -19,10 +19,10 @@ services:
     # volumes:
     #   - "${DATABASE_DATA_PATH}:/data/db"
 
-  # admin:    
-  #   image: adminer    
-  #   ports:      
-  #     - "8080:8080"
+  admin:    
+    image: adminer    
+    ports:      
+      - "8080:8080"
 
   my-validate-api:    
     image: m74cpfcnpj:latest 
