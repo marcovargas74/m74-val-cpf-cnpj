@@ -12,7 +12,7 @@ func TestCreateDBMongo(t *testing.T) {
 	}{
 		{
 			give:      "Test Open MONGO DB",
-			wantValue: false,
+			wantValue: true,
 		},
 	}
 
