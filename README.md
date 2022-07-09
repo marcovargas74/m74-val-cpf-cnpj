@@ -71,37 +71,87 @@ go build -o main.go
 
 | Endpoint        | HTTP Method           | Description           |
 | --------------- | :-------------------: | :-------------------: |
-| `/cpfs`         | `POST`                | `Create CPF`          |
-| `/cpfs`         | `GET`                 | `List CPF`            |
-| `/cpfs`         | `DELETE`              | `Delete CPF`          |
-| `/cnpjs`        | `POST`                | `Create CPF`          |
-| `/cnpjs`        | `GET`                 | `List CPF`            |
-| `/cnpjs`        | `DELETE`              | `Delete CPF`          |
 | `/status`       | `GET`                 | `Get status`          |
+| `/all`          | `GET`                 | `Get All CPFs/CNPJs`  |
+| `/cpfs/{cpf}`   | `POST`                | `Create CPF`          |
+| `/cpfs/{cpf}`   | `GET`                 | `List a unique CPF`   |
+| `/cpfs/{cpf}`   | `DELETE`              | `Delete CPF`          |
+| `/cpfs/all`     | `GET`                 | `List All CPF`        |
+| `/cnpjs/{cnpj}` | `POST`                | `Create CNPJ`         |
+| `/cnpjs/{cnpj}` | `GET`                 | `List a uniqueCNPJ`   |
+| `/cnpjs/{cnpj}` | `DELETE`              | `Delete CNPJ`         |
+| `/cnpjs/all`    | `GET`                 | `List All CNPJ`       |
 
 
 ## Test endpoints API using curl
 
-- #### Creating new CPF
+- #### Check status
 
 `Request`
 ```bash
-curl -i --request POST 'http://localhost:5000/cpfs' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "cpf": "111.111.111-11"
-}'
+curl -i --request GET 'http://localhost:5000/status' \
+```
+
+`Response`
+```json
+{
+    "num_total_query": 0,
+    "up_time": 7.313309784066667,
+    "start_time": "09-Jul-22 18:15:54"
+}
+```
+
+- #### Listing ALL CPF and CNPJs
+
+`Request`
+```bash
+curl -i --request GET 'http://localhost:5000/all'
+```
+
+`Response`
+```json
+
+[
+    {
+        "id":"bc78d0f0-4107-4b7e-a82e-d57a0167d2ca",
+        "cpf":"682.511.941-99",
+        "is_valid":true,
+        "is_cpf":true,
+        "is_cnpj":false,
+        "created_at":"01-Jan-01 00:00:00"
+    },
+
+    {
+        "id":"3b8416ad-cd38-471c-8259-e886c0aa91af",
+        "cpf":"838.461.722-86",
+        "is_valid":true,
+        "is_cpf":true,
+        "is_cnpj":false,
+        "created_at":"01-Jan-01 00:00:00"
+    }
+    .
+    .
+    .
+]
+
+```
+
+- #### Creating new CPF Consult
+
+`Request`
+```bash
+curl -i --request POST 'http://localhost:5000/cpfs/682.511.941-99' 
 ```
 
 `Response`
 ```json
 {
     "id": "28f0d8fa-f76f-47bd-bd65-58a3c4ee9c12",
-    "cpf": "111.111.111-11",
+    "cpf": "682.511.941-99",
     "is_valid": true,
-    "is_cpf": false,
+    "is_cpf": true,
     "is_cnpj": false,
-    "created_at": "2022-07-05T12:44:29.770512516Z"
+    "created_at":"09-Jul-22 18:50:56"
 }
 ```
 - #### Listing CPFs
@@ -210,20 +260,6 @@ curl -i --request DELETE 'http://localhost:5000/cnpj' \
 }'
 ```
 
-- #### Check status
-
-`Request`
-```bash
-curl -i --request GET 'http://localhost:5000/status' \
-```
-
-`Response`
-```json
-{
-    "number_of_queries_made": 1,
-    "up-time_at": "2022-01-24T10:12:05Z"
-}
-```
 
 
 ## Code status

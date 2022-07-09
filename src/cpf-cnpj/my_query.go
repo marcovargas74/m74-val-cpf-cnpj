@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-	"gopkg.in/validator.v2"
 )
 
 type MyQuery struct {
@@ -115,7 +114,9 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 		return
 	}
 
-	json, err := json.Marshal(q)
+	//json, err := json.Marshal(q)
+	json, err := q.MarshalJSON()
+
 	if err != nil {
 		log.Println(err)
 	}
@@ -126,6 +127,7 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 
 }
 
+/*
 //SaveQuery main fuction to save a new query in system
 func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
 
@@ -171,7 +173,7 @@ func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json))
 	w.WriteHeader(http.StatusOK)
 
-}
+}*/
 
 func (q *MyQuery) saveQueryInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
@@ -227,7 +229,7 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+		fmt.Fprint(w, "DB is Empty")
 		return
 	}
 	defer rows.Close()
@@ -249,6 +251,17 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
+}
+
+func (q *MyQuery) MarshalJSON() ([]byte, error) {
+	type Alias MyQuery
+	return json.Marshal(&struct {
+		*Alias
+		CreatedAt string `json:"created_at"`
+	}{
+		Alias:     (*Alias)(q),
+		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
+	})
 }
 
 /*

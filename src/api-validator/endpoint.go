@@ -19,6 +19,23 @@ type ServerValidator struct {
 	http.Handler
 }
 
+//CallbackStatus function Used to handle endpoint /status
+func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
+
+	log.Printf("METHOD[%s] STATUS [%s] \n", r.Method, r.UserAgent())
+
+	if r.Method == http.MethodGet {
+		cpfcnpj.ShowStatus(w, r)
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
+	fmt.Fprint(w, message)
+	w.WriteHeader(http.StatusBadRequest)
+
+}
+
 //CallbackQuerysAll function Used to handle endpoint /all
 func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Request) {
 
@@ -142,23 +159,6 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 		fmt.Fprint(w, message)
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
-
-}
-
-//CallbackStatus function Used to handle endpoint /status
-func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
-
-	log.Printf("METHOD[%s] STATUS [%s] \n", r.Method, r.UserAgent())
-
-	if r.Method == http.MethodGet {
-		cpfcnpj.ShowStatus(w, r)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusBadRequest)
 
 }
 
