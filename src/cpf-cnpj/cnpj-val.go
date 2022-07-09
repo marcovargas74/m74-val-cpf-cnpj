@@ -14,12 +14,6 @@ const (
 	SizeToValidDigDefaultCNPJ = SizeToValidDig1CNPJ + SizeToValidDig2CNPJ
 )
 
-/*
-// converts a rune to an int.
-func runeToInt(r rune) int {
-	return int(r - '0')
-}
-*/
 func isValidFormatCNPJ(cnpjToCheck string) bool {
 	var cnpjRegexp = regexp.MustCompile(`^\d{2}\.?\d{3}\.?\d{3}\/?(:?\d{3}[1-9]|\d{2}[1-9]\d|\d[1-9]\d{2}|[1-9]\d{3})-?\d{2}$`)
 
@@ -39,7 +33,7 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	//fmt.Printf("str[%s] FinalIndex[%d]multiplicationResult [%d] \n", str_to_sum1, numIndexFinal, digitMultiplier)
 
 	for _, nextDigit := range str_to_sum {
-		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
+		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
 
@@ -57,7 +51,7 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	str_to_sum = str_cnpj_without_verifyDigit[numIndexFinal:indexLastDigitToCheck]
 	for _, nextDigit := range str_to_sum {
 		//fmt.Printf("digito[%d] multi[%d]\n", runeToInt(nextDigit), digitMultiplier)
-		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
+		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
 
@@ -73,15 +67,13 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	return uint64(compareWithDig)
 }
 
-/*
+func isValidCNPJOnlyValid(cpfToCheck string) bool {
 
-func isValidCPFOnlyValid(cpfToCheck string) bool {
-
-	validDigit1, validDigit2 := getVerifyingDigits(cpfToCheck)
+	validDigit1, validDigit2 := GetVerifyingDigits(cpfToCheck)
 	print(validDigit1, validDigit2)
 
-	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1)
-	sumDig2 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig2)
+	sumDig1 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig1CNPJ)
+	sumDig2 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig2CNPJ)
 	print(sumDig1, sumDig2)
 
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
@@ -91,9 +83,6 @@ func isValidCPFOnlyValid(cpfToCheck string) bool {
 	return !ValidateVerifierDigit(sumDig2, validDigit2)
 }
 
-
-*/
-
 //IsValidCNPJ Check if cnpj is valid
 func IsValidCNPJ(cnpjToCheck string) bool {
 
@@ -101,9 +90,7 @@ func IsValidCNPJ(cnpjToCheck string) bool {
 		return false
 	}
 
-	cnpjFormated := formatToValidate(cnpjToCheck)
+	cnpjFormated := FormatToValidate(cnpjToCheck)
 	fmt.Printf("cnpjFormated [%v]\n\nFIM\n", cnpjFormated)
-	//return !isValidCPFOnlyValid(cpfFormated)
-
-	return true
+	return !isValidCNPJOnlyValid(cnpjToCheck)
 }

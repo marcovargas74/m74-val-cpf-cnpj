@@ -10,11 +10,6 @@ const (
 	SizeToValidDig2CPF = 10
 )
 
-// converts a rune to an int.
-func runeToInt(r rune) int {
-	return int(r - '0')
-}
-
 func isValidFormatCPF(cpfToCheck string) bool {
 	var CPFRegexp = regexp.MustCompile(`^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$`)
 
@@ -25,22 +20,6 @@ func isValidFormatCPF(cpfToCheck string) bool {
 	return CPFRegexp.MatchString(cpfToCheck)
 }
 
-func allDigitsIsEqual(cpfToCheck string) bool {
-
-	if len(cpfToCheck) < 10 {
-		return false
-	}
-
-	for pos := range cpfToCheck {
-		if cpfToCheck[0] != cpfToCheck[pos] {
-			return false
-		}
-
-	}
-
-	return true
-}
-
 //Multiplica os digitos do cpf por 10 ou 11 *O numero não pode ter caracter especial
 func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
@@ -49,7 +28,7 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 	multiplicationResult := 0
 	for _, nextDigit := range str_to_sum1 {
-		multiplicationResult += runeToInt(nextDigit) * digitMultiplier
+		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
 
@@ -65,7 +44,7 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 func isValidCPFOnlyValid(cpfToCheck string) bool {
 
-	validDigit1, validDigit2 := getVerifyingDigits(cpfToCheck)
+	validDigit1, validDigit2 := GetVerifyingDigits(cpfToCheck)
 	print(validDigit1, validDigit2)
 
 	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1CPF)
@@ -86,8 +65,8 @@ func IsValidCPF(cpfToCheck string) bool {
 		return false
 	}
 
-	cpfFormated := formatToValidate(cpfToCheck)
-	if allDigitsIsEqual(cpfFormated) {
+	cpfFormated := FormatToValidate(cpfToCheck)
+	if AllDigitsIsEqual(cpfFormated) {
 		return false
 	}
 
