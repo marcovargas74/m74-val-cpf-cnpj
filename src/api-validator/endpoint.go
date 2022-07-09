@@ -104,6 +104,16 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 		aQueryJSON.GetQuerysByNum(w, r, aCPFNum["cpf_num"])
 
+	case http.MethodDelete:
+		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
+			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
+			w.WriteHeader(http.StatusNotAcceptable)
+			fmt.Fprint(w, "Invalid CPF\n")
+			return
+		}
+
+		aQueryJSON.DeleteQuerysByNum(w, r, aCPFNum["cpf_num"])
+
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
 		fmt.Fprint(w, message)
@@ -160,6 +170,16 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 		}
 
 		aQueryJSON.GetQuerysByNum(w, r, argCNPJ)
+
+	case http.MethodDelete:
+		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
+			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", argCNPJ)
+			w.WriteHeader(http.StatusNotAcceptable)
+			fmt.Fprint(w, "Invalid CNPJ\n")
+			return
+		}
+
+		aQueryJSON.DeleteQuerysByNum(w, r, argCNPJ)
 
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)

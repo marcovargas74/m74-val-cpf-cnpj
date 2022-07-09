@@ -227,7 +227,7 @@ func (a *MyQuery) showQuerysByNum(w http.ResponseWriter, r *http.Request, findNu
 	defer db.Close()
 
 	var aQuery MyQuery
-	db.QueryRow("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where id = ?", findNum).Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+	db.QueryRow("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where number = ?", findNum).Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
 	json, err := aQuery.MarshalJSON()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -304,88 +304,24 @@ func (q *MyQuery) MarshalJSON() ([]byte, error) {
 	})
 }
 
-/*
+//DeleteQuerysByNum Delete Number
+func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
 
-
-
-
-
-//ShowAccountAll show All accounts in a Bank
-func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+	if r.UserAgent() == "self_test" {
+		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
+		w.WriteHeader(http.StatusOK)
 		return
-
 	}
-	defer db.Close()
-
-	rows, err := db.Query("select id, nome, cpf, balance, secret, createAt from accounts")
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-
-	}
-	defer rows.Close()
-
-	var usuarios []Account
-	for rows.Next() {
-		var account Account
-		rows.Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-		usuarios = append(usuarios, account)
-	}
-
-	json, err := json.Marshal(usuarios)
-	if err != nil {
-		log.Println(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-
+	q.deleteQuerysByNum(w, r, findCPFofCNPJ)
 }
 
-
-//ShowBalanceByID return Balance account pass token ID in arg
-func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID string) {
+func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, findNum string) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "fail to access DB")
 		return
-
-	}
-	defer db.Close()
-
-	var aBalance Balance
-	db.QueryRow("select balance from accounts where id = ?", findID).Scan(&aBalance.Value)
-	json, err := json.Marshal(aBalance)
-	if err != nil {
-		log.Println(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-}
-
-//UpdateBalanceByID update balance value account in DB
-func UpdateBalanceByID(accID string, newTransationValue float64) bool {
-
-	accountInBD, err := GetAccountByID(accID)
-	if err != nil {
-		fmt.Println(err)
-		return false
-	}
-	accountInBD.Balance = newTransationValue
-
-	log.Printf("<<-id:%s val %.2f\n", accountInBD.ID, accountInBD.Balance)
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		return false
 	}
 	defer db.Close()
 
@@ -394,105 +330,26 @@ func UpdateBalanceByID(accID string, newTransationValue float64) bool {
 		log.Println(err)
 	}
 
-	stmt, err := tx.Prepare("update accounts set balance = ? where id = ?")
+	stmt, err := db.Prepare("delete from querys where number = ?")
 	if err != nil {
-		log.Println(err)
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail prepare command to access DB")
+		return
 	}
 
-	_, err = stmt.Exec(accountInBD.Balance, accountInBD.ID)
+	_, err = stmt.Exec(findNum)
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
-		return false
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail To delete register in access DB")
+		return
 	}
 
 	tx.Commit()
-	return true
 
-}
-
-
-//GetAccountByID return account pass token ID in arg
-func GetAccountByID(findID string) (Account, error) {
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		return Account{}, err
-	}
-	defer db.Close()
-
-	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findID, account.CPF)
-	return account, nil
-}
-
-
-//GetAccountByCPF Retorna a conta passando o CPF como parametro
-func GetAccountByCPF(findCPF string) (Account, error) {
-
-	if !IsValidCPF(findCPF) {
-		return Account{}, fmt.Errorf("CPF inválido: %s", findCPF)
-	}
-
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		return Account{}, err
-	}
-	defer db.Close()
-
-	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where cpf = ?", findCPF).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	fmt.Printf("DADOS DO BANOC id[%s] data[%s]\n", findCPF, account.CPF)
-	return account, nil
-}
-*/
-
-/*
-//SaveQuery main fuction to save a new query in system
-func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
-
-	if err := json.NewDecoder(r.Body).Decode(&q); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	q.IsValid = true
-	log.Printf("\nSaveQuery Number:%s\n", q.Number)
-	if errs := validator.Validate(q); errs != nil {
-		log.Printf("INVALIDO %v\n", errs)
-		w.WriteHeader(http.StatusBadRequest)
-		q.IsValid = false
-	}
-
-	defer r.Body.Close()
-	q.IsValid = true
-	q.ID = NewUUID()
-	q.CreatedAt = time.Now()
-	fmt.Printf("UUIDv4: %s\n", q.ID)
-
-	if !IsValidUUID(q.ID) {
-		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !q.saveQueryInDB() {
-		message := fmt.Sprintf("Can not save account from %v", q.ID)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	json, err := json.Marshal(q)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 
-}*/
+}
