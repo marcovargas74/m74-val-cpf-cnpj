@@ -1,31 +1,89 @@
 package cpfcnpj
 
 import (
+	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
-	"os"
+	"net/http"
 
-	"gopkg.in/mgo.v2"
+	//Used blank to can used mysql commands
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func CreateDBMongo(isDockerRun bool) bool {
+const (
+	//DBSourceOpenLocal Const used to Open Local db
+	DBSourceOpenLocal = "root:my-secret-pw@tcp(localhost:3307)/"
 
-	urlMongo := "mongodb://localhost:27017"
-	if isDockerRun {
-		urlMongo = os.Getenv("MONGO_URL")
-	}
+	//DBSourceLocal Const used to acces Local db
+	DBSourceLocal = "root:my-secret-pw@tcp(localhost:3307)/validatorAPP" //root:Mysql#my-secret-pw@/validatorAPP"
 
-	fmt.Printf("[%v]\n", urlMongo)
-	session, err := mgo.Dial(urlMongo)
+	//DBSourceOpenDocker Const used to Open Docker db
+	DBSourceOpenDocker = "root:my-secret-pw@tcp(mysql-api)/" //mysql-api é o nome do serviço no docker-composer
+
+	//DBSourceDocker Const used to acces Docker db
+	DBSourceDocker = "root:my-secret-pw@tcp(mysql-api)/validatorAPP" //root:Mysql#my-secret-pw@/validatorAPP"
+
+)
+
+//AddrOpenDB VAR used to open and to access BD
+var AddrOpenDB string
+
+//AddrDB VAR data source name
+var AddrDB string
+
+func exec(db *sql.DB, sql string) sql.Result {
+	result, err := db.Exec(sql)
 	if err != nil {
-		log.Println(err)
+		log.Print(err)
 	}
-	fmt.Println("ping", session.Ping())
-	return true
+	return result
 }
 
-/*
-func (q *MyQuery) saveQueryInMongoDB() bool {
+//CreateDB Create SQL dataBase
+func CreateDB(isDropTable bool) {
+	AddrOpenDB = DBSourceOpenDocker
+	AddrDB = DBSourceDocker
+
+	db, err := sql.Open("mysql", AddrOpenDB)
+	if err != nil {
+		log.Printf("Failed to connect to db Local Mysql...")
+		AddrOpenDB = DBSourceOpenLocal
+		AddrDB = DBSourceLocal
+		db, err = sql.Open("mysql", AddrOpenDB)
+		if err != nil {
+			log.Printf("Failed to connect to db Local Mysql IP 127.0.0.1")
+			log.Print(err)
+		}
+
+	}
+
+	defer db.Close()
+
+	fmt.Println("Successfully connected to the DB")
+	exec(db, "create database if not exists validatorAPP")
+	exec(db, "use validatorAPP")
+	if isDropTable {
+		exec(db, "drop table if exists querys")
+	}
+
+	exec(db, `create table IF NOT EXISTS querys(
+	idx integer auto_increment,
+	id varchar(40) ,
+	number varchar(18),
+	is_valid boolean,
+	is_cpf boolean,
+	is_cnpj boolean,
+    createAt datetime,
+	PRIMARY KEY (idx)
+	)`)
+
+	fmt.Println("Successfully connected to the DB!")
+
+}
+
+func (q *MyQuery) saveQueryInDB() bool {
+
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -54,7 +112,7 @@ func (q *MyQuery) saveQueryInMongoDB() bool {
 	return true
 }
 
-func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
+func (q *MyQuery) showQueryAll(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -92,7 +150,7 @@ func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json))
 }
 
-func (a *MyQuery) showQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
+func (a *MyQuery) showQuerysByNum(w http.ResponseWriter, r *http.Request, findNum string) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -118,7 +176,7 @@ func (a *MyQuery) showQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request,
 
 }
 
-func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request, isCPF bool) {
+func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF bool) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -158,7 +216,7 @@ func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request
 	log.Printf("DADOS DO DB - showQuerysByType IsCPF[%v] data[%s]\n", isCPF, string(json))
 }
 
-func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
+func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, findNum string) {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
 		log.Println(err)
@@ -196,5 +254,3 @@ func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Reques
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 
 }
-
-*/

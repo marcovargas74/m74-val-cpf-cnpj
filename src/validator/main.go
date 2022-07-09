@@ -10,9 +10,11 @@ import (
 
 func init() {
 	myquery.CreateDB(false)
-	myquery.CreateDBMongo(true)
 	myquery.CreateStatus()
-
+	validator.IsMongoDBI = false
+	if validator.IsMongoDBI {
+		myquery.CreateDBMongo(true)
+	}
 }
 
 func main() {
