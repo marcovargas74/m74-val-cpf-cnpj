@@ -1,11 +1,7 @@
 package cpfcnpj
 
 import (
-	"bytes"
-	"log"
 	"regexp"
-	"strconv"
-	"unicode"
 )
 
 const (
@@ -29,18 +25,6 @@ func isValidFormatCPF(cpfToCheck string) bool {
 	return CPFRegexp.MatchString(cpfToCheck)
 }
 
-func formatToValidateCPF(cpfToFormat string) string {
-
-	cpfClean := bytes.NewBufferString("")
-	for _, digit := range cpfToFormat {
-		if unicode.IsDigit(digit) {
-			cpfClean.WriteRune(digit)
-		}
-	}
-
-	return cpfClean.String()
-}
-
 func allDigitsIsEqual(cpfToCheck string) bool {
 
 	if len(cpfToCheck) < 10 {
@@ -57,26 +41,6 @@ func allDigitsIsEqual(cpfToCheck string) bool {
 	return true
 }
 
-func getVerifyingDigits(cpfToCheck string) (uint64, uint64) {
-	size := len(cpfToCheck)
-	str_d2 := cpfToCheck[size-1:]
-	str_d1 := cpfToCheck[size-2 : size-1]
-
-	int_dig1, err := strconv.Atoi(str_d1)
-	if err != nil {
-		log.Print(err)
-		return 0, 0
-	}
-
-	int_dig2, err := strconv.Atoi(str_d2)
-	if err != nil {
-		log.Print(err)
-		return 0, 0
-	}
-
-	return uint64(int_dig1), uint64(int_dig2)
-}
-
 //Multiplica os digitos do cpf por 10 ou 11 *O numero não pode ter caracter especial
 func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
@@ -90,17 +54,13 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	}
 
 	restDivision := multiplicationResult % 11
-	compereWithDig1 := 11 - restDivision
+	compareWithDig1 := 11 - restDivision
 	if restDivision < 2 {
-		compereWithDig1 = 0
+		compareWithDig1 = 0
 	}
 
 	//fmt.Printf("comperToDig1 [%d]\n\nFIM\n", compereWithDig1)
-	return uint64(compereWithDig1)
-}
-
-func ValidateVerifierDigit(sumCpf, digToCheck uint64) bool {
-	return sumCpf == digToCheck
+	return uint64(compareWithDig1)
 }
 
 func isValidCPFOnlyValid(cpfToCheck string) bool {
@@ -126,7 +86,7 @@ func IsValidCPF(cpfToCheck string) bool {
 		return false
 	}
 
-	cpfFormated := formatToValidateCPF(cpfToCheck)
+	cpfFormated := formatToValidate(cpfToCheck)
 	if allDigitsIsEqual(cpfFormated) {
 		return false
 	}
