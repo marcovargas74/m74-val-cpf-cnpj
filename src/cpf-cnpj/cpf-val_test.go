@@ -42,7 +42,7 @@ func TestFormatToValidateCPF(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			result := formatToValidateCPF(tt.cpfToCheck)
+			result := formatToValidate(tt.cpfToCheck)
 			CheckIfEqualString(t, result, tt.wantValue)
 		})
 
@@ -310,48 +310,6 @@ func TestAllDigitsIsEqualCPF(t *testing.T) {
 	}
 
 }
-
-/*
-func TestGetVerifyingDigits(t *testing.T) {
-
-	tests := []struct {
-		give       string
-		cpfToCheck string
-		wantValue1 uint64
-		wantValue2 uint64
-	}{
-		{
-			give:       "CPF format for a string with only digits",
-			cpfToCheck: "838.461.722-86",
-			wantValue1: 8,
-			wantValue2: 6,
-		},
-		/*{
-			give:       "CPF format for a string with only digits",
-			cpfToCheck: "313.396.023-77",
-			wantValue1: 7,
-			wantValue2: 7,
-		},
-		{
-			give:       "CPF format for a string with only digits",
-			cpfToCheck: "682.511.941-99",
-			wantValue1: 9,
-			wantValue2: 9,
-		},* /
-	}
-
-	for _, tt := range tests {
-
-		t.Run(tt.give, func(t *testing.T) {
-			validDigit1, validDigit2 := getVerifyingDigits(tt.cpfToCheck)
-			CheckIfEqualInt(t, validDigit1, tt.wantValue1)
-			CheckIfEqualInt(t, validDigit2, tt.wantValue2)
-		})
-
-	}
-
-}
-*/
 
 func TestIsValidCPF(t *testing.T) {
 
