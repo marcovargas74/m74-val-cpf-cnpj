@@ -50,7 +50,8 @@ func GetUptimeQuery() float64 {
 func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
 	StatusQuery.UpTime = GetUptimeQuery()
-	json, err := json.Marshal(StatusQuery)
+	//json, err := json.Marshal(StatusQuery)
+	json, err := StatusQuery.MarshalJSON()
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -63,4 +64,15 @@ func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Println("ShowStatus:", string(json))
 
+}
+
+func (q *QueryStatus) MarshalJSON() ([]byte, error) {
+	type Alias QueryStatus
+	return json.Marshal(&struct {
+		*Alias
+		StartTime string `json:"start_time"`
+	}{
+		Alias:     (*Alias)(q),
+		StartTime: q.StartTime.Format("02-Jan-06 15:04:05"),
+	})
 }
