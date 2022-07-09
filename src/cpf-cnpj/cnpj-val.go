@@ -2,6 +2,7 @@ package cpfcnpj
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 )
 
@@ -76,11 +77,13 @@ func isValidCNPJOnlyValid(cpfToCheck string) bool {
 	sumDig2 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig2CNPJ)
 	print(sumDig1, sumDig2)
 
+	log.Printf("CNPJ valida dig1[%v] dig1[%v] \n", ValidateVerifierDigit(sumDig1, validDigit1), ValidateVerifierDigit(sumDig1, validDigit1))
+
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
 		return false
 	}
 
-	return !ValidateVerifierDigit(sumDig2, validDigit2)
+	return ValidateVerifierDigit(sumDig2, validDigit2)
 }
 
 //IsValidCNPJ Check if cnpj is valid
@@ -91,6 +94,6 @@ func IsValidCNPJ(cnpjToCheck string) bool {
 	}
 
 	cnpjFormated := FormatToValidate(cnpjToCheck)
-	fmt.Printf("cnpjFormated [%v]\n\nFIM\n", cnpjFormated)
-	return !isValidCNPJOnlyValid(cnpjToCheck)
+	log.Printf("cnpjFormated [%v][%v]\n", cnpjFormated, isValidCNPJOnlyValid(cnpjFormated))
+	return isValidCNPJOnlyValid(cnpjFormated)
 }

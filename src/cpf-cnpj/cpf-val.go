@@ -55,7 +55,7 @@ func isValidCPFOnlyValid(cpfToCheck string) bool {
 		return false
 	}
 
-	return !ValidateVerifierDigit(sumDig2, validDigit2)
+	return ValidateVerifierDigit(sumDig2, validDigit2)
 }
 
 //IsValidCPF Check if cpf is valid
@@ -70,6 +70,6 @@ func IsValidCPF(cpfToCheck string) bool {
 		return false
 	}
 
-	return !isValidCPFOnlyValid(cpfFormated)
+	return isValidCPFOnlyValid(cpfFormated)
 
 }
