@@ -5,7 +5,24 @@ import (
 	"log"
 	"strconv"
 	"unicode"
+
+	"github.com/gofrs/uuid"
 )
+
+//NewUUID Cria um novo UUID valido
+func NewUUID() string {
+	uuidNew, err := uuid.NewV4()
+	if err != nil {
+		log.Println(err)
+	}
+	return uuidNew.String()
+}
+
+//IsValidUUID Check if IUUID is valid
+func IsValidUUID(uuidVal string) bool {
+	_, err := uuid.FromString(uuidVal)
+	return err == nil
+}
 
 //FormatToValidate Strip special characters return a string with only digits
 func FormatToValidate(cpfToFormat string) string {

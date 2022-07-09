@@ -7,10 +7,9 @@ import (
 	"log"
 	"net/http"
 	"time"
-
-	"github.com/gofrs/uuid"
 )
 
+//MyQuery Strutc Main Used in AppValidate
 type MyQuery struct {
 	ID        string    `json:"id"`
 	Number    string    `json:"cpf"`
@@ -20,48 +19,6 @@ type MyQuery struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type Account struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name" validate:"min=3,max=40"`
-	CPF       string    `json:"cpf"`
-	Balance   float64   `json:"balance"`
-	Secret    string    `json:"secret" `
-	CreatedAt time.Time `json:"created_at"`
-}
-
-//Balance used to create a Json Return to endpoint
-type Balance struct {
-	Value float64 `json:"balance"`
-}
-
-//NewUUID Cria um novo UUID valido
-func NewUUID() string {
-	uuidNew, err := uuid.NewV4()
-	if err != nil {
-		log.Println(err)
-	}
-	return uuidNew.String()
-}
-
-//IsValidUUID Check if IUUID is valid
-func IsValidUUID(uuidVal string) bool {
-	_, err := uuid.FromString(uuidVal)
-	return err == nil
-}
-
-/*
-//newAccount Create a new account
-func newAccount(name, cpf, secret string, balance float64) Account {
-	return Account{
-		ID:        NewUUID(),
-		Name:      name,
-		CPF:       cpf,
-		Secret:    secret,
-		Balance:   balance,
-		CreatedAt: time.Now(),
-	}
-}
-*/
 //SaveQuery main fuction to save a new query in system
 func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ string, isCPF bool) {
 
@@ -109,14 +66,13 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 
 	if !q.saveQueryInDB() {
 		w.WriteHeader(http.StatusInternalServerError)
-		message := fmt.Sprintf("Can not save account from %v", q.ID)
+		message := fmt.Sprintf("Can not save cpf/cnpj %v ", q.Number)
 		fmt.Fprint(w, message)
 		return
 	}
 
 	//json, err := json.Marshal(q)
 	json, err := q.MarshalJSON()
-
 	if err != nil {
 		log.Println(err)
 	}
@@ -205,7 +161,7 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json))
 }
 
-//GetAccountByID return account pass token ID in arg
+//GetQuerysByNum return CPF/CNPJ pass number in arg
 func (q *MyQuery) GetQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
 
 	if r.UserAgent() == "self_test" {
@@ -242,7 +198,7 @@ func (a *MyQuery) showQuerysByNum(w http.ResponseWriter, r *http.Request, findNu
 
 }
 
-//GetAccountByID return account pass token ID in arg
+//GetQuerysByType return ALL CPF or CNPJ pass type in arg
 func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF bool) {
 
 	if r.UserAgent() == "self_test" {
@@ -293,17 +249,6 @@ func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF
 	log.Printf("DADOS DO DB - showQuerysByType IsCPF[%v] data[%s]\n", isCPF, string(json))
 }
 
-func (q *MyQuery) MarshalJSON() ([]byte, error) {
-	type Alias MyQuery
-	return json.Marshal(&struct {
-		*Alias
-		CreatedAt string `json:"created_at"`
-	}{
-		Alias:     (*Alias)(q),
-		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
-	})
-}
-
 //DeleteQuerysByNum Delete Number
 func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
 
@@ -352,4 +297,16 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 
+}
+
+//MarshalJSON format the date
+func (q *MyQuery) MarshalJSON() ([]byte, error) {
+	type Alias MyQuery
+	return json.Marshal(&struct {
+		*Alias
+		CreatedAt string `json:"created_at"`
+	}{
+		Alias:     (*Alias)(q),
+		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
+	})
 }
