@@ -8,6 +8,7 @@ const (
 	NumTotalDigCPF     = 14
 	SizeToValidDig1CPF = 9
 	SizeToValidDig2CPF = 10
+	IsCPF              = true
 )
 
 func isValidFormatCPF(cpfToCheck string) bool {

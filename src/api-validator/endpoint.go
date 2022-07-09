@@ -45,7 +45,6 @@ func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Reque
 	if r.Method == http.MethodGet {
 		aQueryJSON.GetQuerys(w, r)
 		cpfcnpj.UpdateStatus()
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -62,9 +61,8 @@ func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Re
 	log.Printf("METHOD[%s] SHOW ALL CPFs \n", r.Method)
 
 	if r.Method == http.MethodGet {
-		aQueryJSON.GetQuerys(w, r)
+		aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
 		cpfcnpj.UpdateStatus()
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -86,11 +84,17 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 	switch r.Method {
 	case http.MethodPost:
-		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], true)
+		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 		log.Printf("WriteHeader %v\n", w)
 		cpfcnpj.UpdateStatus()
 
 	case http.MethodGet:
+		cpfcnpj.UpdateStatus()
+		if len(aCPFNum) == 0 {
+			aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
+			return
+		}
+
 		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
 			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
 			w.WriteHeader(http.StatusNotAcceptable)
@@ -98,8 +102,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		aQueryJSON.GetQuerys(w, r)
-		cpfcnpj.UpdateStatus()
+		aQueryJSON.GetQuerysByNum(w, r, aCPFNum["cpf_num"])
 
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
@@ -116,9 +119,8 @@ func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.R
 	log.Printf("METHOD[%s] SHOW ALL CNPJs \n", r.Method)
 
 	if r.Method == http.MethodGet {
-		aQueryJSON.GetQuerys(w, r)
+		aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
 		cpfcnpj.UpdateStatus()
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 
@@ -141,9 +143,15 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	switch r.Method {
 	case http.MethodPost:
 		cpfcnpj.UpdateStatus()
-		aQueryJSON.SaveQuery(w, r, argCNPJ, false)
+		aQueryJSON.SaveQuery(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodGet:
+		cpfcnpj.UpdateStatus()
+		if len(aCNPJ) == 0 {
+			aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
+			return
+		}
+
 		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
 			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", argCNPJ)
 			w.WriteHeader(http.StatusNotAcceptable)
@@ -151,8 +159,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		aQueryJSON.GetQuerys(w, r)
-		cpfcnpj.UpdateStatus()
+		aQueryJSON.GetQuerysByNum(w, r, argCNPJ)
 
 	default:
 		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
@@ -161,58 +168,6 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	}
 
 }
-
-/*
-//CallbackFindAccountID function Used to handle endpoint /accounts/{}
-func (s *ServerValidator) CallbackFindAccountID(w http.ResponseWriter, r *http.Request) {
-
-	accountID := mux.Vars(r)
-	w.WriteHeader(http.StatusOK)
-	fmt.Printf("accountID [%s] \n", accountID["account_id"])
-
-	if r.Method == http.MethodGet {
-		var accountJSON account.Account
-		accountJSON.ShowBalanceByID(w, r, accountID["account_id"])
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusBadRequest)
-
-}
-
-//CallbackLogin function Used to handle endpoint /login - just for test
-func (s *ServerValidator) CallbackLogin(w http.ResponseWriter, r *http.Request) {
-
-	account.CreateDB(false)
-	user, passw, _ := r.BasicAuth()
-
-	if user == "" || passw == "" || r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Authentication Required")
-		return
-	}
-
-	userLogin, err := account.GetAccountByCPF(user)
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "PASS NOT FOUND")
-		return
-	}
-
-	if account.HashToSecret(userLogin.Secret) != passw {
-		w.WriteHeader(http.StatusForbidden)
-		fmt.Fprint(w, "FORBIDDEN - ACCESS UNAUTHORIZED")
-		return
-	}
-	json, _ := json.Marshal(userLogin.ID)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-	w.WriteHeader(http.StatusOK)
-}
-*/
 
 //DefaultEndpoint function Used to handle endpoint /- can be a load a page in html to configure
 func (s *ServerValidator) DefaultEndpoint(w http.ResponseWriter, r *http.Request) {

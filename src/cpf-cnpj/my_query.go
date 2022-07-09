@@ -127,54 +127,6 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 
 }
 
-/*
-//SaveQuery main fuction to save a new query in system
-func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
-
-	if err := json.NewDecoder(r.Body).Decode(&q); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	q.IsValid = true
-	log.Printf("\nSaveQuery Number:%s\n", q.Number)
-	if errs := validator.Validate(q); errs != nil {
-		log.Printf("INVALIDO %v\n", errs)
-		w.WriteHeader(http.StatusBadRequest)
-		q.IsValid = false
-	}
-
-	defer r.Body.Close()
-	q.IsValid = true
-	q.ID = NewUUID()
-	q.CreatedAt = time.Now()
-	fmt.Printf("UUIDv4: %s\n", q.ID)
-
-	if !IsValidUUID(q.ID) {
-		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-
-	if !q.saveQueryInDB() {
-		message := fmt.Sprintf("Can not save account from %v", q.ID)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	json, err := json.Marshal(q)
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-	w.WriteHeader(http.StatusOK)
-
-}*/
-
 func (q *MyQuery) saveQueryInDB() bool {
 	db, err := sql.Open("mysql", AddrDB)
 	if err != nil {
@@ -253,6 +205,94 @@ func (q *MyQuery) ShowQueryAll(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, string(json))
 }
 
+//GetAccountByID return account pass token ID in arg
+func (q *MyQuery) GetQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
+
+	if r.UserAgent() == "self_test" {
+		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	q.showQuerysByNum(w, r, findCPFofCNPJ)
+}
+
+func (a *MyQuery) showQuerysByNum(w http.ResponseWriter, r *http.Request, findNum string) {
+	db, err := sql.Open("mysql", AddrDB)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
+	defer db.Close()
+
+	var aQuery MyQuery
+	db.QueryRow("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where id = ?", findNum).Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+	json, err := aQuery.MarshalJSON()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+	log.Printf("DADOS DO DB id[%s] data[%s]\n", findNum, string(json))
+
+}
+
+//GetAccountByID return account pass token ID in arg
+func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF bool) {
+
+	if r.UserAgent() == "self_test" {
+		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	q.showQuerysByType(w, r, isCPF)
+}
+
+func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF bool) {
+	db, err := sql.Open("mysql", AddrDB)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
+	defer db.Close()
+
+	rows, err := db.Query("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where is_cpf = ?", isCPF)
+	if err != nil {
+		log.Print(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "fail to access DB")
+		return
+	}
+
+	defer rows.Close()
+
+	var queryList []MyQuery
+	for rows.Next() {
+		var aQuery MyQuery
+		rows.Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+		queryList = append(queryList, aQuery)
+	}
+
+	json, err := json.Marshal(queryList)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, string(json))
+	log.Printf("DADOS DO DB - showQuerysByType IsCPF[%v] data[%s]\n", isCPF, string(json))
+}
+
 func (q *MyQuery) MarshalJSON() ([]byte, error) {
 	type Alias MyQuery
 	return json.Marshal(&struct {
@@ -265,19 +305,10 @@ func (q *MyQuery) MarshalJSON() ([]byte, error) {
 }
 
 /*
-//GetAccountByID return account pass token ID in arg
-func (a *Account) GetAccountByID(w http.ResponseWriter, r *http.Request, ID string) {
 
-	if !IsValidUUID(ID) {
-		log.Printf("Something gone wrong: Invalid ID:%s\n", ID)
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
-	a.showAccountByID(w, r, ID)
-	w.WriteHeader(http.StatusOK)
-}
+
+
 
 //ShowAccountAll show All accounts in a Bank
 func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
@@ -317,29 +348,6 @@ func (a *Account) ShowAccountAll(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (a *Account) showAccountByID(w http.ResponseWriter, r *http.Request, findID string) {
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-	}
-	defer db.Close()
-
-	var account Account
-	db.QueryRow("select id, nome, cpf, balance, secret, createAt from accounts where id = ?", findID).Scan(&account.ID, &account.Name, &account.CPF, &account.Balance, &account.Secret, &account.CreatedAt)
-	account.Secret = "*****"
-	json, err := json.Marshal(account)
-	if err != nil {
-		log.Println(err)
-	}
-	w.Header().Set("Content-Type", "application/json")
-
-	log.Printf("DADOS DO DB id[%s] data[%s]\n", findID, string(json))
-
-	fmt.Fprint(w, string(json))
-}
 
 //ShowBalanceByID return Balance account pass token ID in arg
 func (a *Account) ShowBalanceByID(w http.ResponseWriter, r *http.Request, findID string) {
@@ -440,3 +448,51 @@ func GetAccountByCPF(findCPF string) (Account, error) {
 	return account, nil
 }
 */
+
+/*
+//SaveQuery main fuction to save a new query in system
+func (q *MyQuery) SaveQueryBody(w http.ResponseWriter, r *http.Request) {
+
+	if err := json.NewDecoder(r.Body).Decode(&q); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	q.IsValid = true
+	log.Printf("\nSaveQuery Number:%s\n", q.Number)
+	if errs := validator.Validate(q); errs != nil {
+		log.Printf("INVALIDO %v\n", errs)
+		w.WriteHeader(http.StatusBadRequest)
+		q.IsValid = false
+	}
+
+	defer r.Body.Close()
+	q.IsValid = true
+	q.ID = NewUUID()
+	q.CreatedAt = time.Now()
+	fmt.Printf("UUIDv4: %s\n", q.ID)
+
+	if !IsValidUUID(q.ID) {
+		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
+		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	if !q.saveQueryInDB() {
+		message := fmt.Sprintf("Can not save account from %v", q.ID)
+		fmt.Fprint(w, message)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json, err := json.Marshal(q)
+	if err != nil {
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
+	w.WriteHeader(http.StatusOK)
+
+}*/

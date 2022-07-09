@@ -13,6 +13,7 @@ const (
 	SizeToValidDig1CNPJ       = 4
 	SizeToValidDig2CNPJ       = SizeToValidDig1CNPJ + 1
 	SizeToValidDigDefaultCNPJ = SizeToValidDig1CNPJ + SizeToValidDig2CNPJ
+	IsCNPJ                    = false
 )
 
 func isValidFormatCNPJ(cnpjToCheck string) bool {
