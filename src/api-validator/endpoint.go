@@ -38,7 +38,7 @@ func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Reque
 
 }
 
-//CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
+//CallbackQuerysCPFAll function Used to handle endpoint /cpfs/
 func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Request) {
 
 	var aQueryJSON cpfcnpj.MyQuery
@@ -92,7 +92,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 }
 
-//CallbackQuerysCPF function Used to handle endpoint /cpfs/{cpf}
+//CallbackQuerysCNPJAll function Used to handle endpoint /cnpj
 func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.Request) {
 
 	var aQueryJSON cpfcnpj.MyQuery
@@ -117,7 +117,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	var aQueryJSON cpfcnpj.MyQuery
 	aCNPJ := mux.Vars(r)
 	argCNPJ := fmt.Sprintf("%s/%s", aCNPJ["cnpj_num"], aCNPJ["cnpj_part2"])
-	log.Printf("METHOD[%s] CNPJ ALL [%s] \n", r.Method, argCNPJ)
+	log.Printf("METHOD[%s] CallbackQuerysCNPJ [%s] \n", r.Method, argCNPJ)
 
 	cpfcnpj.CreateDB(false)
 
