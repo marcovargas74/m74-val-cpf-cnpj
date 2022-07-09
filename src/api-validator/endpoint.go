@@ -221,9 +221,6 @@ func NewServerValidator(mode string) *ServerValidator {
 	routerG.HandleFunc("/cnpjs", server.CallbackQuerysCNPJAll)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ)
 	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ)
-	// if mode == "dev" {
-	// 	routerG.HandleFunc("/transfers/{account_id}", server.CallbackTransferByID)
-	// }
 	server.Handler = routerG
 	return server
 
