@@ -77,7 +77,7 @@ func isValidCNPJOnlyValid(cpfToCheck string) bool {
 	sumDig2 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig2CNPJ)
 	print(sumDig1, sumDig2)
 
-	log.Printf("CNPJ valida dig1[%v] dig1[%v] \n", ValidateVerifierDigit(sumDig1, validDigit1), ValidateVerifierDigit(sumDig1, validDigit1))
+	//log.Printf("CNPJ valida dig1[%v] dig1[%v] \n", ValidateVerifierDigit(sumDig1, validDigit1), ValidateVerifierDigit(sumDig1, validDigit1))
 
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
 		return false
