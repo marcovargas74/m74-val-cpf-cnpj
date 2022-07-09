@@ -8,10 +8,6 @@ import (
 	"time"
 )
 
-// const (
-// 	IsMongoDIsCPF              = true
-// )
-
 //MyQuery Strutc Main Used in AppValidate
 type MyQuery struct {
 	ID        string    `json:"id"`
