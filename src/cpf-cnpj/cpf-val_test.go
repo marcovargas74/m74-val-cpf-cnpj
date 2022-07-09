@@ -234,10 +234,10 @@ func TestMultiplyNumDigCPF(t *testing.T) {
 			//CheckIfEqualInt(t, Dig1, tt.wantValue1)
 			//CheckIfEqualInt(t, Dig2, tt.wantValue2)
 
-			Dig1 := MultiplyNumDigCPF(tt.cpfToCheck, SizeToValidDig1)
+			Dig1 := MultiplyNumDigCPF(tt.cpfToCheck, SizeToValidDig1CPF)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 
-			Dig2 := MultiplyNumDigCPF(tt.cpfToCheck, SizeToValidDig2)
+			Dig2 := MultiplyNumDigCPF(tt.cpfToCheck, SizeToValidDig2CPF)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
 
 		})

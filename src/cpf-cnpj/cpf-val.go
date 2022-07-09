@@ -5,9 +5,9 @@ import (
 )
 
 const (
-	NumTotalDigCPF  = 14
-	SizeToValidDig1 = 9
-	SizeToValidDig2 = 10
+	NumTotalDigCPF     = 14
+	SizeToValidDig1CPF = 9
+	SizeToValidDig2CPF = 10
 )
 
 // converts a rune to an int.
@@ -68,8 +68,8 @@ func isValidCPFOnlyValid(cpfToCheck string) bool {
 	validDigit1, validDigit2 := getVerifyingDigits(cpfToCheck)
 	print(validDigit1, validDigit2)
 
-	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1)
-	sumDig2 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig2)
+	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1CPF)
+	sumDig2 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig2CPF)
 	print(sumDig1, sumDig2)
 
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
