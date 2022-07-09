@@ -80,49 +80,120 @@ func TestMultiplyNumDigCNPJ(t *testing.T) {
 		cnpjToCheck string
 	}{
 		{
-			give:        "Get Digits To check if arg is Zeros Numbers",
+			give:        "Test Digits SUM",
 			wantValue1:  8,
 			wantValue2:  1,
 			cnpjToCheck: "11222333000181",
 		},
 		{
-			give:        "Get Digits To check if arg is Zeros Numbers",
+			give:        "Test Digits SUM",
 			wantValue1:  1,
 			wantValue2:  8,
 			cnpjToCheck: "36562098000118",
 		},
 		{
-			give:        "Get Digits To check if arg is Zeros Numbers",
+			give:        "Test Digits SUM",
 			wantValue1:  6,
 			wantValue2:  1,
 			cnpjToCheck: "11444777000161",
 		},
 		{
-			give:        "Get Digits To check if arg is Zeros Numbers",
+			give:        "Test Digits SUM",
 			wantValue1:  3,
 			wantValue2:  0,
 			cnpjToCheck: "24572400000130",
 		},
 		{
-			give:        "Get Digits To check if arg is Zeros Numbers",
+			give:        "Test Digits SUM",
 			wantValue1:  9,
 			wantValue2:  2,
 			cnpjToCheck: "47425683000192",
+		},
+		{
+			give:        "Test Digits SUM",
+			wantValue1:  5,
+			wantValue2:  1,
+			cnpjToCheck: "12074074000151",
 		},
 	}
 
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			//Dig1, Dig2 := MultiplyNumDigCPF(tt.cnpjToCheck)
-			//CheckIfEqualInt(t, Dig1, tt.wantValue1)
-			//CheckIfEqualInt(t, Dig2, tt.wantValue2)
 
 			Dig1 := MultiplyNumDigCNPJ(tt.cnpjToCheck, SizeToValidDig1CNPJ)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 
 			Dig2 := MultiplyNumDigCNPJ(tt.cnpjToCheck, SizeToValidDig2CNPJ)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
+
+		})
+
+	}
+
+}
+
+func TestIsValidCNPJOnlyValid(t *testing.T) {
+
+	tests := []struct {
+		give        string
+		wantValue   bool
+		cnpjToCheck string
+	}{
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "11222333000181",
+		},
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "36562098000118",
+		},
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "11444777000161",
+		},
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "24572400000130",
+		},
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "47425683000192",
+		},
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "12074074000151",
+		},
+
+		{
+			give:        "Check If CNPJ Is Valid",
+			wantValue:   true,
+			cnpjToCheck: "36562098000118",
+		},
+
+		{
+			give:        "Check If CNPJ Is inValid",
+			wantValue:   false,
+			cnpjToCheck: "47425683000193",
+		},
+		{
+			give:        "Check If CNPJ Is inValid",
+			wantValue:   false,
+			cnpjToCheck: "12074074000101",
+		},
+	}
+
+	for _, tt := range tests {
+
+		t.Run(tt.give, func(t *testing.T) {
+			result := isValidCNPJOnlyValid(tt.cnpjToCheck)
+			CheckIfEqualBool(t, result, tt.wantValue)
 
 		})
 
@@ -162,6 +233,7 @@ func TestIsValidCNPJ(t *testing.T) {
 			wantValue:   false,
 			cnpjToCheck: "00.000.000/0000-00",
 		},
+
 		{
 			give:        "Valid CNPJ Test if arg is a Valid CNPJ",
 			wantValue:   true,
@@ -182,6 +254,17 @@ func TestIsValidCNPJ(t *testing.T) {
 			give:        "Valid CNPJ Test if arg is a Valid CNPJ",
 			wantValue:   true,
 			cnpjToCheck: "47.425.683/0001-92",
+		},
+
+		{
+			give:        "Valid CNPJ Test if arg is a Valid CNPJ",
+			wantValue:   false,
+			cnpjToCheck: "24.572.400/0001-39",
+		},
+		{
+			give:        "Valid CNPJ Test if arg is a Valid CNPJ",
+			wantValue:   false,
+			cnpjToCheck: "47.425.683/0001-02",
 		},
 	}
 
