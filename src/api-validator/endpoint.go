@@ -102,7 +102,8 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		aQueryJSON.GetQuerysByNum(w, r, aCPFNum["cpf_num"])
+		//aQueryJSON.GetQuerysByNum(w, r, aCPFNum["cpf_num"])
+		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 
 	case http.MethodDelete:
 		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
@@ -169,7 +170,8 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		aQueryJSON.GetQuerysByNum(w, r, argCNPJ)
+		//aQueryJSON.GetQuerysByNum(w, r, argCNPJ)
+		aQueryJSON.SaveQuery(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodDelete:
 		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
