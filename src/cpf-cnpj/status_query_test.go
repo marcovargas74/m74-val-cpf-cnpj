@@ -72,13 +72,3 @@ func TestUpTimeStatus(t *testing.T) {
 	lastTime := GetUptimeQuery()
 	CheckIfUptimeIsOK(t, lastTime, 3)
 }
-
-// func TestShowStatus(t *testing.T) {
-
-// 	CreateStatus()
-
-// 	ShowStatus()
-// 	//UpdateStatus()
-// 	lastTime := GetUptimeQuery()
-// 	CheckIfUptimeIsOK(t, lastTime, 3)
-// }
