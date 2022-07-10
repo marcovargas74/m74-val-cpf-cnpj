@@ -2,6 +2,9 @@ all: clean deps test build docker-build docker-deploy-up
 
 stop: docker-deploy-down
 
+restart: stop build docker-build docker-deploy-up
+
+
 clean:
 	@go clean
 	@rm -rf build

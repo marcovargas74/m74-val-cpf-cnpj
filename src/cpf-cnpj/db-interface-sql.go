@@ -125,7 +125,7 @@ func (q *MyQuery) showQueryAll(w http.ResponseWriter, r *http.Request) {
 	rows, err := db.Query("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys")
 	if err != nil {
 		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusNotFound)
 		fmt.Fprint(w, "DB is Empty")
 		return
 	}
@@ -203,6 +203,12 @@ func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF
 		queryList = append(queryList, aQuery)
 	}
 
+	if len(queryList) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Not Found elements to this Type ")
+		return
+	}
+
 	json, err := json.Marshal(queryList)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -239,12 +245,19 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 		return
 	}
 
-	_, err = stmt.Exec(findNum)
+	result, err := stmt.Exec(findNum)
 	if err != nil {
 		tx.Rollback()
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprint(w, "fail To delete register in access DB")
+		return
+	}
+
+	numElement, err := result.RowsAffected()
+	if numElement == 0 || err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Not Found elements to this Type - delete")
 		return
 	}
 
