@@ -39,13 +39,13 @@ git clone https://github.com/marcovargas74/m74-val-cpf-cnpj.git
  make stop
 ```
 
-> :warning: **Mongo DB can take up to 3 minutes to start**: Be very careful here!
+> :warning: **DB can take up to 3 minutes to start**: Be very careful here!
 
 
 - Enter in project
 
 ```sh
-cd m74-val-cpf-cnpj/src/bank
+cd m74-val-cpf-cnpj/src/validator
 ```
 
 - Build e RUN golang project
@@ -73,14 +73,12 @@ go build -o main.go
 | --------------- | :-------------------: | :-------------------: |
 | `/status`       | `GET`                 | `Get status`          |
 | `/all`          | `GET`                 | `Get All CPFs/CNPJs`  |
-| `/cpfs/{cpf}`   | `POST`                | `Create CPF`          |
-| `/cpfs/{cpf}`   | `GET`                 | `List a unique CPF`   |
+| `/cpfs/{cpf}`   | `GET`                 | `Check CPF`           |
 | `/cpfs/{cpf}`   | `DELETE`              | `Delete CPF`          |
-| `/cpfs/all`     | `GET`                 | `List All CPF`        |
-| `/cnpjs/{cnpj}` | `POST`                | `Create CNPJ`         |
-| `/cnpjs/{cnpj}` | `GET`                 | `List a uniqueCNPJ`   |
+| `/cpfs`         | `GET`                 | `List All CPF`        |
+| `/cnpjs/{cnpj}` | `GET`                 | `Check a CNPJ`        |
 | `/cnpjs/{cnpj}` | `DELETE`              | `Delete CNPJ`         |
-| `/cnpjs/all`    | `GET`                 | `List All CNPJ`       |
+| `/cnpjs`        | `GET`                 | `List All CNPJ`       |
 
 
 ## Test endpoints API using curl
@@ -136,11 +134,11 @@ curl -i --request GET 'http://localhost:5000/all'
 
 ```
 
-- #### Creating new CPF Consult
+- #### Check and Creating new CPF Consult
 
 `Request`
 ```bash
-curl -i --request POST 'http://localhost:5000/cpfs/682.511.941-99' 
+curl -i --request GET 'http://localhost:5000/cpfs/682.511.941-99' 
 ```
 
 `Response`
@@ -173,39 +171,18 @@ curl -i --request GET 'http://localhost:5000/cpfs'
 ]
 ```
 
-- #### Fetching CPF number is Valid
-
-`Request`
-```bash
-curl -i --request GET 'http://localhost:5000/cpfs/{{cpf_number}}'
-```
-
-`Response`
-```json
-{
-    "status":"isValid",
-}
-```
 - #### Delete CPF Number
 
 `Request`
 ```bash
-curl -i --request DELETE 'http://localhost:5000/cpfs' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "cpf": "111.111.111-11",
-}'
+curl -i --request DELETE 'http://localhost:5000/cpfs/682.511.941-99' 
 ```
 
-- #### Creating new CNPJ
+- #### Check and Creating new CNPJ Consult
 
 `Request`
 ```bash
-curl -i --request POST 'http://localhost:5000/cnpj' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "cpf": "73.212.132/0001-50",
-}'
+curl -i --request POST 'http://localhost:5000/cnpj/73.212.132/0001-50' 
 ```
 
 `Response`
@@ -221,7 +198,7 @@ curl -i --request POST 'http://localhost:5000/cnpj' \
 
 `Request`
 ```bash
-curl -i --request GET 'http://localhost:5000/cnpj/all'
+curl -i --request GET 'http://localhost:5000/cnpj'
 ```
 
 `Response`
@@ -236,30 +213,12 @@ curl -i --request GET 'http://localhost:5000/cnpj/all'
 ]
 ```
 
-- #### Fetching CNPJ number is Valid
-
-`Request`
-```bash
-curl -i --request GET 'http://localhost:5000/cnpj/{{cnpj_number}}'
-```
-
-`Response`
-```json
-{
-    "status":"isValid",
-}
-```
 - #### Delete CNPJ Number
 
 `Request`
 ```bash
-curl -i --request DELETE 'http://localhost:5000/cnpj' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "cnpj":"73.212.132/0001-50",
-}'
+curl -i --request DELETE 'http://localhost:5000/cnpj/73.212.132/0001-50' 
 ```
-
 
 
 ## Code status
@@ -269,6 +228,7 @@ curl -i --request DELETE 'http://localhost:5000/cnpj' \
 - Make a refactory
 - Fix some bugs
 - Add more tests
+- make a interface web to test api
 
 ## Author
 - Marco Antonio Vargas - [marcovargas74](https://github.com/marcovargas74)
