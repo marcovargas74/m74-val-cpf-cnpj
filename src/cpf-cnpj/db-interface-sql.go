@@ -181,7 +181,7 @@ func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+		fmt.Fprint(w, "Fail to access DB")
 		return
 	}
 	defer db.Close()
@@ -190,7 +190,7 @@ func (a *MyQuery) showQuerysByType(w http.ResponseWriter, r *http.Request, isCPF
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+		fmt.Fprint(w, "Not Found elements to this Type ")
 		return
 	}
 
@@ -227,7 +227,7 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+		fmt.Fprint(w, "Fail to access DB")
 		return
 	}
 	defer db.Close()
@@ -241,7 +241,7 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 	if err != nil {
 		log.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail prepare command to access DB")
+		fmt.Fprint(w, "Fail prepare command to access DB")
 		return
 	}
 
@@ -250,14 +250,14 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 		tx.Rollback()
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail To delete register in access DB")
+		fmt.Fprint(w, "Fail To delete register in access DB")
 		return
 	}
 
 	numElement, err := result.RowsAffected()
 	if numElement == 0 || err != nil {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Not Found elements to this Type - delete")
+		fmt.Fprint(w, "Not Found elements to this Type - Delete")
 		return
 	}
 
