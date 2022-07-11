@@ -1,7 +1,6 @@
 package cpfcnpj
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 )
@@ -32,14 +31,11 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	multiplicationResult := 0
 	str_to_sum := cpfToCheckOnlyNumber[:numIndexFinal]
 	digitMultiplier := numIndexFinal + 1
-	//fmt.Printf("str[%s] FinalIndex[%d]multiplicationResult [%d] \n", str_to_sum1, numIndexFinal, digitMultiplier)
 
 	for _, nextDigit := range str_to_sum {
 		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
-
-	//fmt.Printf("\nParte 2 multiplicationResult [%d] \n", multiplicationResult)
 
 	//---Inicio da segunda parte da vaidação do cnpj
 	indexLastDigitToCheck := SizeToValidTotalCNPJDig1
@@ -52,7 +48,6 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 	str_to_sum = str_cnpj_without_verifyDigit[numIndexFinal:indexLastDigitToCheck]
 	for _, nextDigit := range str_to_sum {
-		//fmt.Printf("digito[%d] multi[%d]\n", runeToInt(nextDigit), digitMultiplier)
 		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
@@ -60,12 +55,11 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 	restDivision := multiplicationResult % 11
 	compareWithDig := 11 - restDivision
 
-	//fmt.Printf("str[%s] multiplicationResult [%d] resto[%d]\n", str_to_sum1, multiplicationResult, restDivision)
 	if restDivision < 2 {
 		compareWithDig = 0
 	}
 
-	fmt.Printf("comperToDig2 [%d]FIM\n", compareWithDig)
+	//fmt.Printf("comperToDig2 [%d]FIM\n", compareWithDig)
 	return uint64(compareWithDig)
 }
 
@@ -78,9 +72,8 @@ func isValidCNPJOnlyValid(cpfToCheck string) bool {
 	sumDig2 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig2CNPJ)
 	print(sumDig1, sumDig2)
 
-	//log.Printf("CNPJ valida dig1[%v] dig1[%v] \n", ValidateVerifierDigit(sumDig1, validDigit1), ValidateVerifierDigit(sumDig1, validDigit1))
-
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
+		log.Printf("Invalid Digit Verifier[%d]\n", validDigit1)
 		return false
 	}
 
@@ -91,10 +84,10 @@ func isValidCNPJOnlyValid(cpfToCheck string) bool {
 func IsValidCNPJ(cnpjToCheck string) bool {
 
 	if !isValidFormatCNPJ(cnpjToCheck) {
+		log.Printf("Invalid Format[%s]\n", cnpjToCheck)
 		return false
 	}
 
 	cnpjFormated := FormatToValidate(cnpjToCheck)
-	log.Printf("cnpjFormated [%v][%v]\n", cnpjFormated, isValidCNPJOnlyValid(cnpjFormated))
 	return isValidCNPJOnlyValid(cnpjFormated)
 }

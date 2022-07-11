@@ -1,6 +1,7 @@
 package cpfcnpj
 
 import (
+	"log"
 	"regexp"
 )
 
@@ -46,13 +47,13 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 func isValidCPFOnlyValid(cpfToCheck string) bool {
 
 	validDigit1, validDigit2 := GetVerifyingDigits(cpfToCheck)
-	print(validDigit1, validDigit2)
 
 	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1CPF)
 	sumDig2 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig2CPF)
 	print(sumDig1, sumDig2)
 
 	if !ValidateVerifierDigit(sumDig1, validDigit1) {
+		log.Printf("Invalid Digit Verifier[%d]\n", validDigit1)
 		return false
 	}
 
@@ -63,11 +64,13 @@ func isValidCPFOnlyValid(cpfToCheck string) bool {
 func IsValidCPF(cpfToCheck string) bool {
 
 	if !isValidFormatCPF(cpfToCheck) {
+		log.Printf("Invalid Format[%s]\n", cpfToCheck)
 		return false
 	}
 
 	cpfFormated := FormatToValidate(cpfToCheck)
 	if AllDigitsIsEqual(cpfFormated) {
+		log.Printf("Invalid CPF All Digit is Equal[%s]\n", cpfFormated)
 		return false
 	}
 
