@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,7 +14,8 @@ import (
 
 const (
 	//DBMongo_Local Const used to Open Local db
-	DBMongo_Local = "mongodb://localhost:27017"
+	DBMongo_Local  = "mongodb://localhost:27017"
+	DBMongo_Docker = "mongodb://root:example@mongo:27017/"
 )
 
 var collectionQuery *mongo.Collection
@@ -25,9 +25,9 @@ var ctx = context.TODO()
 func InitDBMongo(isDockerRun bool) bool {
 	urlMongo := DBMongo_Local
 	if isDockerRun {
-		urlMongo = os.Getenv("MONGO_URL")
+		//urlMongo = os.Getenv("MONGO_URL")
+		urlMongo = DBMongo_Docker
 	}
-
 	clientOptions := options.Client().ApplyURI(urlMongo)
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {

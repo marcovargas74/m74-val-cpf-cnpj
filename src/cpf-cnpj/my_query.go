@@ -11,7 +11,7 @@ import (
 //MyQuery Strutc Main Used in AppValidate
 type MyQuery struct {
 	ID        string    `json:"id" bson:"id"`
-	Number    string    `json:"number" bson:"cpf"`
+	Number    string    `json:"cpf" bson:"cpf"`
 	IsValid   bool      `json:"is_valid" bson:"is_valid"`
 	IsCPF     bool      `json:"is_cpf" bson:"is_cpf"`
 	IsCNPJ    bool      `json:"is_cnpj" bson:"is_cnpj"`
@@ -90,6 +90,7 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 	} else {
 		result = q.saveQueryInDB()
 	}
+	//result = q.saveQueryInDB()
 
 	if !result {
 		w.WriteHeader(http.StatusInternalServerError)
