@@ -42,6 +42,11 @@ func exec(db *sql.DB, sql string) sql.Result {
 
 //CreateDB Create SQL dataBase
 func CreateDB(isDropTable bool) {
+
+	if IsUsingMongoDB {
+		return
+	}
+
 	AddrOpenDB = DBSourceOpenDocker
 	AddrDB = DBSourceDocker
 
@@ -265,5 +270,4 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
-
 }

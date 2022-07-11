@@ -1,83 +1,94 @@
 package cpfcnpj
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 
-	"gopkg.in/mgo.v2"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func CreateDBMongo(isDockerRun bool) bool {
+const (
+	//DBMongo_Local Const used to Open Local db
+	DBMongo_Local = "mongodb://localhost:27017"
+)
 
-	urlMongo := "mongodb://localhost:27017"
+var collectionQuery *mongo.Collection
+var ctx = context.TODO()
+
+//InitDBMongo Initi MOngo Database
+func InitDBMongo(isDockerRun bool) bool {
+	urlMongo := DBMongo_Local
 	if isDockerRun {
 		urlMongo = os.Getenv("MONGO_URL")
 	}
 
-	fmt.Printf("[%v]\n", urlMongo)
-	session, err := mgo.Dial(urlMongo)
+	clientOptions := options.Client().ApplyURI(urlMongo)
+	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
+		return false
 	}
-	fmt.Println("ping", session.Ping())
+
+	err = client.Ping(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+
+	//defer db.Close()
+
+	fmt.Println("connecting to the MONGO DB...")
+	collectionQuery = client.Database("Querys").Collection("Querys")
+	fmt.Println("Successfully connected to the DB MONGO!")
 	return true
+
 }
 
-/*
 func (q *MyQuery) saveQueryInMongoDB() bool {
-	db, err := sql.Open("mysql", AddrDB)
+
+	_, err := collectionQuery.InsertOne(ctx, q)
 	if err != nil {
 		log.Println(err)
-		return false
+		return true
 	}
-	defer db.Close()
-
-	tx, err := db.Begin()
-	if err != nil {
-		log.Println(err)
-	}
-
-	stmt, err := tx.Prepare("insert into querys(id, number, is_valid, is_cpf, is_cnpj, createAt) values(?,?,?,?,?,?)")
-	if err != nil {
-		log.Println(err)
-	}
-
-	_, err = stmt.Exec(q.ID, q.Number, q.IsValid, q.IsCPF, q.IsCNPJ, q.CreatedAt)
-	if err != nil {
-		tx.Rollback()
-		log.Println(err)
-		return false
-	}
-
-	tx.Commit()
 	return true
 }
 
 func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-	}
-	defer db.Close()
 
-	rows, err := db.Query("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys")
+	filter := bson.M{}
+
+	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "DB is Empty")
+		fmt.Fprint(w, "Fail to access Mongo DB")
 		return
 	}
-	defer rows.Close()
+	defer cursor.Close(ctx)
 
 	var queryList []MyQuery
-	for rows.Next() {
+	for cursor.Next(ctx) {
 		var aQuery MyQuery
-		rows.Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+		err := cursor.Decode(&aQuery)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		queryList = append(queryList, aQuery)
+	}
+
+	if len(queryList) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "DB is Empty")
+		return
 	}
 
 	json, err := json.Marshal(queryList)
@@ -93,108 +104,111 @@ func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *MyQuery) showQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
-	db, err := sql.Open("mysql", AddrDB)
+
+	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
+		fmt.Fprint(w, "Fail to access Mongo DB")
 		return
 	}
-	defer db.Close()
-
-	var aQuery MyQuery
-	db.QueryRow("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where number = ?", findNum).Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
-	json, err := aQuery.MarshalJSON()
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-	log.Printf("DADOS DO DB id[%s] data[%s]\n", findNum, string(json))
-
-}
-
-func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request, isCPF bool) {
-	db, err := sql.Open("mysql", AddrDB)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-	}
-	defer db.Close()
-
-	rows, err := db.Query("select id, number, is_valid, is_cpf, is_cnpj, createAt from querys where is_cpf = ?", isCPF)
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-	}
-
-	defer rows.Close()
+	defer cursor.Close(ctx)
 
 	var queryList []MyQuery
-	for rows.Next() {
+	for cursor.Next(ctx) {
 		var aQuery MyQuery
-		rows.Scan(&aQuery.ID, &aQuery.Number, &aQuery.IsValid, &aQuery.IsCPF, &aQuery.IsCNPJ, &aQuery.CreatedAt)
+		err := cursor.Decode(&aQuery)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		queryList = append(queryList, aQuery)
+	}
+
+	if len(queryList) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Not Found Any elements")
+		return
 	}
 
 	json, err := json.Marshal(queryList)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprint(w, string(json))
-	log.Printf("DADOS DO DB - showQuerysByType IsCPF[%v] data[%s]\n", isCPF, string(json))
+}
+
+func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request, isCPF bool) {
+
+	filter := bson.M{"is_cpf": bson.M{"$eq": isCPF}}
+
+	cursor, err := collectionQuery.Find(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprint(w, "Fail to access Mongo DB")
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var queryList []MyQuery
+	for cursor.Next(ctx) {
+		var aQuery MyQuery
+		err := cursor.Decode(&aQuery)
+		if err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		queryList = append(queryList, aQuery)
+	}
+
+	if len(queryList) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Not Found elements to this Type ")
+		return
+	}
+
+	json, err := json.Marshal(queryList)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, string(json))
 }
 
 func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
-	db, err := sql.Open("mysql", AddrDB)
+
+	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	result, err := collectionQuery.DeleteOne(ctx, filter)
+	//result, err := collectionQuery.DeleteMany(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail to access DB")
-		return
-	}
-	defer db.Close()
-
-	tx, err := db.Begin()
-	if err != nil {
-		log.Println(err)
-	}
-
-	stmt, err := db.Prepare("delete from querys where number = ?")
-	if err != nil {
-		log.Print(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail prepare command to access DB")
+		fmt.Fprint(w, "Fail to access DB")
 		return
 	}
 
-	_, err = stmt.Exec(findNum)
-	if err != nil {
-		tx.Rollback()
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "fail To delete register in access DB")
+	if result.DeletedCount == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, "Not Found elements to this Type - Delete")
 		return
 	}
-
-	tx.Commit()
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 
 }
-
-*/

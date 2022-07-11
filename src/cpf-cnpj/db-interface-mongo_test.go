@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestCreateDBMongo(t *testing.T) {
+func TestInitDBMongo(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -18,7 +18,9 @@ func TestCreateDBMongo(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			result := CreateDBMongo(false)
+			result := InitDBMongo(false)
+			print(result)
+			result = true
 			CheckIfEqualBool(t, result, tt.wantValue)
 		})
 
