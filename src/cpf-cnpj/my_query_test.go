@@ -58,3 +58,33 @@ func CheckIfUptimeIsOK(t *testing.T, gotValue, waitValue float64) {
 		t.Errorf(erroMsg, gotValue, waitValue)
 	}
 }
+
+func TestSetUsingMongoDB(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue bool
+		setFlag   bool
+	}{
+		{
+			give:      "Test SetOpen Flag end Get Var IsUsingMongoDB",
+			wantValue: false,
+			setFlag:   false,
+		},
+		{
+			give:      "Test SetOpen Flag end Get Var IsUsingMongoDB",
+			wantValue: true,
+			setFlag:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+			SetUsingMongoDB(tt.setFlag)
+			result := GetIsUsingMongoDB()
+			CheckIfEqualBool(t, result, tt.wantValue)
+		})
+
+	}
+
+}

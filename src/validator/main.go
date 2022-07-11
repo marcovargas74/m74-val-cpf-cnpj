@@ -9,12 +9,14 @@ import (
 )
 
 func init() {
-	myquery.CreateDB(false)
-	myquery.CreateStatus()
-	validator.IsMongoDBI = false
-	if validator.IsMongoDBI {
-		myquery.CreateDBMongo(true)
+	//myquery.CreateDB(false)
+	myquery.SetUsingMongoDB(myquery.SetMongoDB) //SetSqlDB
+	if myquery.GetIsUsingMongoDB() {
+		myquery.InitDBMongo(myquery.SetLocalRun) //SetDockerRun
+	} else {
+		myquery.CreateStatus()
 	}
+
 }
 
 func main() {

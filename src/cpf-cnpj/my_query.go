@@ -10,12 +10,33 @@ import (
 
 //MyQuery Strutc Main Used in AppValidate
 type MyQuery struct {
-	ID        string    `json:"id"`
-	Number    string    `json:"cpf"`
-	IsValid   bool      `json:"is_valid" `
-	IsCPF     bool      `json:"is_cpf" `
-	IsCNPJ    bool      `json:"is_cnpj" `
-	CreatedAt time.Time `json:"created_at"`
+	ID        string    `json:"id" bson:"id"`
+	Number    string    `json:"number" bson:"cpf"`
+	IsValid   bool      `json:"is_valid" bson:"is_valid"`
+	IsCPF     bool      `json:"is_cpf" bson:"is_cpf"`
+	IsCNPJ    bool      `json:"is_cnpj" bson:"is_cnpj"`
+	CreatedAt time.Time `json:"created_at" bson:"created_at"`
+}
+
+const (
+	SetMongoDB = true
+	SetSqlDB   = false
+
+	SetDockerRun = true
+	SetLocalRun  = false
+)
+
+//IsUsingMongoDB //If Using MongoDB this var is True
+var IsUsingMongoDB bool
+
+//GetIsUsingMongoDB Get If Using MongoDB
+func GetIsUsingMongoDB() bool {
+	return IsUsingMongoDB
+}
+
+//SetUsingMongoDB set If Using MongoDB
+func SetUsingMongoDB(isMongoDB bool) {
+	IsUsingMongoDB = isMongoDB
 }
 
 //SaveQuery main fuction to save a new query in system
@@ -63,7 +84,14 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 		return
 	}
 
-	if !q.saveQueryInDB() {
+	var result bool
+	if IsUsingMongoDB {
+		result = q.saveQueryInMongoDB()
+	} else {
+		result = q.saveQueryInDB()
+	}
+
+	if !result {
 		w.WriteHeader(http.StatusInternalServerError)
 		message := fmt.Sprintf("Can not save cpf/cnpj %v ", q.Number)
 		fmt.Fprint(w, message)
@@ -89,7 +117,14 @@ func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	q.showQueryAll(w, r)
+
+	if IsUsingMongoDB {
+		q.showQueryAllMongoDB(w, r)
+	} else {
+		q.showQueryAll(w, r)
+	}
+
+	//q.showQueryAll(w, r)
 }
 
 //GetQuerysByNum return CPF/CNPJ pass number in arg
@@ -100,7 +135,13 @@ func (q *MyQuery) GetQuerysByNum(w http.ResponseWriter, r *http.Request, findCPF
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	q.showQuerysByNum(w, r, findCPFofCNPJ)
+
+	if IsUsingMongoDB {
+		q.showQuerysByNumMongoDB(w, r, findCPFofCNPJ)
+	} else {
+		q.showQuerysByNum(w, r, findCPFofCNPJ)
+	}
+
 }
 
 //GetQuerysByType return ALL CPF or CNPJ pass type in arg
@@ -111,7 +152,13 @@ func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF 
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	q.showQuerysByType(w, r, isCPF)
+
+	if IsUsingMongoDB {
+		q.showQuerysByTypeMongoDB(w, r, isCPF)
+	} else {
+		q.showQuerysByType(w, r, isCPF)
+	}
+
 }
 
 //DeleteQuerysByNum Delete Number
@@ -122,7 +169,12 @@ func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 		w.WriteHeader(http.StatusOK)
 		return
 	}
-	q.deleteQuerysByNum(w, r, findCPFofCNPJ)
+
+	if IsUsingMongoDB {
+		q.deleteQuerysByNumMongoDB(w, r, findCPFofCNPJ)
+	} else {
+		q.deleteQuerysByNum(w, r, findCPFofCNPJ)
+	}
 }
 
 //MarshalJSON format the date
