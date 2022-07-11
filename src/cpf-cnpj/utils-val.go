@@ -84,3 +84,14 @@ func AllDigitsIsEqual(cpfToCheck string) bool {
 
 	return true
 }
+
+//CreateDB Create SQL dataBase
+func CreateDB() {
+
+	if IsUsingMongoDB {
+		InitDBMongo(IsUsingMongoDB)
+		return
+	}
+
+	InitDBSQL(DBisDropTableSQL)
+}

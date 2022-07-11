@@ -80,7 +80,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 	aCPFNum := mux.Vars(r)
 	log.Printf("METHOD[%s] CPF in [%s] \n", r.Method, aCPFNum["cpf_num"])
 
-	cpfcnpj.CreateDB(false)
+	cpfcnpj.CreateDB()
 
 	switch r.Method {
 	case http.MethodPost:
@@ -149,7 +149,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	argCNPJ := fmt.Sprintf("%s/%s", aCNPJ["cnpj_num"], aCNPJ["cnpj_part2"])
 	log.Printf("METHOD[%s] CallbackQuerysCNPJ [%s] \n", r.Method, argCNPJ)
 
-	cpfcnpj.CreateDB(false)
+	cpfcnpj.CreateDB()
 
 	switch r.Method {
 	case http.MethodPost:
