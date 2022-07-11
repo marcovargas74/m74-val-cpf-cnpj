@@ -24,6 +24,8 @@ const (
 	//DBSourceDocker Const used to acces Docker db
 	DBSourceDocker = "root:my-secret-pw@tcp(mysql-api)/validatorAPP" //root:Mysql#my-secret-pw@/validatorAPP"
 
+	//DBisDropTableSQL Clear TAbles
+	DBisDropTableSQL = false
 )
 
 //AddrOpenDB VAR used to open and to access BD
@@ -40,12 +42,8 @@ func exec(db *sql.DB, sql string) sql.Result {
 	return result
 }
 
-//CreateDB Create SQL dataBase
-func CreateDB(isDropTable bool) {
-
-	if IsUsingMongoDB {
-		return
-	}
+//InitDBSQL Connect To SQL Database
+func InitDBSQL(isDropTable bool) {
 
 	AddrOpenDB = DBSourceOpenDocker
 	AddrDB = DBSourceDocker
