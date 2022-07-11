@@ -11,13 +11,28 @@ services:
     ports:
       - "3307:3306" 
 
-  mongo-api:
-    image: "mongo:3.6"
+  mongo:
+    image: "mongo"
     container_name: "goMongoDB"
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      
     ports:
       - "27016:27017"
     # volumes:
     #   - "${DATABASE_DATA_PATH}:/data/db"
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
 
   admin:    
     image: adminer    
@@ -28,11 +43,11 @@ services:
     image: m74cpfcnpj:latest 
     container_name: m74cpfcnpj 
     environment: 
-      - MONGO_URL=mongo-api
+      - MONGO_URL=mongodb://root:example@mongo:27017/
     ports:      
       - "5000:5000"
     depends_on:
       - mysql-api
-      - mongo-api
+      - mongo
     # Reference https://betterprogramming.pub/setting-up-mysql-database-in-a-docker-d6c69a3e9afe
 

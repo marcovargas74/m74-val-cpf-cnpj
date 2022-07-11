@@ -1,9 +1,6 @@
 package cpfcnpj
 
-import (
-	"testing"
-)
-
+/*
 func TestInitDBMongo(t *testing.T) {
 
 	tests := []struct {
@@ -27,3 +24,4 @@ func TestInitDBMongo(t *testing.T) {
 	}
 
 }
+*/
