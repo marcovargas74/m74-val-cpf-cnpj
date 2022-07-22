@@ -166,7 +166,7 @@ func NewServerValidator(mode string) *ServerValidator {
 	server := new(ServerValidator)
 
 	routerG := mux.NewRouter()
-	routerG.HandleFunc("/", server.DefaultEndpoint).Methods("POST")
+	routerG.HandleFunc("/", server.DefaultEndpoint).Methods("GET")
 	routerG.HandleFunc("/status", server.CallbackStatus).Methods("GET")
 	routerG.HandleFunc("/all", server.CallbackQuerysAll).Methods("GET")
 
