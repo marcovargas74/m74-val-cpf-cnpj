@@ -23,16 +23,8 @@ type ServerValidator struct {
 func (s *ServerValidator) CallbackStatus(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("METHOD[%s] STATUS [%s] \n", r.Method, r.UserAgent())
-
-	if r.Method == http.MethodGet {
-		cpfcnpj.ShowStatus(w, r)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	fmt.Fprint(w, message)
-	w.WriteHeader(http.StatusBadRequest)
+	cpfcnpj.ShowStatus(w, r)
+	w.WriteHeader(http.StatusOK)
 
 }
 
@@ -41,16 +33,8 @@ func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Reque
 
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPF AND CNPJs \n", r.Method)
-
-	if r.Method == http.MethodGet {
-		aQueryJSON.GetQuerys(w, r)
-		cpfcnpj.UpdateStatus()
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprint(w, message)
+	aQueryJSON.GetQuerys(w, r)
+	cpfcnpj.UpdateStatus()
 
 }
 
@@ -60,15 +44,8 @@ func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Re
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPFs \n", r.Method)
 
-	if r.Method == http.MethodGet {
-		aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
-		cpfcnpj.UpdateStatus()
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprint(w, message)
+	aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
+	cpfcnpj.UpdateStatus()
 
 }
 
@@ -114,10 +91,6 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 		aQueryJSON.DeleteQuerysByNum(w, r, aCPFNum["cpf_num"])
 
-	default:
-		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
 }
@@ -128,15 +101,8 @@ func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.R
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CNPJs \n", r.Method)
 
-	if r.Method == http.MethodGet {
-		aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
-		cpfcnpj.UpdateStatus()
-		return
-	}
-
-	message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-	w.WriteHeader(http.StatusBadRequest)
-	fmt.Fprint(w, message)
+	aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
+	cpfcnpj.UpdateStatus()
 
 }
 
@@ -181,10 +147,6 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 
 		aQueryJSON.DeleteQuerysByNum(w, r, argCNPJ)
 
-	default:
-		message := fmt.Sprintf("MethodNotAllowed in %v", r.URL)
-		fmt.Fprint(w, message)
-		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
 }
@@ -208,17 +170,17 @@ func NewServerValidator(mode string) *ServerValidator {
 
 	routerG := mux.NewRouter()
 	routerG.HandleFunc("/", server.DefaultEndpoint)
-	routerG.HandleFunc("/status", server.CallbackStatus)
-	routerG.HandleFunc("/all", server.CallbackQuerysAll)
+	routerG.HandleFunc("/status", server.CallbackStatus).Methods("GET")
+	routerG.HandleFunc("/all", server.CallbackQuerysAll).Methods("GET")
 
 	//Routes CPF
-	routerG.HandleFunc("/cpfs", server.CallbackQuerysCPFAll)
-	routerG.HandleFunc("/cpfs/{cpf_num}", server.CallbackQuerysCPF)
+	routerG.HandleFunc("/cpfs", server.CallbackQuerysCPFAll).Methods("GET")
+	routerG.HandleFunc("/cpfs/{cpf_num}", server.CallbackQuerysCPF).Methods("GET", "POST", "DELETE")
 
 	//Routes CNPJ
-	routerG.HandleFunc("/cnpjs", server.CallbackQuerysCNPJAll)
-	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ)
-	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ)
+	routerG.HandleFunc("/cnpjs", server.CallbackQuerysCNPJAll).Methods("GET")
+	routerG.HandleFunc("/cnpjs/{cnpj_num}", server.CallbackQuerysCNPJ).Methods("GET", "POST", "DELETE")
+	routerG.HandleFunc("/cnpjs/{cnpj_num}/{cnpj_part2}", server.CallbackQuerysCNPJ).Methods("GET", "POST", "DELETE")
 	server.Handler = routerG
 	return server
 
