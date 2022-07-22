@@ -69,14 +69,43 @@ func TestServerAPIDefault(t *testing.T) {
 
 }
 
-func TestServerAPIStatus(t *testing.T) {
+func TestServerAPIDefaultPost(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue int
+	}{
+		{
+			give:      "Default POST Endpoint test",
+			wantValue: 405,
+		},
+	}
+
+	server := NewServerValidator("dev")
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			request, _ := http.NewRequest(http.MethodPost, "/", nil)
+			request.Header.Set("User-Agent", UserAgentTest)
+			answer := httptest.NewRecorder()
+
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
+
+		})
+
+	}
+
+}
+
+func TestServerAPIStatusGet(t *testing.T) {
 
 	tests := []struct {
 		give      string
 		wantValue string
 	}{
 		{
-			give:      "status Endpoint test",
+			give:      "status Endpoint test GET",
 			wantValue: "{\"num_total_query\":0,\"start_time\":\"0001-01-01T00:00:00Z\",\"up_time\":9223372036.854776}",
 		},
 	}
@@ -91,6 +120,64 @@ func TestServerAPIStatus(t *testing.T) {
 
 			server.ServeHTTP(answer, request)
 			assert.Equal(t, answer.Code, http.StatusOK)
+
+		})
+
+	}
+
+}
+
+func TestServerAPIStatusPost(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue int
+	}{
+		{
+			give:      "status Endpoint test POST",
+			wantValue: 405,
+		},
+	}
+
+	server := NewServerValidator("dev")
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			request, _ := http.NewRequest(http.MethodPost, "/status", nil)
+			request.Header.Set("User-Agent", UserAgentTest)
+			answer := httptest.NewRecorder()
+
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
+
+		})
+
+	}
+
+}
+
+func TestServerAPIQueryAllPost(t *testing.T) {
+
+	tests := []struct {
+		give      string
+		wantValue int
+	}{
+		{
+			give:      "All Query Endpoint test POST",
+			wantValue: 405,
+		},
+	}
+
+	server := NewServerValidator("dev")
+	for _, tt := range tests {
+		t.Run(tt.give, func(t *testing.T) {
+
+			request, _ := http.NewRequest(http.MethodPost, "/all", nil)
+			request.Header.Set("User-Agent", UserAgentTest)
+			answer := httptest.NewRecorder()
+
+			server.ServeHTTP(answer, request)
+			assert.Equal(t, answer.Code, tt.wantValue)
 
 		})
 
