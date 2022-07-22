@@ -90,7 +90,6 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 	} else {
 		result = q.saveQueryInDB()
 	}
-	//result = q.saveQueryInDB()
 
 	if !result {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -99,7 +98,6 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 		return
 	}
 
-	//json, err := json.Marshal(q)
 	json, err := q.MarshalJSON()
 	if err != nil {
 		log.Println(err)
@@ -125,7 +123,6 @@ func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
 		q.showQueryAll(w, r)
 	}
 
-	//q.showQueryAll(w, r)
 }
 
 //GetQuerysByNum return CPF/CNPJ pass number in arg

@@ -1,10 +1,8 @@
 package cpfcnpj
 
 import (
-	//"fmt"
 	"testing"
 	"time"
-	//"gopkg.in/validator.v2"
 )
 
 const (

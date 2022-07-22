@@ -22,8 +22,6 @@ func TestGetVersion(t *testing.T) {
 		t.Run(tt.give, func(t *testing.T) {
 			version := GetVersion()
 			assert.Equal(t, version[0:4], tt.wantValue)
-			assert.Equal(t, version[0:4], tt.wantValue)
-
 		})
 
 	}

@@ -68,7 +68,6 @@ func TestUpTimeStatus(t *testing.T) {
 
 	CreateStatus()
 	time.Sleep(3 * time.Second)
-	//UpdateStatus()
 	lastTime := GetUptimeQuery()
 	CheckIfUptimeIsOK(t, lastTime, 3)
 }

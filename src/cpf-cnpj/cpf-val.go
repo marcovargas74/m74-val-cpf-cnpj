@@ -40,7 +40,6 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 		compareWithDig1 = 0
 	}
 
-	//fmt.Printf("comperToDig1 [%d]\n\nFIM\n", compereWithDig1)
 	return uint64(compareWithDig1)
 }
 

@@ -25,7 +25,6 @@ var ctx = context.TODO()
 func InitDBMongo(isDockerRun bool) bool {
 	urlMongo := DBMongo_Local
 	if isDockerRun {
-		//urlMongo = os.Getenv("MONGO_URL")
 		urlMongo = DBMongo_Docker
 	}
 	clientOptions := options.Client().ApplyURI(urlMongo)
@@ -40,8 +39,6 @@ func InitDBMongo(isDockerRun bool) bool {
 		log.Fatal(err)
 		return false
 	}
-
-	//defer db.Close()
 
 	fmt.Println("connecting to the MONGO DB...")
 	collectionQuery = client.Database("Querys").Collection("Querys")
@@ -194,7 +191,6 @@ func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Reques
 	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
 
 	result, err := collectionQuery.DeleteOne(ctx, filter)
-	//result, err := collectionQuery.DeleteMany(ctx, filter)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)

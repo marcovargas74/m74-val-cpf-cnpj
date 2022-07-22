@@ -102,7 +102,6 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		//aQueryJSON.GetQuerysByNum(w, r, aCPFNum["cpf_num"])
 		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 
 	case http.MethodDelete:
@@ -170,7 +169,6 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		//aQueryJSON.GetQuerysByNum(w, r, argCNPJ)
 		aQueryJSON.SaveQuery(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodDelete:
@@ -209,8 +207,6 @@ func NewServerValidator(mode string) *ServerValidator {
 	server := new(ServerValidator)
 
 	routerG := mux.NewRouter()
-	//routerG.HandleFunc("/login/", server.CallbackLogin)
-	//routerG.HandleFunc("/", BasicAuth(server.DefaultEndpoint))
 	routerG.HandleFunc("/", server.DefaultEndpoint)
 	routerG.HandleFunc("/status", server.CallbackStatus)
 	routerG.HandleFunc("/all", server.CallbackQuerysAll)

@@ -50,7 +50,6 @@ func GetUptimeQuery() float64 {
 func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
 	StatusQuery.UpTime = GetUptimeQuery()
-	//json, err := json.Marshal(StatusQuery)
 	json, err := StatusQuery.MarshalJSON()
 	if err != nil {
 		log.Println(err)
