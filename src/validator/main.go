@@ -12,7 +12,7 @@ func init() {
 	myquery.CreateStatus()
 	myquery.SetUsingMongoDB(myquery.SetMongoDB) //SetSqlDB
 	if myquery.GetIsUsingMongoDB() {
-		myquery.InitDBMongo(myquery.SetDockerRun) //SetDockerRun
+		myquery.InitDBMongo(myquery.SetLocalRun) //SetDockerRun
 	} else {
 		myquery.CreateDB()
 	}
