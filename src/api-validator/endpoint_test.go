@@ -39,7 +39,7 @@ func TestServerAPI(t *testing.T) {
 
 }
 
-func TestServerApi_default(t *testing.T) {
+func TestServerAPIDefault(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -71,7 +71,7 @@ func TestServerApi_default(t *testing.T) {
 
 }
 
-func TestServerApi_status(t *testing.T) {
+func TestServerAPIStatus(t *testing.T) {
 
 	tests := []struct {
 		give      string
