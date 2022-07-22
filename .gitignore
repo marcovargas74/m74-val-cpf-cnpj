@@ -11,7 +11,7 @@ main
 *.test
 
 #binary compiled 
-src/bank/main
+src/validator/main
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
