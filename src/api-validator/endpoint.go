@@ -156,11 +156,8 @@ func (s *ServerValidator) DefaultEndpoint(w http.ResponseWriter, r *http.Request
 
 	w.Header().Set("content-type", "application/json")
 	fmt.Printf("Default data in %v\n", r.URL)
-	if r.Method == http.MethodPost {
-		w.WriteHeader(http.StatusAccepted)
-		return
-	}
-	fmt.Fprint(w, "Endpoint not found")
+	w.WriteHeader(http.StatusAccepted)
+
 }
 
 //NewServerValidator Create Server
@@ -169,7 +166,7 @@ func NewServerValidator(mode string) *ServerValidator {
 	server := new(ServerValidator)
 
 	routerG := mux.NewRouter()
-	routerG.HandleFunc("/", server.DefaultEndpoint)
+	routerG.HandleFunc("/", server.DefaultEndpoint).Methods("POST")
 	routerG.HandleFunc("/status", server.CallbackStatus).Methods("GET")
 	routerG.HandleFunc("/all", server.CallbackQuerysAll).Methods("GET")
 
