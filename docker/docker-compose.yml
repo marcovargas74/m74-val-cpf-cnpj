@@ -21,23 +21,6 @@ services:
       
     ports:
       - "27016:27017"
-    # volumes:
-    #   - "${DATABASE_DATA_PATH}:/data/db"
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
-
-  admin:    
-    image: adminer    
-    ports:      
-      - "8080:8080"
 
   my-validate-api:    
     image: m74cpfcnpj:latest 
