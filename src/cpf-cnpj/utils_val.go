@@ -87,5 +87,5 @@ func AllDigitsIsEqual(cpfToCheck string) bool {
 
 //CreateDB Create dataBase
 func CreateDB() {
-	InitDBMongo(IsUsingMongoDB)
+	InitDBMongo(IsUsingMongoDocker)
 }

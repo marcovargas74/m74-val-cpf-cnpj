@@ -57,7 +57,7 @@ func CheckIfUptimeIsOK(t *testing.T, gotValue, waitValue float64) {
 	}
 }
 
-func TestSetUsingMongoDB(t *testing.T) {
+func TestSetUsingMongoDocker(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -78,8 +78,8 @@ func TestSetUsingMongoDB(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			SetUsingMongoDB(tt.setFlag)
-			result := GetIsUsingMongoDB()
+			SetUsingMongoDocker(tt.setFlag)
+			result := GetIsUsingMongoDocker()
 			CheckIfEqualBool(t, result, tt.wantValue)
 		})
 

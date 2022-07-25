@@ -19,24 +19,21 @@ type MyQuery struct {
 }
 
 const (
-	SetMongoDB = true
-	SetSqlDB   = false
-
 	SetDockerRun = true
 	SetLocalRun  = false
 )
 
-//IsUsingMongoDB //If Using MongoDB this var is True
-var IsUsingMongoDB bool
+//IsUsingMongoDocker If Using MongoDB in  a Docker image this var is True
+var IsUsingMongoDocker bool
 
-//GetIsUsingMongoDB Get If Using MongoDB
-func GetIsUsingMongoDB() bool {
-	return IsUsingMongoDB
+//GetIsUsingMongoDocker Get If Using MongoDB in  a Docker image
+func GetIsUsingMongoDocker() bool {
+	return IsUsingMongoDocker
 }
 
-//SetUsingMongoDB set If Using MongoDB
-func SetUsingMongoDB(isMongoDB bool) {
-	IsUsingMongoDB = isMongoDB
+//SetUsingMongoDocker set If Using MongoDB in  a Docker image
+func SetUsingMongoDocker(isMongoDocker bool) {
+	IsUsingMongoDocker = isMongoDocker
 }
 
 //SaveQuery main fuction to save a new query in system
