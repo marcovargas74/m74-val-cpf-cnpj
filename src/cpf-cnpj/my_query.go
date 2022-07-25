@@ -84,12 +84,7 @@ func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ
 		return
 	}
 
-	var result bool
-	if IsUsingMongoDB {
-		result = q.saveQueryInMongoDB()
-	} else {
-		result = q.saveQueryInDB()
-	}
+	result := q.saveQueryInMongoDB()
 
 	if !result {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -117,11 +112,7 @@ func (q *MyQuery) GetQuerys(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if IsUsingMongoDB {
-		q.showQueryAllMongoDB(w, r)
-	} else {
-		q.showQueryAll(w, r)
-	}
+	q.showQueryAllMongoDB(w, r)
 
 }
 
@@ -134,11 +125,7 @@ func (q *MyQuery) GetQuerysByNum(w http.ResponseWriter, r *http.Request, findCPF
 		return
 	}
 
-	if IsUsingMongoDB {
-		q.showQuerysByNumMongoDB(w, r, findCPFofCNPJ)
-	} else {
-		q.showQuerysByNum(w, r, findCPFofCNPJ)
-	}
+	q.showQuerysByNumMongoDB(w, r, findCPFofCNPJ)
 
 }
 
@@ -151,11 +138,7 @@ func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF 
 		return
 	}
 
-	if IsUsingMongoDB {
-		q.showQuerysByTypeMongoDB(w, r, isCPF)
-	} else {
-		q.showQuerysByType(w, r, isCPF)
-	}
+	q.showQuerysByTypeMongoDB(w, r, isCPF)
 
 }
 
@@ -168,11 +151,7 @@ func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 		return
 	}
 
-	if IsUsingMongoDB {
-		q.deleteQuerysByNumMongoDB(w, r, findCPFofCNPJ)
-	} else {
-		q.deleteQuerysByNum(w, r, findCPFofCNPJ)
-	}
+	q.deleteQuerysByNumMongoDB(w, r, findCPFofCNPJ)
 }
 
 //MarshalJSON format the date

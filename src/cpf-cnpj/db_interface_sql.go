@@ -1,5 +1,6 @@
 package cpfcnpj
 
+/*
 import (
 	"database/sql"
 	"encoding/json"
@@ -269,3 +270,4 @@ func (a *MyQuery) deleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 }
+*/
