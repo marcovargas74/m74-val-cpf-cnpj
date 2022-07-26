@@ -62,14 +62,10 @@ func InitDBMongo(isDockerRun bool) bool {
 
 }
 
-func (q *MyQuery) saveQueryInMongoDB() bool {
+func (q *MyQuery) saveQueryInMongoDB() error {
 
 	_, err := collectionQuery.InsertOne(ctx, q)
-	if err != nil {
-		log.Println(err)
-		return true
-	}
-	return true
+	return err
 }
 
 func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
