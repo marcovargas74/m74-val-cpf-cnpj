@@ -33,7 +33,7 @@ func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Reque
 
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPF AND CNPJs \n", r.Method)
-	aQueryJSON.GetQuerys(w, r)
+	aQueryJSON.GetQuerysHTTP(w, r)
 	cpfcnpj.UpdateStatus()
 
 }
@@ -44,7 +44,21 @@ func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Re
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPFs \n", r.Method)
 
-	aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
+	aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
+	cpfcnpj.UpdateStatus()
+
+}
+
+//CallbackQuerysByNum function Used to handle endpoint /{cpf_or_cnpj_num}
+func (s *ServerValidator) CallbackQuerysByNum(w http.ResponseWriter, r *http.Request) {
+
+	var aQueryJSON cpfcnpj.MyQuery
+	aCPFNum := mux.Vars(r)
+	log.Printf("METHOD[%s] CPF in [%s] \n", r.Method, aCPFNum["cpf_or_cnpj_num"])
+
+	cpfcnpj.CreateDB()
+
+	aQueryJSON.GetQuerysByNumHTTP(w, r, aCPFNum["cpf_or_cnpj_num"])
 	cpfcnpj.UpdateStatus()
 
 }
@@ -61,14 +75,14 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 
 	switch r.Method {
 	case http.MethodPost:
-		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
+		aQueryJSON.SaveQueryHTTP(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 		log.Printf("WriteHeader %v\n", w)
 		cpfcnpj.UpdateStatus()
 
 	case http.MethodGet:
 		cpfcnpj.UpdateStatus()
 		if len(aCPFNum) == 0 {
-			aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCPF)
+			aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
 			return
 		}
 
@@ -79,7 +93,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		aQueryJSON.SaveQuery(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
+		aQueryJSON.SaveQueryHTTP(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 
 	case http.MethodDelete:
 		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
@@ -101,7 +115,7 @@ func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.R
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CNPJs \n", r.Method)
 
-	aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
+	aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
 	cpfcnpj.UpdateStatus()
 
 }
@@ -119,12 +133,12 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	switch r.Method {
 	case http.MethodPost:
 		cpfcnpj.UpdateStatus()
-		aQueryJSON.SaveQuery(w, r, argCNPJ, cpfcnpj.IsCNPJ)
+		aQueryJSON.SaveQueryHTTP(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodGet:
 		cpfcnpj.UpdateStatus()
 		if len(aCNPJ) == 0 {
-			aQueryJSON.GetQuerysByType(w, r, cpfcnpj.IsCNPJ)
+			aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
 			return
 		}
 
@@ -135,7 +149,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		aQueryJSON.SaveQuery(w, r, argCNPJ, cpfcnpj.IsCNPJ)
+		aQueryJSON.SaveQueryHTTP(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodDelete:
 		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
@@ -169,6 +183,7 @@ func NewServerValidator(mode string) *ServerValidator {
 	routerG.HandleFunc("/", server.DefaultEndpoint).Methods("GET")
 	routerG.HandleFunc("/status", server.CallbackStatus).Methods("GET")
 	routerG.HandleFunc("/all", server.CallbackQuerysAll).Methods("GET")
+	routerG.HandleFunc("/num/{cpf_or_cnpj_num}", server.CallbackQuerysByNum).Methods("GET")
 
 	//Routes CPF
 	routerG.HandleFunc("/cpfs", server.CallbackQuerysCPFAll).Methods("GET")

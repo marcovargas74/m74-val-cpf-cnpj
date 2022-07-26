@@ -3,9 +3,9 @@ package cpfcnpj
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
-	"net/http"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -68,16 +68,16 @@ func (q *MyQuery) saveQueryInMongoDB() error {
 	return err
 }
 
-func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
+func (q *MyQuery) showQueryAllMongoDB() (string, error) {
 
 	filter := bson.M{}
 
 	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Fail to access Mongo DB")
-		return
+		//log.Println(err)
+		//w.WriteHeader(http.StatusInternalServerError)
+		//fmt.Fprint(w, "Fail to access Mongo DB")
+		return err.Error(), err
 	}
 	defer cursor.Close(ctx)
 
@@ -86,20 +86,132 @@ func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
 		var aQuery MyQuery
 		err := cursor.Decode(&aQuery)
 		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+			return err.Error(), err
 		}
 		queryList = append(queryList, aQuery)
 	}
 
 	if len(queryList) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "DB is Empty")
-		return
+		//w.WriteHeader(http.StatusNotFound)
+		//fmt.Fprint(w, "DB is Empty")
+		errEmpty := errors.New("MONGODB: is Empty")
+		return errEmpty.Error(), errEmpty
 	}
 
 	json, err := json.Marshal(queryList)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return string(json), nil
+
+	//w.WriteHeader(http.StatusOK)
+	//w.Header().Set("Content-Type", "application/json")
+	//fmt.Fprint(w, string(json))
+}
+
+func (q *MyQuery) showQuerysByTypeMongoDB(isCPF bool) (string, error) {
+
+	filter := bson.M{"is_cpf": bson.M{"$eq": isCPF}}
+
+	cursor, err := collectionQuery.Find(ctx, filter)
+	if err != nil {
+		//log.Println(err)
+		//w.WriteHeader(http.StatusInternalServerError)
+		//fmt.Fprint(w, "Fail to access Mongo DB")
+		return err.Error(), err
+	}
+	defer cursor.Close(ctx)
+
+	var queryList []MyQuery
+	for cursor.Next(ctx) {
+		var aQuery MyQuery
+		err := cursor.Decode(&aQuery)
+		if err != nil {
+			return err.Error(), err
+		}
+		queryList = append(queryList, aQuery)
+	}
+
+	if len(queryList) == 0 {
+		//w.WriteHeader(http.StatusNotFound)
+		//fmt.Fprint(w, "Not Found elements to this Type ")
+		errEmpty := errors.New("MONGODB: Not Found elements to this Type")
+		return errEmpty.Error(), errEmpty
+	}
+
+	/*json, err := json.Marshal(queryList)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}*/
+
+	//w.WriteHeader(http.StatusOK)
+	//w.Header().Set("Content-Type", "application/json")
+	//fmt.Fprint(w, string(json))
+
+	json, err := json.Marshal(queryList)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return string(json), nil
+
+}
+
+/*INCLIR AQUI NOVAS FUNCOES */
+
+func (q *MyQuery) deleteQuerysByNumMongoDB(findNum string) error {
+
+	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	result, err := collectionQuery.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return fmt.Errorf("num %q Not Found", findNum)
+	}
+
+	return nil
+}
+
+/*TRASH CODE APAGA DEPOIS */
+
+func (q *MyQuery) showQuerysByNumMongoDB(findNum string) (string, error) {
+
+	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	cursor, err := collectionQuery.Find(ctx, filter)
+	if err != nil {
+		//log.Println(err)
+		//w.WriteHeader(http.StatusInternalServerError)
+		//fmt.Fprint(w, "Fail to access Mongo DB")
+		//return
+		return err.Error(), err
+	}
+	defer cursor.Close(ctx)
+
+	var queryList []MyQuery
+	for cursor.Next(ctx) {
+		var aQuery MyQuery
+		err := cursor.Decode(&aQuery)
+		if err != nil {
+			return err.Error(), err
+		}
+		queryList = append(queryList, aQuery)
+	}
+
+	if len(queryList) == 0 {
+		//w.WriteHeader(http.StatusNotFound)
+		//fmt.Fprint(w, "Not Found Any elements")
+		errEmpty := fmt.Errorf("num %q Not Found", findNum)
+		return errEmpty.Error(), errEmpty
+	}
+
+	/*json, err := json.Marshal(queryList)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -108,7 +220,32 @@ func (q *MyQuery) showQueryAllMongoDB(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
+	fmt.Fprint(w, string(json))*/
+	json, err := json.Marshal(queryList)
+	if err != nil {
+		return err.Error(), err
+	}
+
+	return string(json), nil
+}
+
+/*
+func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
+
+	//filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	err := a.deleteQuerysByNumMongoDB_OK(findNum)
+	//result, err := collectionQuery.DeleteOne(ctx, filter)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusNotFound)
+		fmt.Fprint(w, err)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
+
 }
 
 func (a *MyQuery) showQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
@@ -197,41 +334,4 @@ func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request
 	fmt.Fprint(w, string(json))
 }
 
-/*INCLIR AQUI NOVAS FUNCOES */
-
-func (q *MyQuery) deleteQuerysByNumMongoDB(findNum string) error {
-
-	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
-
-	result, err := collectionQuery.DeleteOne(ctx, filter)
-	if err != nil {
-		return err
-	}
-
-	if result.DeletedCount == 0 {
-		return fmt.Errorf("nun %q Not Found", findNum)
-	}
-
-	return nil
-}
-
-/*TRASH CODE APAGA DEPOIS */
-
-/*
-func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
-
-	//filter := bson.M{"cpf": bson.M{"$eq": findNum}}
-
-	err := a.deleteQuerysByNumMongoDB_OK(findNum)
-	//result, err := collectionQuery.DeleteOne(ctx, filter)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
-
-}*/
+*/

@@ -18,7 +18,7 @@ type MyQuery struct {
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 }
 
-//SaveQueryHTTP main fuction to save a new query in system
+//SaveQueryHTTP main fuction to save a new query in system INTERFACE HTTP W R
 func (q *MyQuery) SaveQueryHTTP(w http.ResponseWriter, r *http.Request, newCPForCNPJ string, isCPF bool) {
 
 	if r.UserAgent() == "self_test" {
@@ -93,7 +93,7 @@ func (q *MyQuery) SaveQueryHTTP(w http.ResponseWriter, r *http.Request, newCPFor
 
 }
 
-//GetQuerysHTTP show All querys save in system
+//GetQuerysHTTP show All querys save in system INTERFACE HTTP W R
 func (q *MyQuery) GetQuerysHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
@@ -110,21 +110,24 @@ func (q *MyQuery) GetQuerysHTTP(w http.ResponseWriter, r *http.Request) {
 
 }
 
-//GetQuerysByNum return CPF/CNPJ pass number in arg
-func (q *MyQuery) GetQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
+//GetQuerysByTypeHTTP return ALL CPF or CNPJ pass type in arg INTERFACE HTTP W R
+func (q *MyQuery) GetQuerysByTypeHTTP(w http.ResponseWriter, r *http.Request, isCPF bool) {
 
-	if r.UserAgent() == "self_test" {
+	/*if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
 		w.WriteHeader(http.StatusOK)
 		return
-	}
+	}*/
 
-	q.showQuerysByNumMongoDB(w, r, findCPFofCNPJ)
+	code, msg := q.GetQuerysByTypeGeneric(isCPF)
+	w.WriteHeader(code)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, msg)
 
 }
 
-//GetQuerysByType return ALL CPF or CNPJ pass type in arg
-func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF bool) {
+//GetQuerysByNumGeneric return CPF/CNPJ pass number in arg INTERFACE HTTP W R
+func (q *MyQuery) GetQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string) {
 
 	if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
@@ -132,12 +135,15 @@ func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF 
 		return
 	}
 
-	q.showQuerysByTypeMongoDB(w, r, isCPF)
+	code, msg := q.GetQuerysByNumGeneric(findCPForCNPJ)
+	w.WriteHeader(code)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, msg)
 
 }
 
 //DeleteQuerysByNumHTTP Delete Number INTERFACE HTTP W R
-func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
+func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string) {
 
 	if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
@@ -145,7 +151,7 @@ func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	code, msg := q.DeleteQuerysByNumGeneric(findCPFofCNPJ)
+	code, msg := q.DeleteQuerysByNumGeneric(findCPForCNPJ)
 	w.WriteHeader(code)
 	fmt.Fprint(w, msg)
 }
@@ -276,9 +282,15 @@ func (q *MyQuery) SaveQueryGeneric(newCPFofCNPJ string, isCPF bool) (int, string
 	return http.StatusOK, string(json)
 }
 
-//GetQuerysHTTP show All querys save in system
+//GetQuerysGeneric show All querys save in system
 func (q *MyQuery) GetQuerysGeneric() (int, string) {
 
+	msg, err := q.showQueryAllMongoDB()
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError, err.Error()
+	}
+	//log.Println(msg)
 	/*code, msg := q.GetQuerysGeneric()
 	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
@@ -292,18 +304,59 @@ func (q *MyQuery) GetQuerysGeneric() (int, string) {
 		return http.StatusNotFound, err.Error()
 	}*/
 
-	return http.StatusOK, "SUCCESS TO DELETE CPF/CNPJ"
+	return http.StatusOK, msg
+
+}
+
+//GetQuerysByTypeGeneric return ALL CPF or CNPJ pass type in arg
+func (q *MyQuery) GetQuerysByTypeGeneric(isCPF bool) (int, string) {
+
+	msg, err := q.showQuerysByTypeMongoDB(isCPF)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError, err.Error()
+	}
+
+	//q.showQuerysByTypeMongoDB(w, r, isCPF)
+	//log.Println(msg)
+	/*code, msg := q.GetQuerysGeneric()
+	w.WriteHeader(code)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, msg)
+
+	q.showQueryAllMongoDB(w, r)
+
+	err := q.showQueryAllMongoDB(findCPFofCNPJ)
+	if err != nil {
+		log.Println(err)
+		return http.StatusNotFound, err.Error()
+	}*/
+
+	return http.StatusOK, msg
 
 }
 
 //DeleteQuerysByNum Delete Number
-func (q *MyQuery) DeleteQuerysByNumGeneric(findCPFofCNPJ string) (int, string) {
+func (q *MyQuery) DeleteQuerysByNumGeneric(findCPForCNPJ string) (int, string) {
 
-	err := q.deleteQuerysByNumMongoDB(findCPFofCNPJ)
+	err := q.deleteQuerysByNumMongoDB(findCPForCNPJ)
 	if err != nil {
 		log.Println(err)
 		return http.StatusNotFound, err.Error()
 	}
 
 	return http.StatusOK, "SUCCESS TO DELETE CPF/CNPJ"
+}
+
+//GetQuerysByNumGeneric return CPF/CNPJ pass number in arg
+func (q *MyQuery) GetQuerysByNumGeneric(findCPForCNPJ string) (int, string) {
+
+	msg, err := q.showQuerysByNumMongoDB(findCPForCNPJ)
+	if err != nil {
+		log.Println(err)
+		return http.StatusInternalServerError, err.Error()
+	}
+
+	return http.StatusOK, msg
+
 }
