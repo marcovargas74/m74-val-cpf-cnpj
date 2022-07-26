@@ -6,7 +6,7 @@ import (
 	"github.com/magiconair/properties/assert"
 )
 
-func TestGetVersion(t *testing.T) {
+func TestVersion(t *testing.T) {
 
 	tests := []struct {
 		give      string
@@ -20,7 +20,7 @@ func TestGetVersion(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
-			version := GetVersion()
+			version := Version()
 			assert.Equal(t, version[0:4], tt.wantValue)
 		})
 

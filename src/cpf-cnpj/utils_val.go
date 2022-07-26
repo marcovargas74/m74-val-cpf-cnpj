@@ -38,8 +38,8 @@ func FormatToValidate(cpfToFormat string) string {
 	return cpfClean.String()
 }
 
-//GetVerifyingDigits returns check digits
-func GetVerifyingDigits(cpfToCheck string) (uint64, uint64) {
+//VerifyingDigits returns check digits
+func VerifyingDigits(cpfToCheck string) (uint64, uint64) {
 	size := len(cpfToCheck)
 	strD2 := cpfToCheck[size-1:]
 	strD1 := cpfToCheck[size-2 : size-1]

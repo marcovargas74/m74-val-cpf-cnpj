@@ -92,8 +92,8 @@ func (q *MyQuery) SaveQueryGeneric(newCPFofCNPJ string, isCPF bool) (int, string
 	return http.StatusOK, string(json)
 }
 
-//GetQuerysGeneric show All querys save in system
-func (q *MyQuery) GetQuerysGeneric() (int, string) {
+//QuerysGeneric show All querys save in system
+func (q *MyQuery) QuerysGeneric() (int, string) {
 
 	msg, err := q.showQueryAllMongoDB()
 	if err != nil {
@@ -105,8 +105,8 @@ func (q *MyQuery) GetQuerysGeneric() (int, string) {
 
 }
 
-//GetQuerysByTypeGeneric return ALL CPF or CNPJ pass type in arg
-func (q *MyQuery) GetQuerysByTypeGeneric(isCPF bool) (int, string) {
+//QuerysByTypeGeneric return ALL CPF or CNPJ pass type in arg
+func (q *MyQuery) QuerysByTypeGeneric(isCPF bool) (int, string) {
 
 	msg, err := q.showQuerysByTypeMongoDB(isCPF)
 	if err != nil {
@@ -142,8 +142,8 @@ func (q *MyQuery) DeleteQuerysByNumGeneric(findCPForCNPJ string, isCPF bool) (in
 	return http.StatusOK, "SUCCESS TO DELETE CPF/CNPJ"
 }
 
-//GetQuerysByNumGeneric return CPF/CNPJ pass number in arg
-func (q *MyQuery) GetQuerysByNumGeneric(findCPForCNPJ string) (int, string) {
+//QuerysByNumGeneric return CPF/CNPJ pass number in arg
+func (q *MyQuery) QuerysByNumGeneric(findCPForCNPJ string) (int, string) {
 
 	msg, err := q.showQuerysByNumMongoDB(findCPForCNPJ)
 	if err != nil {

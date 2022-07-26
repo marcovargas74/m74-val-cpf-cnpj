@@ -29,13 +29,13 @@ func UpdateStatus() {
 	StatusQuery.NumTotalQuery++
 }
 
-//GetNumQuery return Total Querys Number
-func GetNumQuery() uint64 {
+//NumQuery return Total Querys Number
+func NumQuery() uint64 {
 	return StatusQuery.NumTotalQuery
 }
 
-//GetUptimeQuery return Querys Uptimer
-func GetUptimeQuery() float64 {
+//UptimeQuery return Querys Uptimer
+func UptimeQuery() float64 {
 	timeElapse := time.Since(StatusQuery.StartTime)
 
 	if timeElapse.Seconds() < 60 {
@@ -49,7 +49,7 @@ func GetUptimeQuery() float64 {
 //ShowStatus Show Api Status Qtd Querys and UpTime in segunds
 func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
-	StatusQuery.UpTime = GetUptimeQuery()
+	StatusQuery.UpTime = UptimeQuery()
 	json, err := StatusQuery.MarshalJSON()
 	if err != nil {
 		log.Println(err)

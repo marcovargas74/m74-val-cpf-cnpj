@@ -4,7 +4,7 @@ const (
 	versionPackage = "2022-07-10"
 )
 
-//GetVersion Get the number version of packet
-func GetVersion() string {
+//Version Get the number version of packet
+func Version() string {
 	return versionPackage
 }

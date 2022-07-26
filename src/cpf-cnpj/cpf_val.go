@@ -45,7 +45,7 @@ func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 func isValidCPFOnlyValid(cpfToCheck string) bool {
 
-	validDigit1, validDigit2 := GetVerifyingDigits(cpfToCheck)
+	validDigit1, validDigit2 := VerifyingDigits(cpfToCheck)
 
 	sumDig1 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig1CPF)
 	sumDig2 := MultiplyNumDigCPF(cpfToCheck, SizeToValidDig2CPF)

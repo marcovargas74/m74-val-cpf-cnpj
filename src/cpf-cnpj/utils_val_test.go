@@ -255,7 +255,7 @@ func TestGetVerifyingDigits(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			Dig1, Dig2 := GetVerifyingDigits(tt.cpfToCheck)
+			Dig1, Dig2 := VerifyingDigits(tt.cpfToCheck)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
 		})
@@ -264,7 +264,7 @@ func TestGetVerifyingDigits(t *testing.T) {
 
 }
 
-func TestGetVerifyingDigitsCNPJ(t *testing.T) {
+func TestVerifyingDigitsCNPJ(t *testing.T) {
 
 	tests := []struct {
 		give        string
@@ -308,7 +308,7 @@ func TestGetVerifyingDigitsCNPJ(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			Dig1, Dig2 := GetVerifyingDigits(tt.cnpjToCheck)
+			Dig1, Dig2 := VerifyingDigits(tt.cnpjToCheck)
 			CheckIfEqualInt(t, Dig1, tt.wantValue1)
 			CheckIfEqualInt(t, Dig2, tt.wantValue2)
 		})

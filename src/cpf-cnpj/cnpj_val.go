@@ -65,7 +65,7 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 func isValidCNPJOnlyValid(cpfToCheck string) bool {
 
-	validDigit1, validDigit2 := GetVerifyingDigits(cpfToCheck)
+	validDigit1, validDigit2 := VerifyingDigits(cpfToCheck)
 	print(validDigit1, validDigit2)
 
 	sumDig1 := MultiplyNumDigCNPJ(cpfToCheck, SizeToValidDig1CNPJ)

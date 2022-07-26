@@ -22,8 +22,8 @@ var IsUsingMongoDocker bool
 var collectionQuery *mongo.Collection
 var ctx = context.TODO()
 
-//GetIsUsingMongoDocker Get If Using MongoDB in  a Docker image
-func GetIsUsingMongoDocker() bool {
+//CheckIsUsingMongoDocker Get If Using MongoDB in  a Docker image
+func CheckIsUsingMongoDocker() bool {
 	return IsUsingMongoDocker
 }
 

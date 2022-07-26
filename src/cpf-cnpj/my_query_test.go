@@ -79,7 +79,7 @@ func TestSetUsingMongoDocker(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.give, func(t *testing.T) {
 			SetUsingMongoDocker(tt.setFlag)
-			result := GetIsUsingMongoDocker()
+			result := CheckIsUsingMongoDocker()
 			CheckIfEqualBool(t, result, tt.wantValue)
 		})
 

@@ -21,7 +21,7 @@ func TestCreateStatus(t *testing.T) {
 	for _, tt := range tests {
 
 		t.Run(tt.give, func(t *testing.T) {
-			CheckIfEqualInt(t, GetNumQuery(), tt.wantTotalQueryValue)
+			CheckIfEqualInt(t, NumQuery(), tt.wantTotalQueryValue)
 		})
 
 	}
@@ -57,7 +57,7 @@ func TestUpdateStatus(t *testing.T) {
 
 		t.Run(tt.give, func(t *testing.T) {
 			UpdateStatus()
-			CheckIfEqualInt(t, GetNumQuery(), tt.wantTotalQueryValue)
+			CheckIfEqualInt(t, NumQuery(), tt.wantTotalQueryValue)
 		})
 
 	}
@@ -68,6 +68,6 @@ func TestUpTimeStatus(t *testing.T) {
 
 	CreateStatus()
 	time.Sleep(3 * time.Second)
-	lastTime := GetUptimeQuery()
+	lastTime := UptimeQuery()
 	CheckIfUptimeIsOK(t, lastTime, 3)
 }

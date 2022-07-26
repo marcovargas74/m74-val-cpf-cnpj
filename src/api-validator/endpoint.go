@@ -33,7 +33,7 @@ func (s *ServerValidator) CallbackQuerysAll(w http.ResponseWriter, r *http.Reque
 
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPF AND CNPJs \n", r.Method)
-	aQueryJSON.GetQuerysHTTP(w, r)
+	aQueryJSON.QuerysHTTP(w, r)
 	cpfcnpj.UpdateStatus()
 
 }
@@ -44,7 +44,7 @@ func (s *ServerValidator) CallbackQuerysCPFAll(w http.ResponseWriter, r *http.Re
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CPFs \n", r.Method)
 
-	aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
+	aQueryJSON.QuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
 	cpfcnpj.UpdateStatus()
 
 }
@@ -58,7 +58,7 @@ func (s *ServerValidator) CallbackQuerysByNum(w http.ResponseWriter, r *http.Req
 
 	cpfcnpj.CreateDB()
 
-	aQueryJSON.GetQuerysByNumHTTP(w, r, aCPFNum["cpf_or_cnpj_num"])
+	aQueryJSON.QuerysByNumHTTP(w, r, aCPFNum["cpf_or_cnpj_num"])
 	cpfcnpj.UpdateStatus()
 
 }
@@ -82,7 +82,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 	case http.MethodGet:
 		cpfcnpj.UpdateStatus()
 		if len(aCPFNum) == 0 {
-			aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
+			aQueryJSON.QuerysByTypeHTTP(w, r, cpfcnpj.IsCPF)
 			return
 		}
 
@@ -101,7 +101,7 @@ func (s *ServerValidator) CallbackQuerysCNPJAll(w http.ResponseWriter, r *http.R
 	var aQueryJSON cpfcnpj.MyQuery
 	log.Printf("METHOD[%s] SHOW ALL CNPJs \n", r.Method)
 
-	aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
+	aQueryJSON.QuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
 	cpfcnpj.UpdateStatus()
 
 }
@@ -124,7 +124,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 	case http.MethodGet:
 		cpfcnpj.UpdateStatus()
 		if len(aCNPJ) == 0 {
-			aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
+			aQueryJSON.QuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
 			return
 		}
 		aQueryJSON.SaveQueryHTTP(w, r, argCNPJ, cpfcnpj.IsCNPJ)

@@ -10,12 +10,12 @@ import (
 
 func init() {
 	myquery.CreateStatus()
-	myquery.SetUsingMongoDocker(myquery.SetDockerRun)
+	myquery.SetUsingMongoDocker(myquery.SetLocalRun) //myquery.SetDockerRun
 	myquery.CreateDB()
 }
 
 func main() {
-	log.Printf("======== API VALIDATOR Version %s \n", validator.GetVersion())
+	log.Printf("======== API VALIDATOR Version %s \n", validator.Version())
 	validator.StartAPI("dev")
 
 }
