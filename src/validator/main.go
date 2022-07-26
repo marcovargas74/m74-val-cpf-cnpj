@@ -10,7 +10,7 @@ import (
 
 func init() {
 	myquery.CreateStatus()
-	myquery.SetUsingMongoDocker(myquery.SetLocalRun) //myquery.SetDockerRun
+	myquery.SetUsingMongoDocker(myquery.SetDockerRun)
 	myquery.CreateDB()
 }
 
