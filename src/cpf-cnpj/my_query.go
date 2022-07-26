@@ -119,7 +119,19 @@ func (q *MyQuery) GetQuerysByTypeGeneric(isCPF bool) (int, string) {
 }
 
 //DeleteQuerysByNum Delete Number
-func (q *MyQuery) DeleteQuerysByNumGeneric(findCPForCNPJ string) (int, string) {
+func (q *MyQuery) DeleteQuerysByNumGeneric(findCPForCNPJ string, isCPF bool) (int, string) {
+
+	var code int
+	var msg string
+	if isCPF {
+		code, msg = q.ValidCPFQueryGeneric(findCPForCNPJ)
+	} else {
+		code, msg = q.ValidCNPJQueryGeneric(findCPForCNPJ)
+	}
+
+	if code != http.StatusOK {
+		return code, msg
+	}
 
 	err := q.deleteQuerysByNumMongoDB(findCPForCNPJ)
 	if err != nil {

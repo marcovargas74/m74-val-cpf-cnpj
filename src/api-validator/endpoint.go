@@ -86,24 +86,10 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
-			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Invalid CPF\n")
-			return
-		}
-
 		aQueryJSON.SaveQueryHTTP(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 
 	case http.MethodDelete:
-		if !cpfcnpj.IsValidCPF(aCPFNum["cpf_num"]) {
-			log.Printf("Something gone wrong: Invalid CPF:%s\n", aCPFNum["cpf_num"])
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Invalid CPF\n")
-			return
-		}
-
-		aQueryJSON.DeleteQuerysByNumHTTP(w, r, aCPFNum["cpf_num"])
+		aQueryJSON.DeleteQuerysByNumHTTP(w, r, aCPFNum["cpf_num"], cpfcnpj.IsCPF)
 
 	}
 
@@ -141,25 +127,10 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			aQueryJSON.GetQuerysByTypeHTTP(w, r, cpfcnpj.IsCNPJ)
 			return
 		}
-
-		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
-			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", argCNPJ)
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Invalid CNPJ\n")
-			return
-		}
-
 		aQueryJSON.SaveQueryHTTP(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	case http.MethodDelete:
-		if !cpfcnpj.IsValidCNPJ(argCNPJ) {
-			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", argCNPJ)
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Invalid CNPJ\n")
-			return
-		}
-
-		aQueryJSON.DeleteQuerysByNumHTTP(w, r, argCNPJ)
+		aQueryJSON.DeleteQuerysByNumHTTP(w, r, argCNPJ, cpfcnpj.IsCNPJ)
 
 	}
 
