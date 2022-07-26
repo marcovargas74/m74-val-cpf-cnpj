@@ -35,19 +35,19 @@ func TestUpdateStatus(t *testing.T) {
 		wantTotalQueryValue uint64
 	}{
 		{
-			give:                "Testa Se Incrementou o numero de consultas_1",
+			give:                "Testa Se Incrementou o numero de consultas 1",
 			wantTotalQueryValue: 1,
 		},
 		{
-			give:                "Testa Se Incrementou o numero de consultas_2",
+			give:                "Testa Se Incrementou o numero de consultas 2",
 			wantTotalQueryValue: 2,
 		},
 		{
-			give:                "Testa Se Incrementou o numero de consultas_3",
+			give:                "Testa Se Incrementou o numero de consultas 3",
 			wantTotalQueryValue: 3,
 		},
 		{
-			give:                "Testa Se Incrementou o numero de consultas_4",
+			give:                "Testa Se Incrementou o numero de consultas 4",
 			wantTotalQueryValue: 4,
 		},
 	}

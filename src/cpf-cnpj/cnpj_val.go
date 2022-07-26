@@ -29,10 +29,10 @@ func isValidFormatCNPJ(cnpjToCheck string) bool {
 func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
 	multiplicationResult := 0
-	str_to_sum := cpfToCheckOnlyNumber[:numIndexFinal]
+	strToSum := cpfToCheckOnlyNumber[:numIndexFinal]
 	digitMultiplier := numIndexFinal + 1
 
-	for _, nextDigit := range str_to_sum {
+	for _, nextDigit := range strToSum {
 		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}
@@ -43,11 +43,11 @@ func MultiplyNumDigCNPJ(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 		indexLastDigitToCheck++
 	}
 
-	str_cnpj_without_verifyDigit := cpfToCheckOnlyNumber[:indexLastDigitToCheck]
+	strCnpjWithoutVerifyDigit := cpfToCheckOnlyNumber[:indexLastDigitToCheck]
 	digitMultiplier = SizeToValidDigDefaultCNPJ
 
-	str_to_sum = str_cnpj_without_verifyDigit[numIndexFinal:indexLastDigitToCheck]
-	for _, nextDigit := range str_to_sum {
+	strToSum = strCnpjWithoutVerifyDigit[numIndexFinal:indexLastDigitToCheck]
+	for _, nextDigit := range strToSum {
 		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}

@@ -25,11 +25,11 @@ func isValidFormatCPF(cpfToCheck string) bool {
 //Multiplica os digitos do cpf por 10 ou 11 *O numero não pode ter caracter especial
 func MultiplyNumDigCPF(cpfToCheckOnlyNumber string, numIndexFinal int) uint64 {
 
-	str_to_sum1 := cpfToCheckOnlyNumber[:numIndexFinal]
+	strToSum := cpfToCheckOnlyNumber[:numIndexFinal]
 	digitMultiplier := (numIndexFinal + 1)
 
 	multiplicationResult := 0
-	for _, nextDigit := range str_to_sum1 {
+	for _, nextDigit := range strToSum {
 		multiplicationResult += RuneToInt(nextDigit) * digitMultiplier
 		digitMultiplier--
 	}

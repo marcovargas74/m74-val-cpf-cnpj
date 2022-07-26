@@ -41,22 +41,22 @@ func FormatToValidate(cpfToFormat string) string {
 //GetVerifyingDigits returns check digits
 func GetVerifyingDigits(cpfToCheck string) (uint64, uint64) {
 	size := len(cpfToCheck)
-	str_d2 := cpfToCheck[size-1:]
-	str_d1 := cpfToCheck[size-2 : size-1]
+	strD2 := cpfToCheck[size-1:]
+	strD1 := cpfToCheck[size-2 : size-1]
 
-	int_dig1, err := strconv.Atoi(str_d1)
+	intDig1, err := strconv.Atoi(strD1)
 	if err != nil {
 		log.Print(err)
 		return 0, 0
 	}
 
-	int_dig2, err := strconv.Atoi(str_d2)
+	intDig2, err := strconv.Atoi(strD2)
 	if err != nil {
 		log.Print(err)
 		return 0, 0
 	}
 
-	return uint64(int_dig1), uint64(int_dig2)
+	return uint64(intDig1), uint64(intDig2)
 }
 
 //ValidateVerifierDigit compare the sum of digits with the check digit
