@@ -199,7 +199,7 @@ func TestCallbackCpfsGET(t *testing.T) {
 		},
 		{
 			give:      "cpfs Endpoint test with NOBODY",
-			wantValue: 406,
+			wantValue: 400,
 			inData:    "Nobody",
 		},
 		{
