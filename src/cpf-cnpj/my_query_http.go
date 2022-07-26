@@ -8,13 +8,6 @@ import (
 
 //SaveQueryHTTP main fuction to save a new query in system INTERFACE HTTP W R
 func (q *MyQuery) SaveQueryHTTP(w http.ResponseWriter, r *http.Request, newCPForCNPJ string, isCPF bool) {
-
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
 	code, msg := q.SaveQueryGeneric(newCPForCNPJ, isCPF)
 	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
@@ -56,7 +49,7 @@ func (q *MyQuery) GetQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, fin
 }
 
 //DeleteQuerysByNumHTTP Delete Number INTERFACE HTTP W R
-func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string) {
+func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string, isCPF bool) {
 
 	if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
@@ -64,7 +57,7 @@ func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, 
 		return
 	}
 
-	code, msg := q.DeleteQuerysByNumGeneric(findCPForCNPJ)
+	code, msg := q.DeleteQuerysByNumGeneric(findCPForCNPJ, isCPF)
 	w.WriteHeader(code)
 	fmt.Fprint(w, msg)
 }
