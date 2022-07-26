@@ -1,7 +1,6 @@
 package cpfcnpj
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -17,158 +16,6 @@ type MyQuery struct {
 	IsCNPJ    bool      `json:"is_cnpj" bson:"is_cnpj"`
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 }
-
-//SaveQueryHTTP main fuction to save a new query in system INTERFACE HTTP W R
-func (q *MyQuery) SaveQueryHTTP(w http.ResponseWriter, r *http.Request, newCPForCNPJ string, isCPF bool) {
-
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	code, msg := q.SaveQueryGeneric(newCPForCNPJ, isCPF)
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-	/*q.Number = newCPForCNPJ
-
-	q.IsCNPJ = false
-	q.IsCPF = false
-	if isCPF {
-		q.IsCPF = true
-		if !IsValidCPF(q.Number) {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(w, "Something gone wrong: Invalid CPF\n")
-			log.Printf("Something gone wrong: Invalid CPF:%s\n", q.Number)
-			q.IsValid = false
-			return
-		}
-	} else {
-		q.IsCNPJ = true
-		if !IsValidCNPJ(q.Number) {
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Something gone wrong: Invalid CNPJ")
-			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", q.Number)
-			q.IsValid = false
-			return
-		}
-	}
-
-	q.IsValid = true
-	q.ID = NewUUID()
-	q.CreatedAt = time.Now()
-	fmt.Printf("UUIDv4: %s\n", q.ID)
-
-	if !IsValidUUID(q.ID) {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
-		log.Printf("Something gone wrong: Invalid ID:%s\n", q.ID)
-		return
-	}
-
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] number[%s] \n", r.UserAgent(), q.Number)
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	result := q.saveQueryInMongoDB()
-	if result != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		message := fmt.Sprintf("Can not save cpf/cnpj %v ", q.Number)
-		fmt.Fprint(w, message)
-		return
-	}
-
-	/*json, err := q.MarshalJSON()
-	if err != nil {
-		log.Println(err)
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))*/
-
-}
-
-//GetQuerysHTTP show All querys save in system INTERFACE HTTP W R
-func (q *MyQuery) GetQuerysHTTP(w http.ResponseWriter, r *http.Request) {
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	code, msg := q.GetQuerysGeneric()
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-	//q.showQueryAllMongoDB(w, r)
-
-}
-
-//GetQuerysByTypeHTTP return ALL CPF or CNPJ pass type in arg INTERFACE HTTP W R
-func (q *MyQuery) GetQuerysByTypeHTTP(w http.ResponseWriter, r *http.Request, isCPF bool) {
-
-	/*if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}*/
-
-	code, msg := q.GetQuerysByTypeGeneric(isCPF)
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-}
-
-//GetQuerysByNumGeneric return CPF/CNPJ pass number in arg INTERFACE HTTP W R
-func (q *MyQuery) GetQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string) {
-
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	code, msg := q.GetQuerysByNumGeneric(findCPForCNPJ)
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-}
-
-//DeleteQuerysByNumHTTP Delete Number INTERFACE HTTP W R
-func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPForCNPJ string) {
-
-	if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
-		w.WriteHeader(http.StatusOK)
-		return
-	}
-
-	code, msg := q.DeleteQuerysByNumGeneric(findCPForCNPJ)
-	w.WriteHeader(code)
-	fmt.Fprint(w, msg)
-}
-
-//MarshalJSON format the date
-func (q *MyQuery) MarshalJSON() ([]byte, error) {
-	type Alias MyQuery
-	return json.Marshal(&struct {
-		*Alias
-		CreatedAt string `json:"created_at"`
-	}{
-		Alias:     (*Alias)(q),
-		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
-	})
-}
-
-/*NWEEEEW*/
 
 //ValidCPFQueryGeneric Valid CPF
 func (q *MyQuery) ValidCPFQueryGeneric(newCPF string) (int, string) {
@@ -209,7 +56,6 @@ func (q *MyQuery) ValidCNPJQueryGeneric(newCNPJ string) (int, string) {
 //SaveQueryGeneric main fuction to save a new query in system
 func (q *MyQuery) SaveQueryGeneric(newCPFofCNPJ string, isCPF bool) (int, string) {
 
-	//q.Number = newCPFofCNPJ
 	var code int
 	var msg string
 	if isCPF {
@@ -222,47 +68,14 @@ func (q *MyQuery) SaveQueryGeneric(newCPFofCNPJ string, isCPF bool) (int, string
 		return code, msg
 	}
 
-	/*q.IsCNPJ = false
-	q.IsCPF = false
-	if isCPF {
-		q.IsCPF = true
-		if !IsValidCPF(q.Number) {
-			w.WriteHeader(http.StatusBadRequest)
-			fmt.Fprint(w, "Something gone wrong: Invalid CPF\n")
-			log.Printf("Something gone wrong: Invalid CPF:%s\n", q.Number)
-			q.IsValid = false
-			return
-		}
-	} else {
-		q.IsCNPJ = true
-		if !IsValidCNPJ(q.Number) {
-			w.WriteHeader(http.StatusNotAcceptable)
-			fmt.Fprint(w, "Something gone wrong: Invalid CNPJ")
-			log.Printf("Something gone wrong: Invalid CNPJ:%s\n", q.Number)
-			q.IsValid = false
-			return
-		}
-	}
-
-	q.IsValid = true*/
 	q.ID = NewUUID()
 	q.CreatedAt = time.Now()
-	//fmt.Printf("UUIDv4: %s\n", q.ID)
 
 	if !IsValidUUID(q.ID) {
-		//w.WriteHeader(http.StatusBadRequest)
-		//fmt.Fprint(w, "Something gone wrong: Invalid ID\n")
 		message := fmt.Sprintf("Something gone wrong: Invalid ID:%s\n", q.ID)
 		log.Println(message)
 		return http.StatusBadRequest, message
 	}
-
-	/*if r.UserAgent() == "self_test" {
-		log.Printf("Its Only a TEST [%s] number[%s] \n", r.UserAgent(), q.Number)
-		message := fmt.Sprintf("Its Only a TEST [%s] number[%s] ", q.Number)
-		//w.WriteHeader(http.StatusOK)
-		return http.StatusOK
-	}*/
 
 	result := q.saveQueryInMongoDB()
 	if result != nil {
@@ -276,9 +89,6 @@ func (q *MyQuery) SaveQueryGeneric(newCPFofCNPJ string, isCPF bool) (int, string
 		log.Println(err)
 	}
 
-	/*w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))*/
 	return http.StatusOK, string(json)
 }
 
@@ -290,19 +100,6 @@ func (q *MyQuery) GetQuerysGeneric() (int, string) {
 		log.Println(err)
 		return http.StatusInternalServerError, err.Error()
 	}
-	//log.Println(msg)
-	/*code, msg := q.GetQuerysGeneric()
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-	q.showQueryAllMongoDB(w, r)
-
-	err := q.showQueryAllMongoDB(findCPFofCNPJ)
-	if err != nil {
-		log.Println(err)
-		return http.StatusNotFound, err.Error()
-	}*/
 
 	return http.StatusOK, msg
 
@@ -316,21 +113,6 @@ func (q *MyQuery) GetQuerysByTypeGeneric(isCPF bool) (int, string) {
 		log.Println(err)
 		return http.StatusInternalServerError, err.Error()
 	}
-
-	//q.showQuerysByTypeMongoDB(w, r, isCPF)
-	//log.Println(msg)
-	/*code, msg := q.GetQuerysGeneric()
-	w.WriteHeader(code)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, msg)
-
-	q.showQueryAllMongoDB(w, r)
-
-	err := q.showQueryAllMongoDB(findCPFofCNPJ)
-	if err != nil {
-		log.Println(err)
-		return http.StatusNotFound, err.Error()
-	}*/
 
 	return http.StatusOK, msg
 
