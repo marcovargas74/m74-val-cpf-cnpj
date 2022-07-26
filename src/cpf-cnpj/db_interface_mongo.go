@@ -74,9 +74,6 @@ func (q *MyQuery) showQueryAllMongoDB() (string, error) {
 
 	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
-		//log.Println(err)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//fmt.Fprint(w, "Fail to access Mongo DB")
 		return err.Error(), err
 	}
 	defer cursor.Close(ctx)
@@ -92,8 +89,6 @@ func (q *MyQuery) showQueryAllMongoDB() (string, error) {
 	}
 
 	if len(queryList) == 0 {
-		//w.WriteHeader(http.StatusNotFound)
-		//fmt.Fprint(w, "DB is Empty")
 		errEmpty := errors.New("MONGODB: is Empty")
 		return errEmpty.Error(), errEmpty
 	}
@@ -104,10 +99,6 @@ func (q *MyQuery) showQueryAllMongoDB() (string, error) {
 	}
 
 	return string(json), nil
-
-	//w.WriteHeader(http.StatusOK)
-	//w.Header().Set("Content-Type", "application/json")
-	//fmt.Fprint(w, string(json))
 }
 
 func (q *MyQuery) showQuerysByTypeMongoDB(isCPF bool) (string, error) {
@@ -116,9 +107,6 @@ func (q *MyQuery) showQuerysByTypeMongoDB(isCPF bool) (string, error) {
 
 	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
-		//log.Println(err)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//fmt.Fprint(w, "Fail to access Mongo DB")
 		return err.Error(), err
 	}
 	defer cursor.Close(ctx)
@@ -134,22 +122,9 @@ func (q *MyQuery) showQuerysByTypeMongoDB(isCPF bool) (string, error) {
 	}
 
 	if len(queryList) == 0 {
-		//w.WriteHeader(http.StatusNotFound)
-		//fmt.Fprint(w, "Not Found elements to this Type ")
 		errEmpty := errors.New("MONGODB: Not Found elements to this Type")
 		return errEmpty.Error(), errEmpty
 	}
-
-	/*json, err := json.Marshal(queryList)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}*/
-
-	//w.WriteHeader(http.StatusOK)
-	//w.Header().Set("Content-Type", "application/json")
-	//fmt.Fprint(w, string(json))
 
 	json, err := json.Marshal(queryList)
 	if err != nil {
@@ -159,8 +134,6 @@ func (q *MyQuery) showQuerysByTypeMongoDB(isCPF bool) (string, error) {
 	return string(json), nil
 
 }
-
-/*INCLIR AQUI NOVAS FUNCOES */
 
 func (q *MyQuery) deleteQuerysByNumMongoDB(findNum string) error {
 
@@ -178,18 +151,12 @@ func (q *MyQuery) deleteQuerysByNumMongoDB(findNum string) error {
 	return nil
 }
 
-/*TRASH CODE APAGA DEPOIS */
-
 func (q *MyQuery) showQuerysByNumMongoDB(findNum string) (string, error) {
 
 	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
 
 	cursor, err := collectionQuery.Find(ctx, filter)
 	if err != nil {
-		//log.Println(err)
-		//w.WriteHeader(http.StatusInternalServerError)
-		//fmt.Fprint(w, "Fail to access Mongo DB")
-		//return
 		return err.Error(), err
 	}
 	defer cursor.Close(ctx)
@@ -205,22 +172,10 @@ func (q *MyQuery) showQuerysByNumMongoDB(findNum string) (string, error) {
 	}
 
 	if len(queryList) == 0 {
-		//w.WriteHeader(http.StatusNotFound)
-		//fmt.Fprint(w, "Not Found Any elements")
 		errEmpty := fmt.Errorf("num %q Not Found", findNum)
 		return errEmpty.Error(), errEmpty
 	}
 
-	/*json, err := json.Marshal(queryList)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))*/
 	json, err := json.Marshal(queryList)
 	if err != nil {
 		return err.Error(), err
@@ -228,110 +183,3 @@ func (q *MyQuery) showQuerysByNumMongoDB(findNum string) (string, error) {
 
 	return string(json), nil
 }
-
-/*
-func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
-
-	//filter := bson.M{"cpf": bson.M{"$eq": findNum}}
-
-	err := a.deleteQuerysByNumMongoDB_OK(findNum)
-	//result, err := collectionQuery.DeleteOne(ctx, filter)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, err)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
-
-}
-
-func (a *MyQuery) showQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
-
-	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
-
-	cursor, err := collectionQuery.Find(ctx, filter)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Fail to access Mongo DB")
-		return
-	}
-	defer cursor.Close(ctx)
-
-	var queryList []MyQuery
-	for cursor.Next(ctx) {
-		var aQuery MyQuery
-		err := cursor.Decode(&aQuery)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		queryList = append(queryList, aQuery)
-	}
-
-	if len(queryList) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Not Found Any elements")
-		return
-	}
-
-	json, err := json.Marshal(queryList)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-}
-
-func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request, isCPF bool) {
-
-	filter := bson.M{"is_cpf": bson.M{"$eq": isCPF}}
-
-	cursor, err := collectionQuery.Find(ctx, filter)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Fail to access Mongo DB")
-		return
-	}
-	defer cursor.Close(ctx)
-
-	var queryList []MyQuery
-	for cursor.Next(ctx) {
-		var aQuery MyQuery
-		err := cursor.Decode(&aQuery)
-		if err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		queryList = append(queryList, aQuery)
-	}
-
-	if len(queryList) == 0 {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Not Found elements to this Type ")
-		return
-	}
-
-	json, err := json.Marshal(queryList)
-	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprint(w, string(json))
-}
-
-*/
