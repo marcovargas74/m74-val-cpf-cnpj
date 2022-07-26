@@ -89,7 +89,7 @@ func (s *ServerValidator) CallbackQuerysCPF(w http.ResponseWriter, r *http.Reque
 			return
 		}
 
-		aQueryJSON.DeleteQuerysByNum(w, r, aCPFNum["cpf_num"])
+		aQueryJSON.DeleteQuerysByNumHTTP(w, r, aCPFNum["cpf_num"])
 
 	}
 
@@ -145,7 +145,7 @@ func (s *ServerValidator) CallbackQuerysCNPJ(w http.ResponseWriter, r *http.Requ
 			return
 		}
 
-		aQueryJSON.DeleteQuerysByNum(w, r, argCNPJ)
+		aQueryJSON.DeleteQuerysByNumHTTP(w, r, argCNPJ)
 
 	}
 

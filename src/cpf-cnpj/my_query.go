@@ -18,24 +18,6 @@ type MyQuery struct {
 	CreatedAt time.Time `json:"created_at" bson:"created_at"`
 }
 
-const (
-	SetDockerRun = true
-	SetLocalRun  = false
-)
-
-//IsUsingMongoDocker If Using MongoDB in  a Docker image this var is True
-var IsUsingMongoDocker bool
-
-//GetIsUsingMongoDocker Get If Using MongoDB in  a Docker image
-func GetIsUsingMongoDocker() bool {
-	return IsUsingMongoDocker
-}
-
-//SetUsingMongoDocker set If Using MongoDB in  a Docker image
-func SetUsingMongoDocker(isMongoDocker bool) {
-	IsUsingMongoDocker = isMongoDocker
-}
-
 //SaveQuery main fuction to save a new query in system
 func (q *MyQuery) SaveQuery(w http.ResponseWriter, r *http.Request, newCPFofCNPJ string, isCPF bool) {
 
@@ -139,8 +121,8 @@ func (q *MyQuery) GetQuerysByType(w http.ResponseWriter, r *http.Request, isCPF 
 
 }
 
-//DeleteQuerysByNum Delete Number
-func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
+//DeleteQuerysByNumHTTP Delete Number INTERFACE HTTP W R
+func (q *MyQuery) DeleteQuerysByNumHTTP(w http.ResponseWriter, r *http.Request, findCPFofCNPJ string) {
 
 	if r.UserAgent() == "self_test" {
 		log.Printf("Its Only a TEST [%s] \n", r.UserAgent())
@@ -148,7 +130,9 @@ func (q *MyQuery) DeleteQuerysByNum(w http.ResponseWriter, r *http.Request, find
 		return
 	}
 
-	q.deleteQuerysByNumMongoDB(w, r, findCPFofCNPJ)
+	code, msg := q.DeleteQuerysByNumGeneric(findCPFofCNPJ)
+	w.WriteHeader(code)
+	fmt.Fprint(w, msg)
 }
 
 //MarshalJSON format the date
@@ -161,4 +145,18 @@ func (q *MyQuery) MarshalJSON() ([]byte, error) {
 		Alias:     (*Alias)(q),
 		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
 	})
+}
+
+/*NWEEEEW*/
+
+//DeleteQuerysByNum Delete Number
+func (q *MyQuery) DeleteQuerysByNumGeneric(findCPFofCNPJ string) (int, string) {
+
+	err := q.deleteQuerysByNumMongoDB(findCPFofCNPJ)
+	if err != nil {
+		log.Println(err)
+		return http.StatusNotFound, err.Error()
+	}
+
+	return http.StatusOK, "SUCCESS TO DELETE CPF/CNPJ"
 }

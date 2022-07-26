@@ -16,10 +16,25 @@ const (
 	//DBMongo_Local Const used to Open Local db
 	DBMongo_Local  = "mongodb://localhost:27017"
 	DBMongo_Docker = "mongodb://root:example@mongo:27017/"
+	SetDockerRun   = true
+	SetLocalRun    = false
 )
+
+//IsUsingMongoDocker If Using MongoDB in  a Docker image this var is True
+var IsUsingMongoDocker bool
 
 var collectionQuery *mongo.Collection
 var ctx = context.TODO()
+
+//GetIsUsingMongoDocker Get If Using MongoDB in  a Docker image
+func GetIsUsingMongoDocker() bool {
+	return IsUsingMongoDocker
+}
+
+//SetUsingMongoDocker set If Using MongoDB in  a Docker image
+func SetUsingMongoDocker(isMongoDocker bool) {
+	IsUsingMongoDocker = isMongoDocker
+}
 
 //InitDBMongo Initi MOngo Database
 func InitDBMongo(isDockerRun bool) bool {
@@ -186,25 +201,41 @@ func (a *MyQuery) showQuerysByTypeMongoDB(w http.ResponseWriter, r *http.Request
 	fmt.Fprint(w, string(json))
 }
 
-func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
+/*INCLIR AQUI NOVAS FUNCOES */
+
+func (q *MyQuery) deleteQuerysByNumMongoDB(findNum string) error {
 
 	filter := bson.M{"cpf": bson.M{"$eq": findNum}}
 
 	result, err := collectionQuery.DeleteOne(ctx, filter)
 	if err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Fprint(w, "Fail to access DB")
-		return
+		return err
 	}
 
 	if result.DeletedCount == 0 {
+		return fmt.Errorf("nun %q Not Found", findNum)
+	}
+
+	return nil
+}
+
+/*TRASH CODE APAGA DEPOIS */
+
+/*
+func (a *MyQuery) deleteQuerysByNumMongoDB(w http.ResponseWriter, r *http.Request, findNum string) {
+
+	//filter := bson.M{"cpf": bson.M{"$eq": findNum}}
+
+	err := a.deleteQuerysByNumMongoDB_OK(findNum)
+	//result, err := collectionQuery.DeleteOne(ctx, filter)
+	if err != nil {
+		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprint(w, "Not Found elements to this Type - Delete")
+		fmt.Fprint(w, err)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprint(w, "SUCCESS TO DELETE CPF/CNPJ")
 
-}
+}*/
