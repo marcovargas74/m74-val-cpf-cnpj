@@ -2,6 +2,7 @@ package cpfcnpj
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"strconv"
 	"unicode"
@@ -88,4 +89,16 @@ func AllDigitsIsEqual(cpfToCheck string) bool {
 //CreateDB Create dataBase
 func CreateDB() {
 	InitDBMongo(IsUsingMongoDocker)
+}
+
+//MarshalJSON format the date
+func (q *MyQuery) MarshalJSON() ([]byte, error) {
+	type Alias MyQuery
+	return json.Marshal(&struct {
+		*Alias
+		CreatedAt string `json:"created_at"`
+	}{
+		Alias:     (*Alias)(q),
+		CreatedAt: q.CreatedAt.Format("02-Jan-06 15:04:05"),
+	})
 }
