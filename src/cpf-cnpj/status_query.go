@@ -46,7 +46,7 @@ func UptimeQuery() float64 {
 	return (timeElapse.Minutes())
 }
 
-//ShowStatus Show Api Status Qtd Querys and UpTime in segunds
+//ShowStatus Show API Status Qtd Querys and UpTime in segunds
 func ShowStatus(w http.ResponseWriter, r *http.Request) {
 
 	StatusQuery.UpTime = UptimeQuery()
